@@ -110,7 +110,7 @@ a{color:var(--accent)}
 .seg button{flex:1;padding:10px 6px;border-radius:12px;background:var(--surface);border:1px solid var(--line);font-weight:700;font-size:13.5px}
 .seg button[aria-selected="true"]{background:var(--text);color:#111;border-color:transparent}
 .seg small{opacity:.65;font-weight:600}
-.lfilters{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 16px 8px}
+.lfilters{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:0 16px 8px}
 .lfilters select,.lsearch{width:100%;padding:9px 10px;border-radius:11px;background:var(--surface);border:1px solid var(--line);font-size:14px;appearance:none;-webkit-appearance:none}
 .lsearch-wrap{padding:0 16px 8px;display:flex;gap:8px}
 .lsearch{font-size:16px}
@@ -218,6 +218,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
       <select id="lType" aria-label="İçerik türü"><option value="all">Film + Dizi</option><option value="movie">Film</option><option value="tv">Dizi</option></select>
       <select id="lGenre" aria-label="Tür"></select>
       <select id="lPeriod" aria-label="Dönem"></select>
+      <select id="lSort" aria-label="Sıralama"><option value="added">Son eklenen</option><option value="imdb">IMDb puanı</option><option value="rt">Rotten Tomatoes</option><option value="tmdb">TMDB puanı</option></select>
     </div>
     <div class="ltools">
       <button class="btn" id="btnExport">⬇︎ Dışa aktar (JSON)</button>
@@ -334,6 +335,7 @@ const PERIODS = [
 const SORTS = [
   {id:'random', label:'Rastgele'}, {id:'popular', label:'Popüler'},
   {id:'top', label:'En yüksek puan'}, {id:'new', label:'En yeni'},
+  {id:'imdb', label:'IMDb yüksek'}, {id:'rt', label:'RT yüksek'},
 ];
 const REGIONS = [
   {id:'all', label:'Hepsi', p:{}},
@@ -395,7 +397,7 @@ const S = {
   providers: null,
   queue: [], queued: new Set(), undo: [],
   view: 'discover', listTab: 'want',
-  listF: { type:'all', genre:'', period:'all', q:'', ...store.get(K.listF, {}) },
+  listF: { type:'all', genre:'', period:'all', q:'', sort:'added', ...store.get(K.listF, {}) },
   dragging: false,
 };
 Object.keys(S.items).forEach(k => S.seen.add(k));
@@ -517,7 +519,9 @@ async function fetchSeq(type, base) {
   if (c.page >= Math.min(c.total, 500)) return { items: [], done: true };
   c.page++;
   const [y0, y1] = periodRange(f);
+  // IMDb/RT sıralamasını TMDB yapamaz: en çok oy alanları çek, parti içinde OMDb puanına göre diz (fetchMore)
   const sort = f.sort === 'popular' ? 'popularity.desc' : f.sort === 'top' ? 'vote_average.desc'
+    : scoreSort(f.sort) ? 'vote_count.desc'
     : type === 'movie' ? 'primary_release_date.desc' : 'first_air_date.desc';
   const d = await tmdb(`/discover/${type}`, { ...base, ...dateParams(type, y0, y1), sort_by:sort, page:c.page });
   c.total = d.total_pages || 0;
@@ -552,7 +556,16 @@ async function fetchMore() {
       if (res.every(r => r.err)) throw res[0].err;
       const merged = interleave(res.map(r => r.items));
       if (S.filters.sort === 'random') shuffle(merged);
-      for (const it of merged) if (accept(it)) { S.queue.push(it); S.queued.add(it.key); added++; }
+      const fresh = [];
+      for (const it of merged) if (accept(it)) { S.queued.add(it.key); fresh.push(it); }
+      const by = scoreSort(S.filters.sort);
+      if (by && S.omdbKey) {
+        await pool(fresh, 6, fetchIds);
+        await pool(fresh, 6, loadScores);
+        if (gen !== E.gen) return;
+        fresh.sort((a, b) => scoreVal(b.scores, by) - scoreVal(a.scores, by));
+      }
+      S.queue.push(...fresh); added += fresh.length;
     }
     E.dry = added ? 0 : E.dry + 1;
     if (E.dry >= 3) E.exhausted = true;
@@ -604,15 +617,26 @@ function createCard(it) {
   return el;
 }
 // Kart ekrana yaklaşınca: IMDb kimliği (TMDB) + OMDb puanları + eksikse İngilizce özet
+async function fetchIds(it) {
+  if (it.imdb !== undefined) return;
+  try {
+    const d = await tmdb(`/${it.type}/${it.id}`, { append_to_response:'external_ids', language:'tr-TR' });
+    it.imdb = d.external_ids?.imdb_id || d.imdb_id || null;
+    if (!it.overview) it.overview = d.overview || '';
+  } catch {}
+}
+const scoreSort = s => s === 'imdb' || s === 'rt' ? s : null;
+// Puansızlar sona: -1
+const scoreVal = (s, by) => (by === 'imdb' ? parseFloat(s?.imdb) : parseInt(s?.rt, 10)) || -1;
+async function pool(arr, n, fn) {
+  let i = 0;
+  await Promise.all(Array.from({ length: Math.min(n, arr.length) }, async () => { while (i < arr.length) await fn(arr[i++]); }));
+}
 async function ensureExtra(it) {
   if (it._extra) return;
   it._extra = true;
   try {
-    if (it.imdb === undefined) {
-      const d = await tmdb(`/${it.type}/${it.id}`, { append_to_response:'external_ids', language:'tr-TR' });
-      it.imdb = d.external_ids?.imdb_id || d.imdb_id || null;
-      if (!it.overview) it.overview = d.overview || '';
-    }
+    await fetchIds(it);
     if (!it.overview) {
       const d = await tmdb(`/${it.type}/${it.id}`, { language:'en-US' });
       it.overview = d.overview || '';
@@ -663,7 +687,7 @@ function refreshScores(it) {
   if (box) box.innerHTML = scoresHTML(it);
   if (S.items[it.key] && (it.imdb || it.scores)) {
     S.items[it.key].imdb = it.imdb;
-    if (it.scores?.imdb) S.items[it.key].imdbRating = it.scores.imdb;
+    if (it.scores) Object.assign(S.items[it.key], { imdbRating: it.scores.imdb || null, rt: it.scores.rt || null, scoreAt: Date.now() });
     saveItems();
   }
 }
@@ -782,7 +806,8 @@ function flyOut(el, dir, from = { dx:0, dy:0 }) {
 /* ---- Eylemler ---- */
 function setItem(it, status) {
   S.items[it.key] = { id:it.id, type:it.type, title:it.title, poster:it.poster, date:it.date, status,
-    genres:it.genres, rating:it.rating, imdb:it.imdb || null, imdbRating:it.scores?.imdb || null, addedAt:Date.now() };
+    genres:it.genres, rating:it.rating, imdb:it.imdb || null, imdbRating:it.scores?.imdb || null, rt:it.scores?.rt || null,
+    scoreAt:it.scores ? Date.now() : null, addedAt:Date.now() };
   saveItems();
 }
 function act(dir, from) {
@@ -899,7 +924,8 @@ function renderFilterSheet() {
       ${[['both','İkisi'],['movie','Film'],['tv','Dizi']].map(([v, l]) => chip(v, l, f.type === v)).join('')}</div></section>
     <section><h3>Sıralama</h3><div class="chips" data-single="sort">
       ${SORTS.map(s => chip(s.id, s.label, f.sort === s.id)).join('')}</div>
-      <p class="note">Rastgele: dönemi dilimlere bölüp eski ve yeni yapımları karıştırır.</p></section>
+      <p class="note">Rastgele: dönemi dilimlere bölüp eski ve yeni yapımları karıştırır.<br>
+      IMDb/RT: en çok oy alanlar gelir, her parti kendi içinde puana göre dizilir (yaklaşık). OMDb anahtarı gerekir; yoksa çok oy alanlar sırasıyla gelir.</p></section>
     <section><h3>Dönem</h3><div class="chips" data-single="period">
       ${PERIODS.map(p => chip(p.id, p.label, f.period === p.id)).join('')}</div>
       <div class="years ${f.period === 'custom' ? '' : 'hidden'}" id="yearsRow">
@@ -995,6 +1021,7 @@ function fillListSelects() {
   $('#lGenre').innerHTML = '<option value="">Tüm türler</option>' + GENRES.map(g => `<option value="${g.id}">${g.label}</option>`).join('');
   $('#lPeriod').innerHTML = PERIODS.filter(p => p.id !== 'custom').map(p => `<option value="${p.id}">${p.id === 'all' ? 'Tüm dönemler' : p.label}</option>`).join('');
   $('#lType').value = S.listF.type; $('#lGenre').value = S.listF.genre; $('#lPeriod').value = S.listF.period; $('#lq').value = S.listF.q;
+  $('#lSort').value = S.listF.sort;
 }
 function updateCounts() {
   const c = { want:0, watched:0, passed:0 };
@@ -1018,7 +1045,11 @@ function renderList() {
     if (p.to && (!y || y > p.to)) return false;
     if (q && !String(i.title).toLocaleLowerCase('tr').includes(q)) return false;
     return true;
-  }).sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0));
+  });
+  const by = scoreSort(lf.sort);
+  const val = i => by ? scoreVal({ imdb:i.imdbRating, rt:i.rt }, by) : lf.sort === 'tmdb' ? +i.rating || -1 : 0;
+  arr.sort((a, b) => val(b) - val(a) || (b.addedAt || 0) - (a.addedAt || 0));
+  if (by) backfillScores(arr);
   const list = $('#list');
   if (!arr.length) {
     const any = Object.values(S.items).some(i => i.status === tab);
@@ -1031,7 +1062,7 @@ function renderList() {
       <img src="${i.poster ? IMG + 'w185' + esc(i.poster) : ''}" alt="" loading="lazy">
       <div class="item-main">
         <a class="item-title" href="https://www.themoviedb.org/${i.type}/${i.id}" target="_blank" rel="noopener">${esc(i.title)}</a>
-        <div class="item-sub">${i.type === 'movie' ? 'Film' : 'Dizi'}${yearOf(i.date) ? ' · ' + yearOf(i.date) : ''}${i.rating ? ' · ★ ' + (+i.rating).toFixed(1) : ''}${i.imdb ? ` · <a href="https://www.imdb.com/title/${encodeURIComponent(i.imdb)}/" target="_blank" rel="noopener">IMDb${i.imdbRating ? ' ' + esc(String(i.imdbRating).replace('.', ',')) : ''}</a>` : ''}</div>
+        <div class="item-sub">${i.type === 'movie' ? 'Film' : 'Dizi'}${yearOf(i.date) ? ' · ' + yearOf(i.date) : ''}${i.rating ? ' · ★ ' + (+i.rating).toFixed(1) : ''}${i.imdb ? ` · <a href="https://www.imdb.com/title/${encodeURIComponent(i.imdb)}/" target="_blank" rel="noopener">IMDb${i.imdbRating ? ' ' + esc(String(i.imdbRating).replace('.', ',')) : ''}</a>` : ''}${i.rt ? ' · 🍅 ' + esc(i.rt) : ''}</div>
         <div class="item-sub">${esc(genreNames(i.type, i.genres || []).slice(0, 3).join(' · '))}</div>
         <div class="item-acts">
           ${Object.keys(moves).filter(s => s !== tab).map(s => `<button class="pill pill-${s}" data-move="${s}">→ ${moves[s]}</button>`).join('')}
@@ -1039,6 +1070,28 @@ function renderList() {
         </div>
       </div>
     </li>`).join('');
+}
+// Listede IMDb/RT ile sıralarken puanı hiç alınmamış öğeleri arka planda tamamla (oturumda bir kez dene)
+const triedScore = new Set();
+let backfilling = false;
+async function backfillScores(arr) {
+  if (backfilling || !S.omdbKey) return;
+  const need = arr.filter(i => !i.scoreAt && !triedScore.has(i.key)).slice(0, 40);
+  if (!need.length) return;
+  backfilling = true;
+  need.forEach(i => triedScore.add(i.key));
+  const tmp = need.map(i => ({ key:i.key, id:i.id, type:i.type, imdb:i.imdb || undefined }));
+  await pool(tmp, 6, fetchIds);
+  await pool(tmp, 6, loadScores);
+  for (const t of tmp) {
+    const item = S.items[t.key];
+    if (!item) continue;
+    item.imdb = t.imdb || null;
+    if (t.scores) Object.assign(item, { imdbRating: t.scores.imdb || null, rt: t.scores.rt || null, scoreAt: Date.now() });
+  }
+  saveItems();
+  backfilling = false;
+  if (S.view === 'lists') renderList();
 }
 function onListClick(e) {
   const li = e.target.closest('.item');
@@ -1078,7 +1131,7 @@ async function importJSON(file) {
       if (!i || !Number.isFinite(+i.id) || !['movie', 'tv'].includes(i.type) || !STATUS[i.status]) continue;
       const k = `${i.type}:${+i.id}`;
       S.items[k] = { id:+i.id, type:i.type, title:String(i.title || '—'), poster:i.poster || null, date:String(i.date || ''),
-        status:i.status, genres:Array.isArray(i.genres) ? i.genres.map(Number) : [], rating:+i.rating || 0, imdb:/^tt\d+$/.test(i.imdb) ? i.imdb : null, imdbRating:i.imdbRating ? String(i.imdbRating) : null, addedAt:+i.addedAt || Date.now() };
+        status:i.status, genres:Array.isArray(i.genres) ? i.genres.map(Number) : [], rating:+i.rating || 0, imdb:/^tt\d+$/.test(i.imdb) ? i.imdb : null, imdbRating:i.imdbRating ? String(i.imdbRating) : null, rt:/^\d+%$/.test(i.rt) ? i.rt : null, scoreAt:+i.scoreAt || null, addedAt:+i.addedAt || Date.now() };
       S.seen.add(k); n++;
     }
     (Array.isArray(data.seen) ? data.seen : []).forEach(k => typeof k === 'string' && /^(movie|tv):\d+$/.test(k) && S.seen.add(k));
@@ -1157,11 +1210,11 @@ function init() {
     renderList();
   });
   const lfChange = () => {
-    S.listF = { type:$('#lType').value, genre:$('#lGenre').value, period:$('#lPeriod').value, q:$('#lq').value };
+    S.listF = { type:$('#lType').value, genre:$('#lGenre').value, period:$('#lPeriod').value, q:$('#lq').value, sort:$('#lSort').value };
     store.set(K.listF, S.listF);
     renderList();
   };
-  ['#lType', '#lGenre', '#lPeriod'].forEach(s => $(s).onchange = lfChange);
+  ['#lType', '#lGenre', '#lPeriod', '#lSort'].forEach(s => $(s).onchange = lfChange);
   $('#lq').oninput = lfChange;
   $('#list').addEventListener('click', onListClick);
   $('#btnExport').onclick = exportJSON;
