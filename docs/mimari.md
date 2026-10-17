@@ -53,6 +53,7 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 | `js/filtreler.js` | Filtre sayfası, özet satırı, platform listesi | `openFilters`, `applyFilters`, `loadProviders` |
 | `js/listeler.js` | Listeler: filtre, sıralama, eksik puanları tamamlama, taşıma/silme, JSON yedek | `renderList`, `backfillScores`, `exportJSON`, `importJSON` |
 | `js/gezinti.js` | Sekme geçişi, alt sayfalar (sheet), ayarlar | `setView`, `openSheet`, `closeSheet` |
+| `js/seriler.js` | Film serileri: `/collection/{id}` önbelleği (`kd_coll`, 7 gün), seri kutusu ve sonuç satırı (arama + Listeler › Seriler ortak), toplu taşıma, kart etiketi, listedeki filmlerin `belongs_to_collection` taraması | `getCollection`, `collHTML`, `onCollAction`, `renderSeries`, `scanCollections` |
 | `js/arama.js` | Arama sayfası: `/search/collection` + `/collection/{id}` (seriler, en üstte), `/search/multi`, kişilerin `known_for` işleri, toplu taşıma, sonuçtan listeye ekleme + geri al | `openSearch`, `runSearch`, `renderSearch`, `onSearchClick` |
 | `js/letterboxd.js` | Letterboxd zip/CSV okuma (tarayıcıda `DecompressionStream` ile açar), TMDB eşleştirme, listelere yazma | `importLetterboxd`, `unzipFiles`, `parseCSV`, `matchTMDB` |
 | `js/baslat.js` | Olay bağlama ve `init()` çağrısı; en sonda yüklenir | `init` |
@@ -74,10 +75,11 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 | Anahtar | İçerik |
 |---|---|
 | `kd_apikey`, `kd_omdbkey` | API anahtarları |
-| `kd_items` | Liste öğeleri: `id, type, title, originalTitle, poster, date, status, genres, rating, imdb, imdbRating, rt, director, scoreAt, addedAt`, İzlediklerim'de isteğe bağlı `progress` (`season` \| `dropped`, bkz. `PROGRESS`; başka listeye taşınınca silinir) |
+| `kd_items` | Liste öğeleri: `id, type, title, originalTitle, collection ({id, name} | null), poster, date, status, genres, rating, imdb, imdbRating, rt, director, scoreAt, addedAt`, İzlediklerim'de isteğe bağlı `progress` (`season` \| `dropped`, bkz. `PROGRESS`; başka listeye taşınınca silinir) |
 | `kd_seen` | Daha önce gösterilenler (tekrar gelmesin) |
 | `kd_filters`, `kd_listf` | Deste ve liste filtreleri |
 | `kd_providers` | Ülke başına platform listesi önbelleği: `{ TR: {at, list}, US: … }` (3 gün); çiplerde birleşimi gösterilir |
+| `kd_coll` | Seri önbelleği: `{ id: {at, title, originalTitle, poster, parts[]} }` (7 gün, en çok 300) |
 | `kd_omdb` | OMDb puan önbelleği (14 gün, en çok 3000 kayıt) |
 
 ## Dış API'ler

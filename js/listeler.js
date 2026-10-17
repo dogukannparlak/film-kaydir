@@ -10,12 +10,15 @@ function updateCounts() {
   const c = { want:0, watched:0, passed:0 };
   Object.values(S.items).forEach(i => { if (c[i.status] != null) c[i.status]++; });
   $('#cWant').textContent = c.want; $('#cWatched').textContent = c.watched; $('#cPassed').textContent = c.passed;
+  $('#cSeries').textContent = new Set(Object.values(S.items).filter(i => i.collection).map(i => i.collection.id)).size;
   $('#navDot').textContent = c.want;
   $('#navDot').classList.toggle('hidden', !c.want);
   $('#btnUndo').disabled = !S.undo.length;
 }
 function renderList() {
   const lf = S.listF, tab = S.listTab;
+  $('#viewLists').classList.toggle('series-mode', tab === 'series');
+  if (tab === 'series') return renderSeries();
   const g = GENRES.find(x => x.id === lf.genre);
   const p = PERIODS.find(x => x.id === lf.period) || PERIODS[0];
   const q = lf.q.trim().toLocaleLowerCase('tr');
@@ -98,7 +101,7 @@ const triedTitle = new Set();
 let fillingTitles = false;
 async function backfillTitles(arr) {
   if (fillingTitles || !S.apiKey) return;
-  const need = arr.filter(i => i.originalTitle === undefined && !triedTitle.has(i.key)).slice(0, 40);
+  const need = arr.filter(i => (i.originalTitle === undefined || (i.type === 'movie' && i.collection === undefined)) && !triedTitle.has(i.key)).slice(0, 40);
   if (!need.length) return;
   fillingTitles = true;
   need.forEach(i => triedTitle.add(i.key));
@@ -110,9 +113,11 @@ async function backfillTitles(arr) {
       item.originalTitle = d.original_title || d.original_name || '';
       if (!item.director) item.director = directorOf(d, i.type);
       if (!item.imdb) item.imdb = d.external_ids?.imdb_id || d.imdb_id || null;
+      if (i.type === 'movie') item.collection = collRef(d);
     } catch {}
   });
   saveItems();
+  updateCounts();
   fillingTitles = false;
   if (S.view === 'lists') renderList();
 }
@@ -137,6 +142,7 @@ async function backfillScores(arr) {
   if (S.view === 'lists') renderList();
 }
 function onListClick(e) {
+  if (S.listTab === 'series') return onCollAction(e, seriesColls, () => null);
   const li = e.target.closest('.item');
   if (!li) return;
   const k = li.dataset.key, item = S.items[k];
@@ -188,7 +194,7 @@ async function importJSON(file) {
       if (!i || !Number.isFinite(+i.id) || !['movie', 'tv'].includes(i.type) || !STATUS[i.status]) continue;
       const k = `${i.type}:${+i.id}`;
       S.items[k] = { id:+i.id, type:i.type, title:String(i.title || '—'), ...(typeof i.originalTitle === 'string' ? { originalTitle:i.originalTitle.slice(0, 300) } : {}), poster:i.poster || null, date:String(i.date || ''),
-        status:i.status, genres:Array.isArray(i.genres) ? i.genres.map(Number) : [], rating:+i.rating || 0, imdb:/^tt\d+$/.test(i.imdb) ? i.imdb : null, imdbRating:i.imdbRating ? String(i.imdbRating) : null, rt:/^\d+%$/.test(i.rt) ? i.rt : null, director:typeof i.director === 'string' ? i.director.slice(0, 200) : null, ...(i.status === 'watched' && PROGRESS[i.progress] ? { progress:i.progress } : {}), ...(+i.lbRating > 0 && +i.lbRating <= 5 ? { lbRating:+i.lbRating } : {}), scoreAt:+i.scoreAt || null, addedAt:+i.addedAt || Date.now() };
+        status:i.status, genres:Array.isArray(i.genres) ? i.genres.map(Number) : [], rating:+i.rating || 0, imdb:/^tt\d+$/.test(i.imdb) ? i.imdb : null, imdbRating:i.imdbRating ? String(i.imdbRating) : null, rt:/^\d+%$/.test(i.rt) ? i.rt : null, director:typeof i.director === 'string' ? i.director.slice(0, 200) : null, ...(i.collection === null || (i.collection && Number.isFinite(+i.collection.id)) ? { collection:i.collection && { id:+i.collection.id, name:String(i.collection.name || '').slice(0, 200) } } : {}), ...(i.status === 'watched' && PROGRESS[i.progress] ? { progress:i.progress } : {}), ...(+i.lbRating > 0 && +i.lbRating <= 5 ? { lbRating:+i.lbRating } : {}), scoreAt:+i.scoreAt || null, addedAt:+i.addedAt || Date.now() };
       S.seen.add(k); n++;
     }
     (Array.isArray(data.seen) ? data.seen : []).forEach(k => typeof k === 'string' && /^(movie|tv):\d+$/.test(k) && S.seen.add(k));

@@ -168,6 +168,18 @@ a{color:var(--accent)}
 .in-want{color:var(--want)} .in-watched{color:var(--watched)} .in-passed{color:var(--pass)}
 .pill-ico[aria-pressed="true"]{outline:2px solid currentColor;outline-offset:-2px}
 .pill:disabled{opacity:.9;cursor:default}
+/* Seriler: kart etiketi, ilerleme çubuğu, Listeler › Seriler */
+.coll-tag{margin-top:7px;padding:4px 10px;border-radius:999px;font-size:12.5px;font-weight:700;color:#e9e3ff;
+  background:color-mix(in srgb,var(--accent) 26%,rgba(10,10,15,.6));border:1px solid color-mix(in srgb,var(--accent) 55%,transparent);backdrop-filter:blur(6px);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.coll-tag-wrap:empty{display:none}
+.coll-prog{display:block;height:5px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+.coll-prog i{display:block;height:100%;background:var(--watched);border-radius:99px}
+.coll-frac{font-size:12px;font-weight:700;color:var(--muted);margin-left:auto;align-self:center}
+.scan{color:var(--accent)}
+.seg [data-tab="series"]{--c:var(--accent)}
+.seg button{font-size:13px}
+#viewLists.series-mode .lsort,#viewLists.series-mode .lfilters{display:none}
+#viewLists.series-mode .coll-parts{overflow:visible}
 /* Arama: film serisi bloğu */
 .coll{flex:none;list-style:none;border-radius:18px;border:1px solid color-mix(in srgb,var(--accent) 45%,transparent);background:color-mix(in srgb,var(--accent) 8%,var(--bg));overflow:hidden}
 .coll summary{display:flex;gap:12px;align-items:center;padding:10px;cursor:pointer;list-style:none}
@@ -233,3 +245,4 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 }
 @media (min-height:900px){ .title{font-size:28px} }
 .toast button{white-space:nowrap;flex:none}
+@media (max-width:440px){ .seg button{gap:4px;padding:8px 2px;font-size:12.5px} .seg-dot{display:none} .seg small{padding:1px 5px} }

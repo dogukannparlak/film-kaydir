@@ -29,6 +29,8 @@ Anahtarlar yalnız bu tarayıcının `localStorage`'ında durur; depoya ya da ba
 - Başlık: orijinal ad büyük, altında Türkçe ad (aynıysa tek satır). Orijinal ad Latin alfabesinde değilse
   (Korece, Japonca …) Türkçe ad üstte kalır. Listede arama iki adda da çalışır.
 - Kartta: TMDB puanı, IMDb bağlantısı, OMDb puanları, yönetmen (dizide yaratıcı), özet.
+- Seriler: kartta "🎞️ Harry Potter Serisi · 2/8" etiketi (dokununca seri açılır, toplu taşınır);
+  Listeler › Seriler sekmesinde listendeki filmlerin serileri, izleme ilerlemesi ve eksik filmleriyle.
 - Üç liste (İstek, İzledim, Geç): arama, tür/dönem filtresi, sıralama
   (son eklenen, IMDb, Rotten Tomatoes, TMDB).
 - İzlediklerim'de "yarım kaldı" işareti: ◐ Yeni sezon (yalnız dizi) ya da ⏸ Bıraktım. Öğe İzlediklerim'de

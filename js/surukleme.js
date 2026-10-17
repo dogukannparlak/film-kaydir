@@ -16,7 +16,7 @@ function attachDrag(el) {
   el.addEventListener('pointerdown', e => {
     if (el.dataset.depth !== '0' || el.classList.contains('leaving')) return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
-    if (e.target.closest('a')) return; // IMDb bağlantısına dokunmak kartı sürüklemesin
+    if (e.target.closest('a, .coll-tag')) return; // IMDb bağlantısı ve seri etiketi kartı sürüklemesin
     if (el.classList.contains('expanded') && e.target.closest('.overview')) return; // özeti kaydırmaya izin ver
     id = e.pointerId; el.setPointerCapture(id);
     sx = e.clientX; sy = e.clientY; dx = dy = 0; moved = false;

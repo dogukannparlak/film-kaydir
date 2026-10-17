@@ -7,6 +7,7 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
       <button role="tab" data-tab="want" aria-selected="true"><i class="seg-dot"></i>İstek <small id="cWant">0</small></button>
       <button role="tab" data-tab="watched" aria-selected="false"><i class="seg-dot"></i>İzledim <small id="cWatched">0</small></button>
       <button role="tab" data-tab="passed" aria-selected="false"><i class="seg-dot"></i>Geçtim <small id="cPassed">0</small></button>
+      <button role="tab" data-tab="series" aria-selected="false"><i class="seg-dot"></i>Seriler <small id="cSeries">0</small></button>
     </div>
     <div class="lsearch-wrap">
       <label class="lsearch-box">

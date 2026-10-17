@@ -1,11 +1,12 @@
 'use strict';
 // Kart ekrana yaklaşınca: IMDb kimliği + yönetmen (TMDB) + OMDb puanları + eksikse İngilizce özet
 async function fetchIds(it) {
-  if (it.imdb !== undefined && it.director !== undefined) return;
+  if (it.imdb !== undefined && it.director !== undefined && (it.type !== 'movie' || it.collection !== undefined)) return;
   try {
     const d = await tmdb(`/${it.type}/${it.id}`, { append_to_response:'external_ids,credits', language:'tr-TR' });
     it.imdb = d.external_ids?.imdb_id || d.imdb_id || null;
     it.director = directorOf(d, it.type);
+    if (it.type === 'movie') it.collection = collRef(d);
     if (!it.originalTitle) it.originalTitle = d.original_title || d.original_name || '';
     if (!it.overview) it.overview = d.overview || '';
   } catch {}
@@ -41,6 +42,7 @@ async function ensureExtra(it) {
     $('.overview', el).textContent = it.overview || 'Özet yok.';
     $('.director', el).innerHTML = directorHTML(it);
   }
+  refreshCollTag(it);
   await loadScores(it);
   refreshScores(it);
 }
@@ -86,6 +88,7 @@ function refreshScores(it) {
     S.items[it.key].imdb = it.imdb;
     if (it.originalTitle) S.items[it.key].originalTitle = it.originalTitle;
     if (it.director !== undefined) S.items[it.key].director = it.director;
+    if (it.collection !== undefined) S.items[it.key].collection = it.collection;
     if (it.scores) Object.assign(S.items[it.key], { imdbRating: it.scores.imdb || null, rt: it.scores.rt || null, scoreAt: Date.now() });
     saveItems();
   }

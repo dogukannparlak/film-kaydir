@@ -106,7 +106,7 @@ async function importLetterboxd(files) {
         if (!cur) {
           S.items[it.key] = { id:it.id, type:'movie', title:it.title, originalTitle:it.originalTitle, poster:it.poster, date:it.date, status, genres:it.genres,
             rating:it.rating, imdb:det?.external_ids?.imdb_id || det?.imdb_id || null, imdbRating:null, rt:null,
-            director:det ? directorOf(det, 'movie') : null, scoreAt:null,
+            director:det ? directorOf(det, 'movie') : null, scoreAt:null, ...(det ? { collection:collRef(det) } : {}),
             addedAt: Date.parse(row.Date) || Date.now(), ...(lb ? { lbRating:lb } : {}) };
           added++;
         } else if (cur.status !== 'watched' && status === 'watched') {

@@ -24,6 +24,8 @@ function init() {
   $('#deck').addEventListener('click', e => {
     if (e.target.closest('[data-retry]')) { E.error = null; E.dry = 0; fetchMore(); }
     if (e.target.closest('[data-open-filters]')) openFilters();
+    const ct = e.target.closest('[data-coll-open]');
+    if (ct) { e.stopPropagation(); openCollection(+ct.dataset.collOpen); }
   });
 
   $$('nav.tabs button').forEach(b => b.onclick = () => setView(b.dataset.view));
