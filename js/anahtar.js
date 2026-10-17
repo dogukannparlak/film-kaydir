@@ -33,7 +33,7 @@ async function saveKey(raw, errEl) {
     errEl.textContent = e instanceof AuthError ? 'Anahtar geçersiz.' : 'TMDB\'ye ulaşılamadı: ' + e.message;
     return;
   }
-  store.set(K.key, key);
+  store.set(K.key, key); stateChanged();
   errEl.textContent = '';
   closeSheet();
   toast('Anahtar kaydedildi');
@@ -49,7 +49,7 @@ async function saveOmdb() {
     const d = await (await fetch(`https://www.omdbapi.com/?apikey=${encodeURIComponent(key)}&i=tt0111161`)).json();
     if (d.Response === 'False') { err.textContent = 'OMDb: ' + (d.Error || 'anahtar geçersiz'); return; }
   } catch (e) { err.textContent = 'OMDb\'ye ulaşılamadı.'; return; }
-  S.omdbKey = key; store.set(K.omdb, key); omdbWarned = false;
+  S.omdbKey = key; store.set(K.omdb, key); omdbWarned = false; stateChanged();
   err.textContent = '';
   toast('OMDb anahtarı kaydedildi');
   S.queue.slice(0, 2).forEach(it => loadScores(it).then(() => refreshScores(it)));

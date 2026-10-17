@@ -57,10 +57,10 @@ function init() {
 
   $('#btnSaveKey2').onclick = () => saveKey($('#setKey').value, $('#setKeyErr'));
   $('#btnDelKey').onclick = () => {
-    store.del(K.key); S.apiKey = ''; closeSheet(); resetEngine(); toast('Anahtar silindi');
+    store.del(K.key); S.apiKey = ''; stateChanged(); closeSheet(); resetEngine(); toast('Anahtar silindi');
   };
   $('#btnSaveOmdb').onclick = saveOmdb;
-  $('#btnDelOmdb').onclick = () => { store.del(K.omdb); S.omdbKey = ''; $('#setOmdb').value = ''; toast('OMDb anahtarı silindi'); };
+  $('#btnDelOmdb').onclick = () => { store.del(K.omdb); S.omdbKey = ''; stateChanged(); $('#setOmdb').value = ''; toast('OMDb anahtarı silindi'); };
   $('#btnResetSeen').onclick = () => {
     if (!resetSeenArmed) { resetSeenArmed = true; $('#btnResetSeen').textContent = 'Emin misin? Tekrar dokun'; return; }
     S.seen = new Set(Object.keys(S.items)); saveSeen();
@@ -86,6 +86,7 @@ function init() {
 
   renderDeck();
   if (S.apiKey) loadProviders();
+  initAccount();
   setTimeout(checkNewSeasons, 4000); // izlenen dizilerde yeni sezon (12 saatte bir)
 }
 init();

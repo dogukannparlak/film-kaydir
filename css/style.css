@@ -277,3 +277,11 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .ep{height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);font-weight:750}
 .ep.seen{background:color-mix(in srgb,var(--watched) 30%,var(--surface-2));border-color:color-mix(in srgb,var(--watched) 50%,transparent)}
 .ep.here{background:var(--watched);color:#fff;outline:2px solid #fff;outline-offset:-2px}
+/* Hesap */
+.btn-google{width:100%;display:flex;align-items:center;justify-content:center;gap:10px;background:#fff;color:#1f1f1f;border-color:transparent}
+.btn-google span{font-weight:900;color:#4285f4}
+.btn-google:disabled{opacity:.45}
+.acc-or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;margin:12px 0}
+.acc-or::before,.acc-or::after{content:"";flex:1;height:1px;background:var(--line)}
+.linkish{background:none;border:0;padding:8px 0 0;color:var(--accent);font-size:13px;font-weight:650}
+.acc-who{margin:0;font-size:15px}

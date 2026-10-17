@@ -59,6 +59,7 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 | `js/sezonlar.js` | Yeni sezon tespiti (`/tv/{id}` sezon tarihleri ↔ `addedAt`, `seasonAck`), fragman (`videos`) | `checkNewSeasons`, `ackSeason`, `pickTrailer`, `openTrailer` |
 | `js/bolumler.js` | İzliyorum: kaldığın sezon/bölüm (`at`), yayınlanmış bölüm sayıları (`eps`, 12 saat), seçici ve +1 | `openEpisodes`, `setAt`, `nextEpisode`, `nextEp`, `watchingRow` |
 | `js/letterboxd.js` | Letterboxd zip/CSV okuma (tarayıcıda `DecompressionStream` ile açar), TMDB eşleştirme, listelere yazma | `importLetterboxd`, `unzipFiles`, `parseCSV`, `matchTMDB` |
+| `js/hesap.js` | Supabase hesap + eşitleme: giriş (şifre, Google, sıfırlama), değişen öğeleri gönderme, `updated_at > since` ile çekme, ilk girişte birleştirme | `syncSoon`, `pushChanges`, `pullChanges`, `syncNow`, `initAccount` |
 | `js/baslat.js` | Olay bağlama ve `init()` çağrısı; en sonda yüklenir | `init` |
 
 ## Veri akışı

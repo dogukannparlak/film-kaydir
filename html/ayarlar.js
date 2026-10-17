@@ -6,6 +6,10 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
   <div class="sheet-head"><h2>Ayarlar</h2><button class="icon-btn" data-close aria-label="Kapat">✕</button></div>
   <div class="sheet-body">
     <section>
+      <h3>Hesap</h3>
+      <div id="accBox"></div>
+    </section>
+    <section>
       <h3>TMDB API anahtarı</h3>
       <input class="field" id="setKey" type="password" placeholder="API anahtarı ya da okuma erişim jetonu" autocomplete="off">
       <div class="row-btns"><button class="btn btn-primary" id="btnSaveKey2">Kaydet</button><button class="btn btn-danger" id="btnDelKey">Anahtarı sil</button></div>

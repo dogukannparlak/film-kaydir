@@ -78,7 +78,7 @@ function applyFilters() {
     draft.to = clamp(parseInt($('#yTo').value) || NOW_Y, 1900, NOW_Y);
   }
   S.filters = draft;
-  store.set(K.filters, S.filters);
+  store.set(K.filters, S.filters); stateChanged();
   closeSheet();
   updateSummary();
   resetEngine();

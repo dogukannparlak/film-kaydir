@@ -27,5 +27,7 @@ const S = {
   dragging: false,
 };
 Object.keys(S.items).forEach(k => S.seen.add(k));
-const saveItems = () => store.set(K.items, S.items);
-const saveSeen = () => store.set(K.seen, [...S.seen]);
+// Kaydedince, giriş yapılmışsa buluta da gönderilir (js/hesap.js)
+const saveItems = () => { store.set(K.items, S.items); if (typeof syncSoon === 'function') syncSoon(); };
+const saveSeen = () => { store.set(K.seen, [...S.seen]); S.seenDirty = true; if (typeof syncSoon === 'function') syncSoon(); };
+const stateChanged = () => { S.stateDirty = true; if (typeof syncSoon === 'function') syncSoon(); };
