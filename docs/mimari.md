@@ -1,6 +1,6 @@
 # Mimari
 
-Tek sayfalık, derlemesiz bir site. `index.html` yalnız iskelettir: arayüz parçaları `html/`,
+Tek sayfalık, derlemesiz bir site; bütün site dosyaları `public/` altında (Cloudflare Pages yalnız bu klasörü yayınlar). `public/index.html` yalnız iskelettir: arayüz parçaları `html/`,
 stil `css/style.css`, davranış `js/` altındadır.
 
 ## HTML parçaları (`html/`)

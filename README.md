@@ -2,11 +2,12 @@
 
 Tinder tarzı film/dizi keşfi: kartı sağa kaydır "istiyorum", sola "geç", yukarı "izledim".
 Veri TMDB'den, IMDb / Rotten Tomatoes / Metacritic puanları isteğe bağlı OMDb'den gelir.
-Sunucu, derleme ya da paket yok: `index.html` dosyasını tarayıcıda aç.
+Sunucu, derleme ya da paket yok. Site dosyaları `public/` altında: `public/index.html` dosyasını tarayıcıda aç.
+Yayın: https://kaydir.dogukanparlak.com (Cloudflare Pages, GitHub'a bağlı; `public/` yayınlanır).
 
 ## Kurulum
 
-1. `index.html` dosyasını çift tıkla (ya da `open index.html`).
+1. `public/index.html` dosyasını çift tıkla ya da https://kaydir.dogukanparlak.com adresini aç.
 2. Ayarlar → TMDB anahtarını yapıştır. İkisi de olur:
    - "API Read Access Token" (`eyJ...`): `Authorization: Bearer` başlığıyla gider.
    - v3 "API Key" (32 karakter): `api_key=` parametresiyle gider.

@@ -125,7 +125,7 @@ function renderAccount() {
       <p class="acc-who">☁️ <b>${esc(S.user.email || 'Hesap')}</b></p>
       <p class="note" id="accSync" style="margin:4px 0 10px">${esc(S.syncMsg || '')}</p>
       <div class="row-btns"><button class="btn" id="accSyncNow">Şimdi eşitle</button><button class="btn btn-danger" id="accOut">Çıkış yap</button></div>
-      <p class="note">Listelerin, görülenler, filtreler ve API anahtarların bu hesapta saklanır; telefon ve bilgisayar aynı listeyi görür. Çıkış yapınca bu cihazdaki veri kalır.</p>`;
+      <p class="note">Listelerin, görülenler, filtreler ve API anahtarların bu hesapta saklanır; telefon ve bilgisayar aynı listeyi görür. Çıkış yapınca bu cihazdaki veri kalır. <a href="gizlilik.html" target="_blank">Gizlilik</a></p>`;
     return;
   }
   const local = location.protocol === 'file:';
@@ -138,6 +138,7 @@ function renderAccount() {
     <input class="field" id="accPass" type="password" placeholder="Şifre (en az 8 karakter)" autocomplete="current-password" style="margin-top:8px">
     <div class="row-btns"><button class="btn btn-primary" id="accIn">Giriş yap</button><button class="btn" id="accUp">Kayıt ol</button></div>
     <button class="linkish" id="accForgot">Şifremi unuttum</button>
+    <p class="note">Giriş yaparak <a href="gizlilik.html" target="_blank">gizlilik metnini</a> kabul etmiş olursun.</p>
     <div class="err" id="accErr"></div>`;
 }
 const accErr = m => { const e = $('#accErr'); if (e) e.textContent = m; };
