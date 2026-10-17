@@ -36,3 +36,5 @@ function titles(it) {
   if (!o || sameTitle(o, t)) return { main: t, sub: '' };
   return LATIN.test(o) ? { main: o, sub: t } : { main: t, sub: o };
 }
+// Arama karşılaştırması: Türkçe küçük harf + aksan/nokta temizliği + ı→i (Inception ↔ inception, Işık ↔ isik)
+const fold = s => String(s || '').toLocaleLowerCase('tr').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/ı/g, 'i');

@@ -31,7 +31,7 @@ function init() {
   $$('nav.tabs button').forEach(b => b.onclick = () => setView(b.dataset.view));
   $$('#listTabs button').forEach(b => b.onclick = () => {
     S.listTab = b.dataset.tab;
-    seriesOrder = null; listOrder = null;
+    seriesOrder = null; listOrder = null; shownKeys = new Set();
     $$('#listTabs button').forEach(x => x.setAttribute('aria-selected', x === b));
     renderList();
   });
@@ -43,6 +43,7 @@ function init() {
   ['#lType', '#lGenre', '#lPeriod', '#lSort', '#lProgress'].forEach(s => $(s).onchange = lfChange);
   $('#lq').oninput = lfChange;
   $('#list').addEventListener('click', onListClick);
+  $('#lCount').addEventListener('click', e => { if (e.target.closest('[data-resort]')) { listOrder = null; resortReady = false; renderList(); } });
   $('#btnExport').onclick = exportJSON;
   $('#btnImport').onclick = () => $('#fileImport').click();
   $('#fileImport').onchange = e => { const f = e.target.files[0]; if (f) importJSON(f); e.target.value = ''; };
@@ -65,17 +66,25 @@ function init() {
     closeSheet(); resetEngine(); toast('Görülenler sıfırlandı');
   };
 
+  // Aynı site iki sekmede açıksa: biri kaydedince diğeri eski kopyasıyla üzerine yazmasın
+  window.addEventListener('storage', e => {
+    if (e.key === K.items) { S.items = store.get(K.items, {}); updateCounts(); if (S.view === 'lists') renderList(); }
+    if (e.key === K.seen) { S.seen = new Set(store.get(K.seen, [])); S.queue = S.queue.filter(it => !S.seen.has(it.key)); }
+  });
   document.addEventListener('keydown', e => {
+    if (openSheetEl && e.key === 'Escape') { closeSheet(); return; }
     if (e.target.closest?.('input, textarea, select')) return;
-    if (openSheetEl) { if (e.key === 'Escape') closeSheet(); return; }
+    if (openSheetEl) return;
+    if (e.metaKey || e.ctrlKey || e.altKey) return; // Cmd+← tarayıcıda geri gitsin, kart kaydırılmasın
     if (e.key === '/' && !e.metaKey && !e.ctrlKey) { e.preventDefault(); openSearch(); return; }
     if (S.view !== 'discover' || !S.apiKey) return;
     const dir = { ArrowRight:'right', ArrowLeft:'left', ArrowUp:'up' }[e.key];
-    if (dir) { e.preventDefault(); act(dir); }
+    if (dir) { e.preventDefault(); if (!e.repeat) act(dir); } // basılı tutmak art arda kart geçirmesin
     else if (e.key === 'Backspace' || e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); }
   });
 
   renderDeck();
   if (S.apiKey) loadProviders();
+  setTimeout(checkNewSeasons, 4000); // izlenen dizilerde yeni sezon (12 saatte bir)
 }
 init();

@@ -5,9 +5,17 @@ const COLL_TTL = 7 * 864e5;
 let collCache = store.get(K.coll, {});
 const collRef = d => d?.belongs_to_collection ? { id:d.belongs_to_collection.id, name:d.belongs_to_collection.name } : null;
 // Seri ayrıntısı (Türkçe filmler + İngilizce seri adı), 7 gün önbellekli
+const collInflight = new Map(), collFailed = new Set(); // aynı seriye eşzamanlı tek istek; başarısızlar oturumda yeniden denenmez
 async function getCollection(id) {
   const c = collCache[id];
   if (c && Date.now() - c.at < COLL_TTL) return c;
+  if (collInflight.has(id)) return collInflight.get(id);
+  const p = fetchCollection(id).finally(() => collInflight.delete(id));
+  collInflight.set(id, p);
+  p.catch(() => collFailed.add(id));
+  return p;
+}
+async function fetchCollection(id) {
   const [tr, en] = await Promise.all([
     tmdb(`/collection/${id}`, { language:'tr-TR' }),
     tmdb(`/collection/${id}`, { language:'en-US' }).catch(() => null),
@@ -58,7 +66,7 @@ function collHTML(c, open) {
   const counts = { want:0, watched:0, passed:0 };
   c.parts.forEach(p => { const s = S.items[p.key]?.status; if (s) counts[s]++; });
   const inList = Object.entries(counts).filter(([, v]) => v).map(([s, v]) => `<span class="in-list in-${s}">${v} ${STATUS[s].split(' ')[0]}</span>`).join('');
-  const span = [...new Set([yearOf(c.parts[0].date), yearOf(c.parts.filter(released).at(-1)?.date || '')].filter(Boolean))];
+  const span = [...new Set([yearOf(c.parts[0]?.date || ''), yearOf(c.parts.filter(released).at(-1)?.date || '')].filter(Boolean))];
   const pct = rel ? Math.round(100 * Math.min(counts.watched, rel) / rel) : 0;
   return `
     <li class="coll" data-coll="${c.id}">
@@ -97,9 +105,13 @@ function putItem(it, status) {
   } else setItem(it, status);
   S.seen.add(it.key);
   // Destede bekliyorsa çıkar (bir daha gösterme)
-  const qi = S.queue.findIndex(x => x.key === it.key);
-  if (qi >= 0) { S.queue.splice(qi, 1); S.queued.delete(it.key); }
-  return () => { if (prev) S.items[it.key] = prev; else delete S.items[it.key]; if (!wasSeen) S.seen.delete(it.key); };
+  const qi = S.queue.findIndex(x => x.key === it.key), queued = qi >= 0 ? S.queue[qi] : null;
+  if (queued) { S.queue.splice(qi, 1); S.queued.delete(it.key); }
+  return () => {
+    if (prev) S.items[it.key] = prev; else delete S.items[it.key];
+    if (!wasSeen) S.seen.delete(it.key);
+    if (queued && !S.queued.has(it.key)) { S.queue.splice(Math.min(qi, S.queue.length), 0, queued); S.queued.add(it.key); }
+  };
 }
 function afterPut() {
   saveItems(); saveSeen(); renderDeck(); updateCounts();
@@ -144,7 +156,7 @@ const collWant = new Set();
 function collListTag(i) {
   if (!i.collection) return '';
   const c = collCache[i.collection.id];
-  if (!c && !collWant.has(i.collection.id)) {
+  if (!c && !collWant.has(i.collection.id) && !collFailed.has(i.collection.id)) {
     collWant.add(i.collection.id);
     getCollection(i.collection.id).then(() => { if (S.view === 'lists') renderList(); }).catch(() => {});
   }
@@ -166,7 +178,7 @@ async function openCollection(id) {
     const c = await getCollection(id);
     openSheet('#sheetSearch');
     $('#sq').value = titles(c).main; $('#sHint').hidden = true;
-    searchGen++; searchColls = [c]; searchResults = [];
+    clearTimeout(searchTimer); searchGen++; searchColls = [c]; searchResults = [];
     searchIndex.clear(); c.parts.forEach(p => searchIndex.set(p.key, p));
     $('#sResults').innerHTML = '';
     renderSearch();
@@ -205,15 +217,15 @@ async function scanCollections() {
   updateCounts();
 }
 function renderSeries() {
-  const ul = $('#list'), q = S.listF.q.trim().toLocaleLowerCase('tr');
+  const ul = $('#list'), q = fold(S.listF.q.trim());
   const groups = new Map();
   Object.values(S.items).forEach(i => { if (i.collection) groups.set(i.collection.id, i.collection); });
-  const pending = Object.values(S.items).filter(i => i.type === 'movie' && i.collection === undefined).length;
+  const pending = Object.entries(S.items).filter(([k, i]) => i.type === 'movie' && i.collection === undefined && !scanTried.has(k)).length;
   scanCollections();
-  const missing = [...groups.keys()].filter(id => !collCache[id] || Date.now() - collCache[id].at > COLL_TTL);
+  const missing = [...groups.keys()].filter(id => !collFailed.has(id) && !collInflight.has(id) && (!collCache[id] || Date.now() - collCache[id].at > COLL_TTL));
   if (missing.length) pool(missing, 3, id => getCollection(id).catch(() => {})).then(() => { if (S.view === 'lists' && S.listTab === 'series') renderList(); });
   seriesColls = [...groups.keys()].map(id => collCache[id]).filter(Boolean)
-    .filter(c => !q || [c.title, c.originalTitle].some(t => String(t || '').toLocaleLowerCase('tr').includes(q)))
+    .filter(c => c.parts.length && (!q || [c.title, c.originalTitle].some(t => fold(t).includes(q))))
     .map(c => ({ c, inList: c.parts.filter(p => S.items[p.key]).length, watched: c.parts.filter(p => S.items[p.key]?.status === 'watched').length }))
     // Önce yarım kalan seriler (izlenmeye başlanmış ama bitmemiş), sonra listede çok filmi olanlar
     .sort((a, b) => ((b.watched && b.watched < b.c.parts.filter(released).length) - (a.watched && a.watched < a.c.parts.filter(released).length)) || b.inList - a.inList || titles(a.c).main.localeCompare(titles(b.c).main, 'tr'))

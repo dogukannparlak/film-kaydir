@@ -15,14 +15,15 @@ function updateCounts() {
   $('#navDot').classList.toggle('hidden', !c.want);
   $('#btnUndo').disabled = !S.undo.length;
 }
-let listOrder = null;
+let listOrder = null, resortReady = false;
+let shownKeys = new Set(); // önceki çizimde görünen satırlar: yalnız yeniler belirme animasyonu alır
 function renderList() {
   const lf = S.listF, tab = S.listTab;
   $('#viewLists').classList.toggle('series-mode', tab === 'series');
   if (tab === 'series') return renderSeries();
   const g = GENRES.find(x => x.id === lf.genre);
   const p = PERIODS.find(x => x.id === lf.period) || PERIODS[0];
-  const q = lf.q.trim().toLocaleLowerCase('tr');
+  const q = fold(lf.q.trim());
   const arr = Object.entries(S.items).map(([key, v]) => ({ key, ...v })).filter(i => {
     if (i.status !== tab) return false;
     if (lf.type !== 'all' && i.type !== lf.type) return false;
@@ -30,7 +31,7 @@ function renderList() {
     const y = +yearOf(i.date);
     if (p.from && (!y || y < p.from)) return false;
     if (p.to && (!y || y > p.to)) return false;
-    if (q && ![i.title, i.originalTitle].some(t => String(t || '').toLocaleLowerCase('tr').includes(q))) return false;
+    if (q && ![i.title, i.originalTitle].some(t => fold(t).includes(q))) return false;
     if (tab === 'watched' && lf.progress !== 'all') {
       if (lf.progress === 'done' ? i.progress : lf.progress === 'partial' ? !i.progress : i.progress !== lf.progress) return false;
     }
@@ -46,6 +47,7 @@ function renderList() {
     const pos = new Map(listOrder.ids.map((k, n) => [k, n]));
     arr.sort((a, b) => (pos.get(a.key) ?? 1e9) - (pos.get(b.key) ?? 1e9));
   }
+  if (listOrder?.key !== okey) resortReady = false;
   listOrder = { key: okey, ids: arr.map(i => i.key) };
   if (by) backfillScores(arr);
   backfillTitles(arr);
@@ -55,7 +57,8 @@ function renderList() {
   [['#lType', 'all'], ['#lGenre', ''], ['#lPeriod', 'all'], ['#lProgress', 'all']].forEach(([s, d]) => $(s).classList.toggle('on', $(s).value !== d));
   const total = Object.values(S.items).filter(i => i.status === tab).length;
   const partial = tab === 'watched' ? arr.filter(i => PROGRESS[i.progress]).length : 0;
-  $('#lCount').innerHTML = total ? `<b>${arr.length}</b> yapım${arr.length < total ? ` · ${total} içinden` : ''}${partial ? ` · ${partial} yarım` : ''}` : '';
+  $('#lCount').innerHTML = (total ? `<b>${arr.length}</b> yapım${arr.length < total ? ` · ${total} içinden` : ''}${partial ? ` · ${partial} yarım` : ''}` : '')
+    + (resortReady ? ' · <button class="resort" data-resort>Puanlar geldi, yeniden sırala</button>' : '');
   if (!arr.length) {
     list.innerHTML = total
       ? `<li class="empty"><span class="empty-icon">🔍</span><b>Bu süzgeçlere uyan yapım yok</b>Aramayı ya da süzgeçleri gevşet.</li>`
@@ -66,13 +69,15 @@ function renderList() {
   const groups = new Map();
   arr.forEach(i => { if (i.collection) (groups.get(i.collection.id) || groups.set(i.collection.id, []).get(i.collection.id)).push(i); });
   const open = openColls(list), done = new Set();
-  list.innerHTML = arr.map(i => {
+  const html = arr.map(i => {
     const g = i.collection && groups.get(i.collection.id);
     if (!g || g.length < 2) return itemHTML(i, tab);
     if (done.has(i.collection.id)) return '';
     done.add(i.collection.id);
     return groupHTML(i.collection, g, tab, open.has(String(i.collection.id)));
   }).join('');
+  list.innerHTML = html;
+  shownKeys = new Set(arr.map(i => i.key));
 }
 const EMPTY_ICON = { want:'💚', watched:'🎬', passed:'🙅' };
 // Taşıma düğmeleri: destedeki simgelerle aynı (♥ istek, ✓ izledim, ✕ geç)
@@ -110,14 +115,16 @@ function itemHTML(i, tab, inGroup = false) {
   const scores = [
     i.imdb ? `<a class="sc sc-imdb" href="https://www.imdb.com/title/${encodeURIComponent(i.imdb)}/" target="_blank" rel="noopener">IMDb${i.imdbRating ? ' ' + esc(String(i.imdbRating).replace('.', ',')) : ''}</a>` : '',
     i.rt ? `<span class="sc" title="Rotten Tomatoes">🍅 ${esc(i.rt)}</span>` : '',
+    seasonBadges(i),
     i.lbRating ? `<span class="sc sc-lb" title="Letterboxd puanın">LB ${String(i.lbRating).replace('.', ',')}★</span>` : '',
     i.rating ? `<span class="sc sc-tmdb" title="TMDB">★ ${(+i.rating).toFixed(1).replace('.', ',')}</span>` : '',
+    i.trailer === '' ? '' : `<button class="sc sc-trailer" data-trailer title="YouTube'da fragman">▶ Fragman</button>`,
   ].join('');
   const sub = [genreNames(i.type, i.genres || []).slice(0, 2).join(' · '), i.director ? '🎬 ' + i.director : ''].filter(Boolean).join(' · ');
   const progBtns = tab === 'watched' ? Object.entries(PROGRESS).filter(([, p]) => !p.tvOnly || i.type === 'tv').map(([id, p]) =>
     `<button class="pill pill-prog" data-progress="${id}" aria-pressed="${i.progress === id}">${p.icon} ${p.label}</button>`).join('') : '';
   return `
-    <li class="item" data-key="${esc(i.key)}">
+    <li class="item${shownKeys.has(i.key) ? '' : ' fresh'}" data-key="${esc(i.key)}">
       <a class="item-poster" href="https://www.themoviedb.org/${i.type}/${i.id}" target="_blank" rel="noopener" tabindex="-1">
         ${i.poster ? `<img src="${IMG}w185${esc(i.poster)}" alt="" loading="lazy">` : ''}
         <span class="type">${i.type === 'movie' ? 'FİLM' : 'DİZİ'}</span>
@@ -174,7 +181,7 @@ async function backfillScores(arr) {
   if (!need.length) return;
   backfilling = true;
   need.forEach(i => triedScore.add(i.key));
-  const tmp = need.map(i => ({ key:i.key, id:i.id, type:i.type, imdb:i.imdb || undefined, director:i.director ?? undefined }));
+  const tmp = need.map(i => ({ key:i.key, id:i.id, type:i.type, imdb:i.imdb || undefined, director:i.director ?? undefined, collection:i.collection }));
   await pool(tmp, 6, fetchIds);
   await pool(tmp, 6, loadScores);
   for (const t of tmp) {
@@ -182,15 +189,19 @@ async function backfillScores(arr) {
     if (!item) continue;
     item.imdb = t.imdb || null;
     if (t.director !== undefined) item.director = t.director;
+    if (t.collection !== undefined) item.collection = t.collection;
     if (t.scores) Object.assign(item, { imdbRating: t.scores.imdb || null, rt: t.scores.rt || null, scoreAt: Date.now() });
   }
   saveItems();
   backfilling = false;
-  listOrder = null; // gelen puanlarla yeniden sırala
+  if (scoreSort(S.listF.sort)) resortReady = true; // sıra kendiliğinden değişmesin; kullanıcı isterse yeniden sıralar
   if (S.view === 'lists') renderList();
 }
 function onListClick(e) {
   if (S.listTab === 'series') return onCollAction(e, seriesColls, () => null);
+  if (e.target.closest('[data-resort]')) { listOrder = null; resortReady = false; return renderList(); }
+  const tr = e.target.closest('[data-trailer]');
+  if (tr) { const li = tr.closest('.item'), it = li && S.items[li.dataset.key]; if (it) openTrailer(it.type, it.id); return; }
   const ct = e.target.closest('[data-coll-open]');
   if (ct) return openCollection(+ct.dataset.collOpen);
   const li = e.target.closest('.item');
@@ -201,20 +212,20 @@ function onListClick(e) {
   const pg = e.target.closest('[data-progress]');
   if (pg) {
     // Aynı işarete yeniden basmak kaldırır (biten olur)
-    const prev = item.progress || null, next = prev === pg.dataset.progress ? null : pg.dataset.progress;
+    const snap = { ...item }, prev = item.progress || null, next = prev === pg.dataset.progress ? null : pg.dataset.progress;
     if (next) item.progress = next; else delete item.progress;
+    if (prev === 'season' && next !== 'season') ackSeason(item); // yeni sezon görüldü: bir daha işaretlenmesin
     saveItems(); renderList();
     toast(next ? `Yarım kaldı: ${PROGRESS[next].label}` : 'Bitti olarak işaretlendi', 'Geri al', () => {
-      if (prev) item.progress = prev; else delete item.progress;
-      saveItems(); renderList();
+      S.items[k] = snap; saveItems(); renderList();
     });
   } else if (mv) {
-    const prev = item.status, prevProg = item.progress;
+    const prev = item.status, prevProg = item.progress, prevAt = item.addedAt;
     item.status = mv.dataset.move; item.addedAt = Date.now();
     delete item.progress; // yarım işareti yalnız İzlediklerim'de anlamlı
     saveItems(); renderList(); updateCounts();
     toast(`${STATUS_TO[item.status]} taşındı`, 'Geri al', () => {
-      item.status = prev; if (prevProg) item.progress = prevProg;
+      item.status = prev; item.addedAt = prevAt; if (prevProg) item.progress = prevProg;
       saveItems(); renderList(); updateCounts();
     });
   } else if (e.target.closest('[data-del]')) {
@@ -239,12 +250,13 @@ async function importJSON(file) {
   try {
     const data = JSON.parse(await file.text());
     const items = Array.isArray(data) ? data : Array.isArray(data.items) ? data.items : Object.values(data.items || {});
-    let n = 0;
+    let n = 0, kept = 0;
     for (const i of items) {
-      if (!i || !Number.isFinite(+i.id) || !['movie', 'tv'].includes(i.type) || !STATUS[i.status]) continue;
+      if (!i || !(+i.id > 0) || !['movie', 'tv'].includes(i.type) || !Object.hasOwn(STATUS, i.status)) continue;
       const k = `${i.type}:${+i.id}`;
+      if (S.items[k] && (S.items[k].addedAt || 0) > (+i.addedAt || 0)) { S.seen.add(k); kept++; continue; } // buradaki daha yeni
       S.items[k] = { id:+i.id, type:i.type, title:String(i.title || '—'), ...(typeof i.originalTitle === 'string' ? { originalTitle:i.originalTitle.slice(0, 300) } : {}), poster:i.poster || null, date:String(i.date || ''),
-        status:i.status, genres:Array.isArray(i.genres) ? i.genres.map(Number) : [], rating:+i.rating || 0, imdb:/^tt\d+$/.test(i.imdb) ? i.imdb : null, imdbRating:i.imdbRating ? String(i.imdbRating) : null, rt:/^\d+%$/.test(i.rt) ? i.rt : null, director:typeof i.director === 'string' ? i.director.slice(0, 200) : null, ...(i.collection === null || (i.collection && Number.isFinite(+i.collection.id)) ? { collection:i.collection && { id:+i.collection.id, name:String(i.collection.name || '').slice(0, 200) } } : {}), ...(i.status === 'watched' && PROGRESS[i.progress] ? { progress:i.progress } : {}), ...(+i.lbRating > 0 && +i.lbRating <= 5 ? { lbRating:+i.lbRating } : {}), scoreAt:+i.scoreAt || null, addedAt:+i.addedAt || Date.now() };
+        status:i.status, genres:Array.isArray(i.genres) ? i.genres.map(Number) : [], rating:+i.rating || 0, imdb:/^tt\d+$/.test(i.imdb) ? i.imdb : null, imdbRating:i.imdbRating ? String(i.imdbRating) : null, rt:/^\d+%$/.test(i.rt) ? i.rt : null, director:typeof i.director === 'string' ? i.director.slice(0, 200) : null, ...(typeof i.trailer === 'string' && /^[\w-]{0,20}$/.test(i.trailer) ? { trailer:i.trailer } : {}), ...(+i.seasonAck > 0 ? { seasonAck:+i.seasonAck } : {}), ...(i.collection === null || (i.collection && +i.collection.id > 0) ? { collection:i.collection && { id:+i.collection.id, name:String(i.collection.name || '').slice(0, 200) } } : {}), ...(i.status === 'watched' && Object.hasOwn(PROGRESS, i.progress) ? { progress:i.progress } : {}), ...(+i.lbRating > 0 && +i.lbRating <= 5 ? { lbRating:+i.lbRating } : {}), scoreAt:+i.scoreAt || null, addedAt:+i.addedAt || Date.now() };
       S.seen.add(k); n++;
     }
     (Array.isArray(data.seen) ? data.seen : []).forEach(k => typeof k === 'string' && /^(movie|tv):\d+$/.test(k) && S.seen.add(k));
@@ -252,7 +264,7 @@ async function importJSON(file) {
     S.queue = S.queue.filter(it => !S.seen.has(it.key));
     S.queued = new Set(S.queue.map(it => it.key));
     renderDeck(); renderList(); updateCounts();
-    toast(`${n} öğe içe aktarıldı`);
+    toast(`${n} öğe içe aktarıldı${kept ? ` · ${kept} öğede buradaki daha yeni sürüm korundu` : ''}`, null, null, 4000);
   } catch (e) {
     toast('İçe aktarılamadı: geçerli bir JSON yedeği değil.');
   }

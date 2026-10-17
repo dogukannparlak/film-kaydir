@@ -15,6 +15,7 @@ function createCard(it) {
     <div class="stamp stamp-want">İSTİYORUM</div>
     <div class="stamp stamp-pass">GEÇ</div>
     <div class="stamp stamp-watched">İZLEDİM</div>
+    <div class="coll-tag-wrap">${collTagHTML(it)}</div>
     <div class="info">
       <div class="meta">
         <span class="badge">${it.type === 'movie' ? 'FİLM' : 'DİZİ'}</span>
@@ -25,7 +26,6 @@ function createCard(it) {
       ${titles(it).sub ? `<div class="title-sub">${esc(titles(it).sub)}</div>` : ''}
       <div class="genres">${esc(genreNames(it.type, it.genres).join(' · '))}</div>
       <div class="director">${directorHTML(it)}</div>
-      <div class="coll-tag-wrap">${collTagHTML(it)}</div>
       <div class="scores">${scoresHTML(it)}</div>
       <p class="overview">${esc(it.overview || 'Özet yükleniyor…')}</p>
       <div class="more">Dokun: özetin tamamı</div>

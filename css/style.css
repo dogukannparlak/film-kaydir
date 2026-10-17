@@ -10,7 +10,7 @@ html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
 button{font:inherit;color:inherit;cursor:pointer}
 button,.card{-webkit-user-select:none;user-select:none}
 input,select{font:inherit;font-size:16px;color:var(--text)}
-.hidden{display:none!important}
+.hidden,[hidden]{display:none!important}
 
 .app{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520px;margin:0 auto;width:100%}
 header{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 16px 6px}
@@ -131,7 +131,7 @@ a{color:var(--accent)}
 
 /* Liste satırları */
 .list{list-style:none;margin:0;padding:0 16px 16px;overflow:auto;flex:1;min-height:0;display:flex;flex-direction:column;gap:10px}
-.item{display:grid;grid-template-columns:68px minmax(0,1fr);gap:10px 12px;padding:10px;border-radius:16px;background:var(--surface);border:1px solid var(--line);animation:fadein .3s var(--ease) both}
+.item{display:grid;grid-template-columns:68px minmax(0,1fr);gap:10px 12px;padding:10px;border-radius:16px;background:var(--surface);border:1px solid var(--line);}
 .item-poster{position:relative;flex:none;color:var(--text);text-decoration:none;width:68px;height:102px;border-radius:11px;overflow:hidden;background:var(--surface-2)}
 .item-poster img{width:100%;height:100%;object-fit:cover;display:block}
 .item-poster .type{position:absolute;left:5px;bottom:5px;padding:1px 6px;border-radius:6px;font-size:9.5px;font-weight:800;letter-spacing:.04em;background:rgba(10,10,15,.78);backdrop-filter:blur(6px)}
@@ -252,3 +252,17 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .lg-thumbs img{width:22px;height:33px;border-radius:4px;object-fit:cover;background:var(--surface-2)}
 .lgroup .coll-parts .item{background:var(--surface)}
 .lg-all{display:block;width:calc(100% - 20px);margin:0 10px 10px;padding:9px;border-radius:12px;border:1px dashed color-mix(in srgb,var(--accent) 50%,transparent);background:none;color:#d9d0ff;font-weight:700;font-size:13px}
+.item.fresh{animation:fadein .3s var(--ease) both}
+.resort{background:none;border:0;padding:0;color:var(--accent);font-weight:700;font-size:12px;text-decoration:underline}
+.lb-err{color:var(--pass)}
+/* Kart: sonradan gelen bilgiler (yönetmen, puan, özet) başlığı yukarı itmesin; seri etiketi kartın üstünde */
+.director:empty{display:block;min-height:19px}
+.scores{min-height:26px}
+.overview{min-height:calc(3 * 1.45em)}
+.coll-tag-wrap{position:absolute;top:14px;left:14px;right:14px;z-index:2}
+.coll-tag-wrap .coll-tag{margin-top:0}
+.pill-ico{width:38px;height:38px}
+.acts-right{gap:6px}
+.sc-new{background:rgba(255,209,102,.16);color:#ffd166}
+.sc-trailer{border:0;cursor:pointer;color:#ff6b6b}
+.score-trailer{color:#ff8a8a;text-decoration:none}

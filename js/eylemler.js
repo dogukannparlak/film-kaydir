@@ -3,7 +3,7 @@
 function setItem(it, status) {
   S.items[it.key] = { id:it.id, type:it.type, title:it.title, originalTitle:it.originalTitle || '', poster:it.poster, date:it.date, status,
     genres:it.genres, rating:it.rating, imdb:it.imdb || null, imdbRating:it.scores?.imdb || null, rt:it.scores?.rt || null,
-    director:it.director || null, ...(it.collection !== undefined ? { collection:it.collection } : {}),
+    director:it.director || null, ...(it.trailer !== undefined ? { trailer:it.trailer } : {}), ...(it.collection !== undefined ? { collection:it.collection } : {}),
     scoreAt:it.scores ? Date.now() : null, addedAt:Date.now() };
   saveItems();
 }

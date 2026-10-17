@@ -93,7 +93,9 @@ async function importLetterboxd(files) {
   let done = 0, added = 0, upgraded = 0, kept = 0;
   const missing = [];
   out.textContent = `Eşleştiriliyor… 0 / ${list.length}`;
+  let failed = null;
   await pool(list, 4, async job => {
+    if (failed) return;
     const { row, status } = job;
     try {
       const r = await matchTMDB(row.Name, row.Year);
@@ -122,12 +124,12 @@ async function importLetterboxd(files) {
     }
     done++;
     if (done % 5 === 0 || done === list.length) out.textContent = `Eşleştiriliyor… ${done} / ${list.length}`;
-  }).catch(e => { out.textContent = e instanceof AuthError ? 'TMDB anahtarı geçersiz.' : 'Hata: ' + e.message; });
+  }).catch(e => { failed = e instanceof AuthError ? 'TMDB anahtarı geçersiz; aktarım durdu.' : 'Hata: ' + e.message; });
   saveItems(); saveSeen();
-  S.queue = S.queue.filter(it => !S.seen.has(it.key));
+  S.queue = S.queue.filter(it => !S.seen.has(it.key)); S.queued = new Set(S.queue.map(it => it.key));
   renderDeck(); renderList(); updateCounts();
   btn.disabled = false;
-  out.innerHTML = `<b>${added}</b> eklendi · <b>${upgraded}</b> İzlediklerim'e taşındı · ${kept} zaten vardı · <b>${missing.length}</b> eşleşmedi`
+  out.innerHTML = (failed ? `<b class="lb-err">${esc(failed)}</b><br>` : '') + `<b>${added}</b> eklendi · <b>${upgraded}</b> İzlediklerim'e taşındı · ${kept} zaten vardı · <b>${missing.length}</b> eşleşmedi`
     + (missing.length ? `<details><summary>Eşleşmeyenler</summary><ul>${missing.map(m => `<li>${esc(m)}</li>`).join('')}</ul></details>` : '');
   toast(`Letterboxd: ${added + upgraded} film aktarıldı`);
 }

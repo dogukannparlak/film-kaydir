@@ -1,9 +1,15 @@
 'use strict';
 // Eski sürümde dönem ve bölge tekliydi (period/region); şimdi dizi (periods/regions), boş = hepsi
 function migrateFilters(f) {
+  if (!f || typeof f !== 'object') f = {};
   if (!Array.isArray(f.periods)) f.periods = f.period && f.period !== 'all' ? [f.period] : [];
   if (!Array.isArray(f.regions)) f.regions = f.region && f.region !== 'all' ? [f.region] : [];
   delete f.period; delete f.region;
+  // Bilinmeyen değerler (eski sürüm, elle düzenleme) siteyi çökertmesin
+  if (!SORTS.some(s => s.id === f.sort)) delete f.sort;
+  f.periods = f.periods.filter(id => PERIODS.some(p => p.id === id));
+  f.regions = f.regions.filter(id => REGIONS.some(r => r.id === id));
+  if (Array.isArray(f.genres)) f.genres = f.genres.filter(id => GENRES.some(g => g.id === id));
   return f;
 }
 /* ================= Durum ================= */

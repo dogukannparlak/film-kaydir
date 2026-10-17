@@ -3,7 +3,8 @@
 async function fetchIds(it) {
   if (it.imdb !== undefined && it.director !== undefined && (it.type !== 'movie' || it.collection !== undefined)) return;
   try {
-    const d = await tmdb(`/${it.type}/${it.id}`, { append_to_response:'external_ids,credits', language:'tr-TR' });
+    const d = await tmdb(`/${it.type}/${it.id}`, { append_to_response:'external_ids,credits,videos', include_video_language:'tr,en,null', language:'tr-TR' });
+    it.trailer = pickTrailer(d.videos?.results) || '';
     it.imdb = d.external_ids?.imdb_id || d.imdb_id || null;
     it.director = directorOf(d, it.type);
     if (it.type === 'movie') it.collection = collRef(d);
@@ -73,12 +74,11 @@ function omdbWarn(msg) {
   toast('OMDb: ' + (/limit/i.test(msg) ? 'günlük istek sınırı doldu.' : 'anahtar geçersiz.'), null, null, 4000);
 }
 function scoresHTML(it) {
-  if (!it.imdb) return '';
   const s = it.scores || {};
-  const url = `https://www.imdb.com/title/${encodeURIComponent(it.imdb)}/`;
-  let h = `<a class="score score-imdb" href="${url}" target="_blank" rel="noopener"><b>IMDb</b>${s.imdb ? ' ' + esc(s.imdb.replace('.', ',')) : ''}</a>`;
+  let h = it.imdb ? `<a class="score score-imdb" href="https://www.imdb.com/title/${encodeURIComponent(it.imdb)}/" target="_blank" rel="noopener"><b>IMDb</b>${s.imdb ? ' ' + esc(s.imdb.replace('.', ',')) : ''}</a>` : '';
   if (s.rt) h += `<span class="score" title="Rotten Tomatoes">🍅 ${esc(s.rt)}</span>`;
   if (s.mc) h += `<span class="score" title="Metacritic">MC ${esc(s.mc.split('/')[0])}</span>`;
+  if (it.trailer) h += `<a class="score score-trailer" href="${trailerURL(it.trailer)}" target="_blank" rel="noopener">▶ Fragman</a>`;
   return h;
 }
 function refreshScores(it) {
@@ -89,6 +89,7 @@ function refreshScores(it) {
     if (it.originalTitle) S.items[it.key].originalTitle = it.originalTitle;
     if (it.director !== undefined) S.items[it.key].director = it.director;
     if (it.collection !== undefined) S.items[it.key].collection = it.collection;
+    if (it.trailer !== undefined) S.items[it.key].trailer = it.trailer;
     if (it.scores) Object.assign(S.items[it.key], { imdbRating: it.scores.imdb || null, rt: it.scores.rt || null, scoreAt: Date.now() });
     saveItems();
   }

@@ -29,7 +29,9 @@ async function fetchRandom(src) {
       page = pick(free);
     }
     info.pages.add(page);
-    const d = await tmdb(`/discover/${type}`, { ...base, ...dateParams(type, ys, ye), sort_by:sort, page });
+    let d;
+    try { d = await tmdb(`/discover/${type}`, { ...base, ...dateParams(type, ys, ye), sort_by:sort, page }); }
+    catch (e) { info.pages.delete(page); throw e; } // hata alan sayfa sonra yeniden denensin
     info.total = d.total_pages || 0;
     if (!info.total) info.dead = true;
     return { items: (d.results || []).map(r => norm(r, type)) };
@@ -47,7 +49,9 @@ async function fetchSeq(src) {
   const sort = f.sort === 'popular' ? 'popularity.desc' : f.sort === 'top' ? 'vote_average.desc'
     : scoreSort(f.sort) ? 'vote_count.desc'
     : type === 'movie' ? 'primary_release_date.desc' : 'first_air_date.desc';
-  const d = await tmdb(`/discover/${type}`, { ...base, ...dateParams(type, y0, y1), sort_by:sort, page:c.page });
+  let d;
+  try { d = await tmdb(`/discover/${type}`, { ...base, ...dateParams(type, y0, y1), sort_by:sort, page:c.page }); }
+  catch (e) { c.page--; throw e; } // hata alan sayfa atlanmasın
   c.total = d.total_pages || 0;
   return { items: (d.results || []).map(r => norm(r, type)), done: c.page >= Math.min(c.total, 500) };
 }
@@ -97,7 +101,7 @@ async function fetchMore() {
     if (E.dry >= 3) E.exhausted = true;
   } catch (err) {
     if (gen !== E.gen) return;
-    if (err instanceof AuthError) { S.apiKey = ''; S.keyMsg = 'Anahtar geçersiz. Yeniden yapıştır.'; return; }
+    if (err instanceof AuthError) { S.apiKey = ''; store.del(K.key); S.keyMsg = 'Anahtar geçersiz. Yeniden yapıştır.'; return; }
     E.error = err;
   } finally {
     if (gen === E.gen) { E.loading = false; renderDeck(); }
