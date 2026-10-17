@@ -23,8 +23,7 @@ function norm(r, type) {
     genres: r.genre_ids || [], overview: r.overview || '',
   };
 }
-// Boş seçim = hepsi (ülkede boş = Türkiye)
-const selCountries = f => f.countries?.length ? f.countries : ['TR'];
+// Boş seçim = hepsi
 const selRegions = f => f.regions.length ? REGIONS.filter(r => f.regions.includes(r.id)) : [REGIONS[0]];
 const selPeriods = f => f.periods.length ? PERIODS.filter(p => f.periods.includes(p.id)) : [PERIODS[0]];
 function periodRange(p, f) {
@@ -70,8 +69,8 @@ function sources() {
     for (const reg of selRegions(f)) {
       const base = baseParams(type, reg);
       if (!base) continue;
-      // Platform seçiliyse her ülke ayrı akış; seçili değilse ülke önemsiz
-      for (const c of f.providers.length ? selCountries(f) : [null])
+      // Platform seçiliyse her ülke ayrı akış (platform herhangi bir ülkede varsa gelir); seçili değilse ülke önemsiz
+      for (const c of f.providers.length ? WATCH_REGIONS : [null])
         for (const p of selPeriods(f))
           out.push({ key:`${type}|${reg.id}|${p.id}|${c || '-'}`, type, reg, pid:p.id, range:periodRange(p, f),
             base: c ? { ...base, watch_region:c } : base });

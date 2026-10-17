@@ -41,7 +41,7 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
       <p class="note" style="margin:0">→ istiyorum · ← geç · ↑ izledim · Backspace / Z geri al · Kartın üstüne dokun: özetin tamamı</p>
     </section>
     <section>
-      <p class="note" style="margin:0">Veriler ve afişler <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a>'den gelir. Platform bilgisi TMDB'nin JustWatch kaynaklı, seçtiğin ülkelere ait verisidir.<br>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+      <p class="note" style="margin:0">Veriler ve afişler <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a>'den gelir. Platform bilgisi TMDB'nin JustWatch kaynaklı, birçok ülkenin verisidir.<br>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
     </section>
   </div>
 </div>

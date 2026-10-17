@@ -7,8 +7,7 @@ function openFilters() {
   draft = JSON.parse(JSON.stringify(S.filters));
   renderFilterSheet();
   openSheet('#sheetFilters');
-  const want = draft.countries;
-  loadProviders(want).then(() => { if (draft && draft.countries === want) $('#provChips').innerHTML = providerChips(draft); });
+  loadProviders().then(() => { if (draft && $('#provChips')) $('#provChips').innerHTML = providerChips(draft); });
 }
 function renderFilterSheet() {
   const f = draft;
@@ -34,15 +33,12 @@ function renderFilterSheet() {
     <section><h3>Minimum oy sayısı</h3><div class="chips" data-single="minVotes">
       ${VOTE_OPTS.map(v => chip(v, v.toLocaleString('tr-TR'), f.minVotes === v)).join('')}</div>
       <p class="note">Az bilinen yapımlar (ör. Türk dizileri) için düşük tut.</p></section>
-    <section><h3>Platform <small>abonelikle · ülke birden fazla seçilebilir</small></h3>
-      <div class="chips" data-multi="countries">
-      ${WATCH_COUNTRIES.map(c => chip(c.id, c.label, selCountries(f).includes(c.id))).join('')}</div>
-      <div class="chips" data-multi="providers" id="provChips" style="margin-top:10px">${providerChips(f)}</div>
-      <p class="note">Seçilirse yalnız seçili ülkelerden birinde, bu platformlardan en az birinde olanlar gelir.</p></section>`;
+    <section><h3>Platform <small>abonelikle · birden fazla seçilebilir</small></h3>
+      <div class="chips" data-multi="providers" id="provChips">${providerChips(f)}</div>
+      <p class="note">Seçilirse bu platformlardan en az birinde (herhangi bir ülkede) olanlar gelir.</p></section>`;
 }
 function providerChips(f) {
-  const provs = providersFor(selCountries(f));
-  return provs.map(p => chip(p.id, `${p.logo ? `<img src="${IMG}w45${esc(p.logo)}" alt="">` : ''}${esc(p.name)}`, f.providers.includes(p.id))).join('');
+  return chip('all', 'Hepsi', !f.providers.length) + providersFor().map(p => chip(p.id, `${p.logo ? `<img src="${IMG}w45${esc(p.logo)}" alt="">` : ''}${esc(p.name)}`, f.providers.includes(p.id))).join('');
 }
 function onFilterClick(e) {
   const c = e.target.closest('.chip');
@@ -63,20 +59,16 @@ function onFilterClick(e) {
     }
   } else if (box.dataset.multi) {
     const k = box.dataset.multi;
-    const val = k === 'providers' ? +raw : raw;
+    const num = s => k === 'providers' && s !== 'all' ? +s : s; // platform kimlikleri sayı
+    const val = num(raw);
     const on = draft[k].includes(val);
     // "Hepsi" çipi seçimi boşaltır; boş seçim = hepsi
     draft[k] = val === 'all' ? [] : on ? draft[k].filter(v => v !== val) : [...draft[k], val];
     $$('.chip', box).forEach(x => {
-      const v = k === 'providers' ? +x.dataset.val : x.dataset.val;
+      const v = num(x.dataset.val);
       x.setAttribute('aria-pressed', v === 'all' ? !draft[k].length : draft[k].includes(v));
     });
     if (k === 'periods') $('#yearsRow').classList.toggle('hidden', !draft.periods.includes('custom'));
-    if (k === 'countries') {
-      if (!draft.countries.length) { draft.countries = ['TR']; $('.chip[data-val="TR"]', box).setAttribute('aria-pressed', 'true'); }
-      const want = draft.countries;
-      loadProviders(want).then(() => { if (draft && draft.countries === want) $('#provChips').innerHTML = providerChips(draft); });
-    }
   }
 }
 function applyFilters() {
@@ -100,7 +92,7 @@ function updateSummary() {
   if (f.genres.length) parts.push(f.genres.map(id => GENRES.find(g => g.id === id)?.label).join(', '));
   if (f.regions.length) parts.push(selRegions(f).map(r => r.label).join(', '));
   if (f.minRating) parts.push('★ ' + f.minRating + '+');
-  if (f.providers.length) parts.push(`${f.providers.length} platform (${selCountries(f).join(', ')})`);
+  if (f.providers.length) parts.push(f.providers.length === 1 ? (providersFor().find(p => p.id === f.providers[0])?.name || '1 platform') : f.providers.length + ' platform');
   $('#summary').textContent = parts.join(' · ');
   let n = 0;
   if (f.type !== 'both') n++; if (f.sort !== 'random') n++; if (f.periods.length) n++;
@@ -114,13 +106,17 @@ function providerCache() {
   const c = store.get(K.prov, {});
   return c && !Array.isArray(c.list) ? c : {}; // eski biçim ({at, list}, yalnız TR) atılır
 }
-// Seçili ülkelerin platformlarının birleşimi; listesi henüz yoksa yedek liste
-function providersFor(countries) {
-  const cache = providerCache(), seen = new Set(), out = [];
-  countries.forEach(c => (cache[c]?.list || []).forEach(p => { if (!seen.has(p.id)) { seen.add(p.id); out.push(p); } }));
+// Bütün ülkelerin platformları tek listede: kaç ülkede öne çıktığına, sonra sırasına göre; listesi yoksa yedek liste
+function providersFor() {
+  const cache = providerCache(), by = new Map();
+  WATCH_REGIONS.forEach(c => (cache[c]?.list || []).forEach((p, rank) => {
+    const e = by.get(p.id) || { ...p, n:0, rank:0 };
+    e.n++; e.rank += rank; by.set(p.id, e);
+  }));
+  const out = [...by.values()].sort((a, b) => b.n - a.n || a.rank / a.n - b.rank / b.n).slice(0, PROVIDER_LIMIT);
   return out.length ? out : FALLBACK_PROVIDERS;
 }
-async function loadProviders(countries = selCountries(S.filters)) {
+async function loadProviders(countries = WATCH_REGIONS) {
   if (!S.apiKey) return;
   const cache = providerCache();
   const need = countries.filter(c => !(cache[c] && Date.now() - cache[c].at < 3 * 864e5));
