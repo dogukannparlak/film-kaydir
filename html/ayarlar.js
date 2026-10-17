@@ -30,6 +30,13 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
       <input type="file" id="fileImport" accept="application/json,.json" class="hidden">
     </section>
     <section>
+      <h3>Letterboxd'dan içe aktar <small>yalnız filmler</small></h3>
+      <button class="btn" id="btnLetterboxd">📥 Letterboxd zip'ini seç</button>
+      <input type="file" id="fileLetterboxd" accept=".zip,.csv,application/zip,text/csv" multiple class="hidden">
+      <div class="note lb-status" id="lbStatus" aria-live="polite"></div>
+      <p class="note">letterboxd.com → Settings → Data → Export Your Data. İzlenenler İzlediklerim'e, izleme listesi İstek'e gider; Letterboxd puanın saklanır. Zip yerine <code>watched.csv</code> ve <code>watchlist.csv</code> da seçilebilir.</p>
+    </section>
+    <section>
       <h3>Kısayollar</h3>
       <p class="note" style="margin:0">→ istiyorum · ← geç · ↑ izledim · Backspace / Z geri al · Kartın üstüne dokun: özetin tamamı</p>
     </section>

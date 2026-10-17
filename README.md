@@ -28,6 +28,8 @@ Anahtarlar yalnız bu tarayıcının `localStorage`'ında durur; depoya ya da ba
 - İzlediklerim'de "yarım kaldı" işareti: ◐ Yeni sezon (yalnız dizi) ya da ⏸ Bıraktım. Öğe İzlediklerim'de
   kalır; durum kutusuyla bitenler / yarım kalanlar / yeni sezon bekleyenler / bıraktıklarım süzülür.
 - JSON dışa/içe aktarma (yedek): Ayarlar → Yedek.
+- Letterboxd'dan içe aktarma: Ayarlar → Letterboxd. Export zip'i (ya da `watched.csv`, `watchlist.csv`) seçilir;
+  filmler ad + yılla TMDB'de eşleştirilir, Letterboxd puanı `LB` rozeti olarak görünür. Eşleşmeyenler listelenir.
 
 ## Bilinen sınırlar
 

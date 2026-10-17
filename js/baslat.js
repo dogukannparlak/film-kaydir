@@ -43,6 +43,8 @@ function init() {
   $('#btnExport').onclick = exportJSON;
   $('#btnImport').onclick = () => $('#fileImport').click();
   $('#fileImport').onchange = e => { const f = e.target.files[0]; if (f) importJSON(f); e.target.value = ''; };
+  $('#btnLetterboxd').onclick = () => $('#fileLetterboxd').click();
+  $('#fileLetterboxd').onchange = e => { const fs = [...e.target.files]; if (fs.length) importLetterboxd(fs); e.target.value = ''; };
 
   $('#btnSaveKey2').onclick = () => saveKey($('#setKey').value, $('#setKeyErr'));
   $('#btnDelKey').onclick = () => {

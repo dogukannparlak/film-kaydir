@@ -59,6 +59,7 @@ function itemHTML(i, tab) {
   const scores = [
     i.imdb ? `<a class="sc sc-imdb" href="https://www.imdb.com/title/${encodeURIComponent(i.imdb)}/" target="_blank" rel="noopener">IMDb${i.imdbRating ? ' ' + esc(String(i.imdbRating).replace('.', ',')) : ''}</a>` : '',
     i.rt ? `<span class="sc" title="Rotten Tomatoes">🍅 ${esc(i.rt)}</span>` : '',
+    i.lbRating ? `<span class="sc sc-lb" title="Letterboxd puanın">LB ${String(i.lbRating).replace('.', ',')}★</span>` : '',
     i.rating ? `<span class="sc sc-tmdb" title="TMDB">★ ${(+i.rating).toFixed(1).replace('.', ',')}</span>` : '',
   ].join('');
   const sub = [genreNames(i.type, i.genres || []).slice(0, 2).join(' · '), i.director ? '🎬 ' + i.director : ''].filter(Boolean).join(' · ');
@@ -162,7 +163,7 @@ async function importJSON(file) {
       if (!i || !Number.isFinite(+i.id) || !['movie', 'tv'].includes(i.type) || !STATUS[i.status]) continue;
       const k = `${i.type}:${+i.id}`;
       S.items[k] = { id:+i.id, type:i.type, title:String(i.title || '—'), poster:i.poster || null, date:String(i.date || ''),
-        status:i.status, genres:Array.isArray(i.genres) ? i.genres.map(Number) : [], rating:+i.rating || 0, imdb:/^tt\d+$/.test(i.imdb) ? i.imdb : null, imdbRating:i.imdbRating ? String(i.imdbRating) : null, rt:/^\d+%$/.test(i.rt) ? i.rt : null, director:typeof i.director === 'string' ? i.director.slice(0, 200) : null, ...(i.status === 'watched' && PROGRESS[i.progress] ? { progress:i.progress } : {}), scoreAt:+i.scoreAt || null, addedAt:+i.addedAt || Date.now() };
+        status:i.status, genres:Array.isArray(i.genres) ? i.genres.map(Number) : [], rating:+i.rating || 0, imdb:/^tt\d+$/.test(i.imdb) ? i.imdb : null, imdbRating:i.imdbRating ? String(i.imdbRating) : null, rt:/^\d+%$/.test(i.rt) ? i.rt : null, director:typeof i.director === 'string' ? i.director.slice(0, 200) : null, ...(i.status === 'watched' && PROGRESS[i.progress] ? { progress:i.progress } : {}), ...(+i.lbRating > 0 && +i.lbRating <= 5 ? { lbRating:+i.lbRating } : {}), scoreAt:+i.scoreAt || null, addedAt:+i.addedAt || Date.now() };
       S.seen.add(k); n++;
     }
     (Array.isArray(data.seen) ? data.seen : []).forEach(k => typeof k === 'string' && /^(movie|tv):\d+$/.test(k) && S.seen.add(k));

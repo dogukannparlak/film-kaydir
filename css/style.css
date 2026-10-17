@@ -143,6 +143,7 @@ a{color:var(--accent)}
 .sc{display:inline-flex;align-items:center;gap:4px;padding:2px 7px;border-radius:7px;font-size:11.5px;font-weight:750;background:var(--surface-2);color:var(--text);text-decoration:none;line-height:1.5}
 .sc-imdb{background:#f5c518;color:#111}
 .sc-tmdb{color:#9fe3c6}
+.sc-lb{color:#ff8000}
 .prog{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:7px;font-size:11.5px;font-weight:750;color:#ffd166;background:rgba(255,209,102,.12)}
 .item-acts{grid-column:1/-1;display:flex;gap:6px;align-items:center;padding-top:8px;border-top:1px solid var(--line)}
 .acts-right{margin-left:auto;display:flex;gap:4px}
@@ -153,6 +154,9 @@ a{color:var(--accent)}
 .pill-want{color:var(--want)} .pill-watched{color:var(--watched)} .pill-passed{color:var(--pass)}
 .pill-ico{width:32px;height:32px;padding:0;display:grid;place-items:center;font-size:15px}
 .pill-del{color:var(--muted);background:none}
+.lb-status{margin:10px 0 0}
+.lb-status b{color:var(--text)}
+.lb-status details{margin-top:6px} .lb-status ul{margin:6px 0 0;padding-left:18px;max-height:160px;overflow:auto}
 .empty{color:var(--muted);text-align:center;padding:48px 16px;display:flex;flex-direction:column;align-items:center;gap:8px}
 .empty-icon{font-size:34px;opacity:.8}
 .empty b{color:var(--text);font-size:15px}
