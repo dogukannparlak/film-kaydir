@@ -1,0 +1,68 @@
+# Mimari
+
+Tek sayfalık, derlemesiz bir site. `index.html` yalnız iskeleti (HTML) taşır; stil `css/style.css`,
+davranış `js/` altındaki dosyalardadır.
+
+## Neden ES modülü değil
+
+Dosyalar klasik `<script src>` olarak, sırayla yüklenir. `type="module"` kullanılsaydı tarayıcı
+`file://` adresinden modül yüklemeyi CORS yüzünden reddederdi ve site çift tıklamayla açılmazdı.
+Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalarda ortaktır, bu yüzden:
+
+- **Yükleme sırası önemlidir** (aşağıdaki tablo sırası = `index.html` sırası). Bir dosya, yüklenirken
+  hemen çalışan kodda yalnız kendisinden önceki dosyaların adlarını kullanabilir. Fonksiyon
+  gövdelerinin içinde her ad kullanılabilir, çünkü onlar `init()` sonrasında çalışır.
+- **Adlar tekil olmalıdır.** İki dosyada aynı üst düzey `const` adı "already declared" hatası verir.
+- Her dosya `'use strict';` ile başlar.
+
+## Modüller (yükleme sırasıyla)
+
+| Dosya | İş | Başlıca adlar |
+|---|---|---|
+| `js/sabitler.js` | API adresleri, localStorage anahtarları (`K`), türler, dönemler, sıralamalar, bölgeler, varsayılan filtreler | `API`, `IMG`, `K`, `GENRES`, `PERIODS`, `SORTS`, `REGIONS`, `DEFAULT_FILTERS` |
+| `js/yardimci.js` | DOM kısayolları, kaçış, güvenli `store` (localStorage), bildirim | `$`, `$$`, `esc`, `store`, `toast`, `shuffle` |
+| `js/durum.js` | Uygulama durumu `S` (anahtarlar, öğeler, görülenler, filtreler, kuyruk) | `S`, `saveItems`, `saveSeen` |
+| `js/tmdb.js` | TMDB isteği (Bearer ya da `api_key`), sonuç biçimleme, filtre → sorgu parametreleri | `tmdb`, `norm`, `baseParams`, `dateParams`, `accept` |
+| `js/motor.js` | Sonsuz akış: sayfa çekme (rastgele/sıralı), parti içi IMDb/RT sıralaması, kuyruğu doldurma | `E`, `fetchRandom`, `fetchSeq`, `fetchMore`, `resetEngine` |
+| `js/kartlar.js` | Kart HTML'i | `createCard`, `genreNames` |
+| `js/puanlar.js` | Ek ayrıntı: IMDb kimliği + yönetmen (TMDB `external_ids,credits`), OMDb puanları ve önbelleği | `fetchIds`, `directorOf`, `loadScores`, `scoresHTML`, `refreshScores`, `pool` |
+| `js/deste.js` | Destenin ilk üç kartını çizme, afiş önyükleme | `renderDeck`, `updateDeckStatus` |
+| `js/surukleme.js` | Pointer Events ile sürükleme, damgalar, kartı fırlatma | `attachDrag`, `flyOut` |
+| `js/eylemler.js` | Kaydırma kararı → listeye yazma, geri al | `setItem`, `act`, `undo` |
+| `js/anahtar.js` | TMDB/OMDb anahtar kutusu ve doğrulaması | `saveKey`, `saveOmdb` |
+| `js/filtreler.js` | Filtre sayfası, özet satırı, platform listesi | `openFilters`, `applyFilters`, `loadProviders` |
+| `js/listeler.js` | Listeler: filtre, sıralama, eksik puanları tamamlama, taşıma/silme, JSON yedek | `renderList`, `backfillScores`, `exportJSON`, `importJSON` |
+| `js/gezinti.js` | Sekme geçişi, alt sayfalar (sheet), ayarlar | `setView`, `openSheet`, `closeSheet` |
+| `js/baslat.js` | Olay bağlama ve `init()` çağrısı; en sonda yüklenir | `init` |
+
+## Veri akışı
+
+1. `fetchMore` (motor) → `tmdb('/discover/...')` → `norm` → `accept` (görülmemiş, afişli, oy eşiği).
+2. Sıralama IMDb/RT ise parti önce `fetchIds` + `loadScores` ile zenginleşir ve puana göre dizilir.
+3. `renderDeck` ilk üç kartı çizer; ilk ikisi için `ensureExtra` yönetmeni, IMDb kimliğini,
+   özeti ve puanları tamamlar.
+4. Kaydırma → `act` → `setItem`: öğe `S.items`'a yazılır (localStorage `kd_items`).
+
+## Saklanan veri (localStorage)
+
+| Anahtar | İçerik |
+|---|---|
+| `kd_apikey`, `kd_omdbkey` | API anahtarları |
+| `kd_items` | Liste öğeleri: `id, type, title, poster, date, status, genres, rating, imdb, imdbRating, rt, director, scoreAt, addedAt` |
+| `kd_seen` | Daha önce gösterilenler (tekrar gelmesin) |
+| `kd_filters`, `kd_listf` | Deste ve liste filtreleri |
+| `kd_providers` | Türkiye platform listesi önbelleği |
+| `kd_omdb` | OMDb puan önbelleği (14 gün, en çok 3000 kayıt) |
+
+## Dış API'ler
+
+- TMDB v3: `/configuration` (anahtar sınaması), `/discover/{movie,tv}`, `/{movie,tv}/{id}`
+  (`append_to_response=external_ids,credits`), `/watch/providers/movie`. Afişler `image.tmdb.org/t/p/`.
+- OMDb: `?apikey=…&i=tt…` → `imdbRating`, `Ratings[]` (Rotten Tomatoes, Metacritic).
+- Yönetmen: filmde `credits.crew` içinde `job === 'Director'`; dizide `created_by` (yaratıcı).
+
+## Test
+
+Otomatik test yok. Yöntem: `fetch`'i sahte TMDB/OMDb yanıtlarıyla değiştiren bir betiği
+`js/sabitler.js`'den önce yükleyip headless Chromium'da (`--dump-dom`) kart başlığı, yönetmen,
+puan sırası ve konsol hatalarını okumak. Gerçek anahtarla son kontrol tarayıcıda elle yapılır.

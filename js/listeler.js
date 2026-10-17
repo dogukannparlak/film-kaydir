@@ -1,0 +1,130 @@
+'use strict';
+/* ================= Listeler ================= */
+function fillListSelects() {
+  $('#lGenre').innerHTML = '<option value="">Tüm türler</option>' + GENRES.map(g => `<option value="${g.id}">${g.label}</option>`).join('');
+  $('#lPeriod').innerHTML = PERIODS.filter(p => p.id !== 'custom').map(p => `<option value="${p.id}">${p.id === 'all' ? 'Tüm dönemler' : p.label}</option>`).join('');
+  $('#lType').value = S.listF.type; $('#lGenre').value = S.listF.genre; $('#lPeriod').value = S.listF.period; $('#lq').value = S.listF.q;
+  $('#lSort').value = S.listF.sort;
+}
+function updateCounts() {
+  const c = { want:0, watched:0, passed:0 };
+  Object.values(S.items).forEach(i => { if (c[i.status] != null) c[i.status]++; });
+  $('#cWant').textContent = c.want; $('#cWatched').textContent = c.watched; $('#cPassed').textContent = c.passed;
+  $('#navDot').textContent = c.want;
+  $('#navDot').classList.toggle('hidden', !c.want);
+  $('#btnUndo').disabled = !S.undo.length;
+}
+function renderList() {
+  const lf = S.listF, tab = S.listTab;
+  const g = GENRES.find(x => x.id === lf.genre);
+  const p = PERIODS.find(x => x.id === lf.period) || PERIODS[0];
+  const q = lf.q.trim().toLocaleLowerCase('tr');
+  const arr = Object.entries(S.items).map(([key, v]) => ({ key, ...v })).filter(i => {
+    if (i.status !== tab) return false;
+    if (lf.type !== 'all' && i.type !== lf.type) return false;
+    if (g && !(i.genres || []).some(id => (i.type === 'movie' ? g.m : g.t).includes(id))) return false;
+    const y = +yearOf(i.date);
+    if (p.from && (!y || y < p.from)) return false;
+    if (p.to && (!y || y > p.to)) return false;
+    if (q && !String(i.title).toLocaleLowerCase('tr').includes(q)) return false;
+    return true;
+  });
+  const by = scoreSort(lf.sort);
+  const val = i => by ? scoreVal({ imdb:i.imdbRating, rt:i.rt }, by) : lf.sort === 'tmdb' ? +i.rating || -1 : 0;
+  arr.sort((a, b) => val(b) - val(a) || (b.addedAt || 0) - (a.addedAt || 0));
+  if (by) backfillScores(arr);
+  const list = $('#list');
+  if (!arr.length) {
+    const any = Object.values(S.items).some(i => i.status === tab);
+    list.innerHTML = `<li class="empty">${any ? 'Bu filtrelere uyan öğe yok.' : 'Bu liste boş. Keşfet\'te kaydırmaya başla.'}</li>`;
+    return;
+  }
+  const moves = { want:'İstek', watched:'İzledim', passed:'Geç' };
+  list.innerHTML = arr.map(i => `
+    <li class="item" data-key="${esc(i.key)}">
+      <img src="${i.poster ? IMG + 'w185' + esc(i.poster) : ''}" alt="" loading="lazy">
+      <div class="item-main">
+        <a class="item-title" href="https://www.themoviedb.org/${i.type}/${i.id}" target="_blank" rel="noopener">${esc(i.title)}</a>
+        <div class="item-sub">${i.type === 'movie' ? 'Film' : 'Dizi'}${yearOf(i.date) ? ' · ' + yearOf(i.date) : ''}${i.rating ? ' · ★ ' + (+i.rating).toFixed(1) : ''}${i.imdb ? ` · <a href="https://www.imdb.com/title/${encodeURIComponent(i.imdb)}/" target="_blank" rel="noopener">IMDb${i.imdbRating ? ' ' + esc(String(i.imdbRating).replace('.', ',')) : ''}</a>` : ''}${i.rt ? ' · 🍅 ' + esc(i.rt) : ''}</div>
+        <div class="item-sub">${esc(genreNames(i.type, i.genres || []).slice(0, 3).join(' · '))}${i.director ? ' · 🎬 ' + esc(i.director) : ''}</div>
+        <div class="item-acts">
+          ${Object.keys(moves).filter(s => s !== tab).map(s => `<button class="pill pill-${s}" data-move="${s}">→ ${moves[s]}</button>`).join('')}
+          <button class="pill pill-del" data-del>Sil</button>
+        </div>
+      </div>
+    </li>`).join('');
+}
+// Listede IMDb/RT ile sıralarken puanı hiç alınmamış öğeleri arka planda tamamla (oturumda bir kez dene)
+const triedScore = new Set();
+let backfilling = false;
+async function backfillScores(arr) {
+  if (backfilling || !S.omdbKey) return;
+  const need = arr.filter(i => !i.scoreAt && !triedScore.has(i.key)).slice(0, 40);
+  if (!need.length) return;
+  backfilling = true;
+  need.forEach(i => triedScore.add(i.key));
+  const tmp = need.map(i => ({ key:i.key, id:i.id, type:i.type, imdb:i.imdb || undefined, director:i.director ?? undefined }));
+  await pool(tmp, 6, fetchIds);
+  await pool(tmp, 6, loadScores);
+  for (const t of tmp) {
+    const item = S.items[t.key];
+    if (!item) continue;
+    item.imdb = t.imdb || null;
+    if (t.director !== undefined) item.director = t.director;
+    if (t.scores) Object.assign(item, { imdbRating: t.scores.imdb || null, rt: t.scores.rt || null, scoreAt: Date.now() });
+  }
+  saveItems();
+  backfilling = false;
+  if (S.view === 'lists') renderList();
+}
+function onListClick(e) {
+  const li = e.target.closest('.item');
+  if (!li) return;
+  const k = li.dataset.key, item = S.items[k];
+  if (!item) return;
+  const mv = e.target.closest('[data-move]');
+  if (mv) {
+    const prev = item.status;
+    item.status = mv.dataset.move; item.addedAt = Date.now();
+    saveItems(); renderList(); updateCounts();
+    toast(`${STATUS[item.status]} listesine taşındı`, 'Geri al', () => { item.status = prev; saveItems(); renderList(); updateCounts(); });
+  } else if (e.target.closest('[data-del]')) {
+    const copy = { ...item };
+    delete S.items[k];
+    saveItems(); renderList(); updateCounts();
+    toast('Silindi', 'Geri al', () => { S.items[k] = copy; saveItems(); renderList(); updateCounts(); }, 4000);
+  }
+}
+function exportJSON() {
+  const data = { app:'kaydir', version:1, exportedAt:new Date().toISOString(), filters:S.filters,
+    items:Object.values(S.items), seen:[...S.seen] };
+  const blob = new Blob([JSON.stringify(data, null, 1)], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `kaydir-yedek-${TODAY}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  toast(`${data.items.length} öğe dışa aktarıldı`);
+}
+async function importJSON(file) {
+  try {
+    const data = JSON.parse(await file.text());
+    const items = Array.isArray(data) ? data : Array.isArray(data.items) ? data.items : Object.values(data.items || {});
+    let n = 0;
+    for (const i of items) {
+      if (!i || !Number.isFinite(+i.id) || !['movie', 'tv'].includes(i.type) || !STATUS[i.status]) continue;
+      const k = `${i.type}:${+i.id}`;
+      S.items[k] = { id:+i.id, type:i.type, title:String(i.title || '—'), poster:i.poster || null, date:String(i.date || ''),
+        status:i.status, genres:Array.isArray(i.genres) ? i.genres.map(Number) : [], rating:+i.rating || 0, imdb:/^tt\d+$/.test(i.imdb) ? i.imdb : null, imdbRating:i.imdbRating ? String(i.imdbRating) : null, rt:/^\d+%$/.test(i.rt) ? i.rt : null, director:typeof i.director === 'string' ? i.director.slice(0, 200) : null, scoreAt:+i.scoreAt || null, addedAt:+i.addedAt || Date.now() };
+      S.seen.add(k); n++;
+    }
+    (Array.isArray(data.seen) ? data.seen : []).forEach(k => typeof k === 'string' && /^(movie|tv):\d+$/.test(k) && S.seen.add(k));
+    saveItems(); saveSeen();
+    S.queue = S.queue.filter(it => !S.seen.has(it.key));
+    S.queued = new Set(S.queue.map(it => it.key));
+    renderDeck(); renderList(); updateCounts();
+    toast(`${n} öğe içe aktarıldı`);
+  } catch (e) {
+    toast('İçe aktarılamadı: geçerli bir JSON yedeği değil.');
+  }
+}
