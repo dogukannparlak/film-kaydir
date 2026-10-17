@@ -8,6 +8,7 @@
 // Güvenlik: anahtar herkese açık "publishable" anahtardır; her satır RLS ile yalnız sahibine açık.
 const SB_URL = 'https://zungbtgtlrltowkvjqso.supabase.co';
 const SB_KEY = 'sb_publishable_Bgg9ZLBOaQe4nn904kRYTQ_mcy-SMYS';
+const GOOGLE_AUTH = false; // Google ile giriş kapalı; açmak için true yap (Supabase'de Google sağlayıcısı da açık olmalı)
 const sb = window.supabase?.createClient(SB_URL, SB_KEY, { auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true, flowType:'pkce' } }) || null;
 const SYNC_KEY = 'kd_sync'; // { user, since, hashes: { key: imza } } — son eşitlenen hâl
 let sync = store.get(SYNC_KEY, null);
@@ -131,9 +132,9 @@ function renderAccount() {
   const local = location.protocol === 'file:';
   box.innerHTML = `
     <p class="note" style="margin:0 0 10px">Giriş yaparsan listelerin cihazlar arasında eşitlenir. Hesapsız da kullanabilirsin.</p>
-    ${local ? '<p class="note" style="margin:0 0 10px">⚠️ Site dosyadan açık: Google ile giriş ve e-posta bağlantıları yalnız yayındaki adreste çalışır.</p>' : ''}
-    <button class="btn btn-google" id="accGoogle" ${local ? 'disabled' : ''}><span>G</span> Google ile devam et</button>
-    <div class="acc-or">ya da e-posta</div>
+    ${local ? `<p class="note" style="margin:0 0 10px">⚠️ Site dosyadan açık: ${GOOGLE_AUTH ? 'Google ile giriş ve ' : ''}e-posta bağlantıları yalnız yayındaki adreste çalışır.</p>` : ''}
+    ${GOOGLE_AUTH ? `<button class="btn btn-google" id="accGoogle" ${local ? 'disabled' : ''}><span>G</span> Google ile devam et</button>
+    <div class="acc-or">ya da e-posta</div>` : ''}
     <input class="field" id="accEmail" type="email" placeholder="E-posta" autocomplete="email">
     <input class="field" id="accPass" type="password" placeholder="Şifre (en az 8 karakter)" autocomplete="current-password" style="margin-top:8px">
     <div class="row-btns"><button class="btn btn-primary" id="accIn">Giriş yap</button><button class="btn" id="accUp">Kayıt ol</button></div>
@@ -152,7 +153,7 @@ async function onAccountClick(e) {
   const id = e.target.closest('button')?.id;
   if (!id) return;
   const email = $('#accEmail')?.value.trim(), pass = $('#accPass')?.value || '';
-  if (id === 'accGoogle') {
+  if (id === 'accGoogle' && GOOGLE_AUTH) {
     const { error } = await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo:redirectTo() } });
     if (error) accErr(authMsg(error));
   } else if (id === 'accIn' || id === 'accUp') {

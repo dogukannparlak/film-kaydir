@@ -50,12 +50,12 @@ Anahtarlar yalnız bu tarayıcının `localStorage`'ında durur; depoya ya da ba
 
 ## Hesap ve eşitleme (Supabase)
 
-- Ayarlar › Hesap: e-posta + şifre ya da Google. Hesapsız da çalışır (veri yalnız tarayıcıda).
+- Ayarlar › Hesap: e-posta + şifre. Google ile giriş şimdilik kapalı (`js/hesap.js` › `GOOGLE_AUTH`). Hesapsız da çalışır (veri yalnız tarayıcıda).
 - Giriş yapınca listeler, görülenler, filtreler ve API anahtarları hesaba yazılır; cihazlar aynı listeyi görür.
 - Önce yerel: değişiklik 1,5 sn sonra buluta gider, buluttan açılışta / sekmeye dönünce / 60 sn'de bir çekilir.
   Bir cihazda ilk girişte yerel ve bulut birleşir (aynı öğede yeni olan kazanır).
 - Supabase projesi `kaydir` (eu-central-1). Tablolar `items`, `user_state`; RLS: her satır yalnız sahibine açık.
-- Google ile giriş ve e-posta bağlantıları yalnız yayındaki adreste çalışır (`file://` değil).
+- E-posta bağlantıları (onay, şifre sıfırlama) yalnız yayındaki adreste çalışır (`file://` değil).
 
 ## Bilinen sınırlar
 
