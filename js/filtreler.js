@@ -35,10 +35,11 @@ function renderFilterSheet() {
       <p class="note">Az bilinen yapımlar (ör. Türk dizileri) için düşük tut.</p></section>
     <section><h3>Platform <small>abonelikle · birden fazla seçilebilir</small></h3>
       <div class="chips" data-multi="providers" id="provChips">${providerChips(f)}</div>
-      <p class="note">Seçilirse bu platformlardan en az birinde (herhangi bir ülkede) olanlar gelir.</p></section>`;
+      <p class="note">Hepsi: hiçbir platformda olmayanlar, platformdan kalkanlar ve yalnız sinemada gösterilenler de gelir.<br>
+      Platform seçersen yalnız o platformlardan en az birinde (herhangi bir ülkede) şu an olanlar gelir.</p></section>`;
 }
 function providerChips(f) {
-  return chip('all', 'Hepsi', !f.providers.length) + providersFor().map(p => chip(p.id, `${p.logo ? `<img src="${IMG}w45${esc(p.logo)}" alt="">` : ''}${esc(p.name)}`, f.providers.includes(p.id))).join('');
+  return chip('all', 'Hepsi · platform şartı yok', !f.providers.length) + providersFor().map(p => chip(p.id, `${p.logo ? `<img src="${IMG}w45${esc(p.logo)}" alt="">` : ''}${esc(p.name)}`, f.providers.includes(p.id))).join('');
 }
 function onFilterClick(e) {
   const c = e.target.closest('.chip');
