@@ -20,6 +20,7 @@ Anahtarlar yalnız bu tarayıcının `localStorage`'ında durur; depoya ya da ba
 
 - Kaydırma (fare, dokunma, klavye ← → ↑), geri al.
 - Filtreler: film/dizi, dönem, tür, bölge/dil, en az puan, en az oy, Türkiye'deki platformlar.
+  Dönem, tür, bölge/dil ve platformda birden fazla seçim yapılır ("ya da": seçilenlerden herhangi biri).
 - Sıralama: rastgele, popüler, en yüksek puan, en yeni, **IMDb yüksek**, **RT yüksek**.
 - Kartta: TMDB puanı, IMDb bağlantısı, OMDb puanları, yönetmen (dizide yaratıcı), özet.
 - Üç liste (İstek, İzledim, Geç): arama, tür/dönem filtresi, sıralama

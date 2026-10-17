@@ -2,21 +2,23 @@
 /* ================= Sonsuz akış motoru ================= */
 const E = { gen:0, keys:{}, cursors:{}, done:{}, loading:false, exhausted:false, error:null, dry:0 };
 
-function randomBlocks() {
-  const [a, b] = periodRange(S.filters);
-  const lo = a ?? (S.filters.period === 'old' ? 1930 : 1960), hi = b ?? NOW_Y;
+const MAX_PARALLEL = 4;          // bir turda en fazla kaç kaynaktan sayfa çekilsin
+function randomBlocks(src) {
+  const [a, b] = src.range;
+  const lo = a ?? (src.pid === 'old' ? 1930 : 1960), hi = b ?? NOW_Y;
   const blocks = [];
   for (let y = lo; y <= hi; y += 5) blocks.push([y, Math.min(y + 4, hi)]);
   return blocks;
 }
 // Rastgele mod: dönemi 5 yıllık dilimlere böl, rastgele dilim + rastgele sıralama + rastgele sayfa seç.
 // Böylece eski ve yeni içerik eşit şansla karışır.
-async function fetchRandom(type, base) {
-  const blocks = randomBlocks();
+async function fetchRandom(src) {
+  const { type, base } = src;
+  const blocks = randomBlocks(src);
   const sorts = ['popularity.desc', 'vote_count.desc', 'vote_average.desc'];
   for (let attempt = 0; attempt < 6; attempt++) {
     const [ys, ye] = pick(blocks), sort = pick(sorts);
-    const k = `${type}|${ys}|${sort}`;
+    const k = `${src.key}|${ys}|${sort}`;
     const info = E.keys[k] || (E.keys[k] = { total:null, pages:new Set(), dead:false });
     if (info.dead) continue;
     let page = 1;
@@ -32,15 +34,15 @@ async function fetchRandom(type, base) {
     if (!info.total) info.dead = true;
     return { items: (d.results || []).map(r => norm(r, type)) };
   }
-  const deadCount = Object.entries(E.keys).filter(([k, v]) => k.startsWith(type + '|') && v.dead).length;
+  const deadCount = Object.entries(E.keys).filter(([k, v]) => k.startsWith(src.key + '|') && v.dead).length;
   return { items: [], done: deadCount >= blocks.length * sorts.length };
 }
-async function fetchSeq(type, base) {
-  const f = S.filters;
-  const c = E.cursors[type] || (E.cursors[type] = { page:0, total:1 });
+async function fetchSeq(src) {
+  const f = S.filters, { type, base } = src;
+  const c = E.cursors[src.key] || (E.cursors[src.key] = { page:0, total:1 });
   if (c.page >= Math.min(c.total, 500)) return { items: [], done: true };
   c.page++;
-  const [y0, y1] = periodRange(f);
+  const [y0, y1] = src.range;
   // IMDb/RT sıralamasını TMDB yapamaz: en çok oy alanları çek, parti içinde OMDb puanına göre diz (fetchMore)
   const sort = f.sort === 'popular' ? 'popularity.desc' : f.sort === 'top' ? 'vote_average.desc'
     : scoreSort(f.sort) ? 'vote_count.desc'
@@ -49,9 +51,10 @@ async function fetchSeq(type, base) {
   c.total = d.total_pages || 0;
   return { items: (d.results || []).map(r => norm(r, type)), done: c.page >= Math.min(c.total, 500) };
 }
-function fetchOne(type) {
-  const base = baseParams(type);
-  return S.filters.sort === 'random' ? fetchRandom(type, base) : fetchSeq(type, base);
+async function fetchOne(src) {
+  const r = await (S.filters.sort === 'random' ? fetchRandom(src) : fetchSeq(src));
+  if (src.reg.anime) r.items = r.items.filter(it => it.genres.includes(16));
+  return r;
 }
 function interleave(lists) {
   const out = [], n = Math.max(0, ...lists.map(l => l.length));
@@ -66,15 +69,16 @@ async function fetchMore() {
   updateDeckStatus();
   try {
     for (let round = 0; round < 5 && added < 12; round++) {
-      const types = activeTypes().filter(t => !E.done[t]);
-      if (!types.length) { E.exhausted = true; break; }
-      const res = await Promise.all(types.map(t => fetchOne(t).catch(err => {
+      const live = sources().filter(s => !E.done[s.key]);
+      if (!live.length) { E.exhausted = true; break; }
+      const srcs = shuffle(live).slice(0, MAX_PARALLEL);
+      const res = await Promise.all(srcs.map(s => fetchOne(s).catch(err => {
         if (err instanceof AuthError) throw err;
         console.warn(err);
         return { items: [], err };
       })));
       if (gen !== E.gen) return;
-      res.forEach((r, i) => { if (r.done) E.done[types[i]] = true; });
+      res.forEach((r, i) => { if (r.done) E.done[srcs[i].key] = true; });
       if (res.every(r => r.err)) throw res[0].err;
       const merged = interleave(res.map(r => r.items));
       if (S.filters.sort === 'random') shuffle(merged);

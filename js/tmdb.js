@@ -22,13 +22,14 @@ function norm(r, type) {
     genres: r.genre_ids || [], overview: r.overview || '',
   };
 }
-const region = () => REGIONS.find(r => r.id === S.filters.region) || REGIONS[0];
-function periodRange(f) {
-  if (f.period === 'custom') {
+// Boş seçim = hepsi
+const selRegions = f => f.regions.length ? REGIONS.filter(r => f.regions.includes(r.id)) : [REGIONS[0]];
+const selPeriods = f => f.periods.length ? PERIODS.filter(p => f.periods.includes(p.id)) : [PERIODS[0]];
+function periodRange(p, f) {
+  if (p.id === 'custom') {
     const a = clamp(+f.from || 1900, 1900, NOW_Y), b = clamp(+f.to || NOW_Y, 1900, NOW_Y);
     return [Math.min(a, b), Math.max(a, b)];
   }
-  const p = PERIODS.find(x => x.id === f.period) || PERIODS[0];
   return [p.from, p.to];
 }
 function genreIds(type, sel) {
@@ -37,8 +38,8 @@ function genreIds(type, sel) {
   GENRES.filter(g => sel.includes(g.id)).forEach(g => (type === 'movie' ? g.m : g.t).forEach(i => ids.add(i)));
   return ids.size ? [...ids] : null; // null: seçilen türlerin bu içerik tipinde karşılığı yok
 }
-function baseParams(type) {
-  const f = S.filters, reg = region();
+function baseParams(type, reg) {
+  const f = S.filters;
   const g = genreIds(type, f.genres);
   if (g === null) return null;
   const p = { language:'tr-TR', include_adult:false, 'vote_count.gte': f.minVotes, ...reg.p };
@@ -61,13 +62,20 @@ function dateParams(type, y0, y1) {
   p[pre + '.lte'] = lte < TODAY ? lte : TODAY; // henüz çıkmamışları gösterme
   return p;
 }
-function activeTypes() {
-  const t = S.filters.type === 'both' ? ['movie', 'tv'] : [S.filters.type];
-  return t.filter(x => baseParams(x));
+// Her kaynak ayrı bir TMDB akışıdır: dönemler ve bölgeler tek sorguda "ya da" ile birleşemez
+function sources() {
+  const f = S.filters, out = [];
+  for (const type of f.type === 'both' ? ['movie', 'tv'] : [f.type])
+    for (const reg of selRegions(f)) {
+      const base = baseParams(type, reg);
+      if (!base) continue;
+      for (const p of selPeriods(f))
+        out.push({ key:`${type}|${reg.id}|${p.id}`, type, reg, pid:p.id, base, range:periodRange(p, f) });
+    }
+  return out;
 }
 function accept(it) {
   if (!it.poster || it.votes < S.filters.minVotes) return false;
   if (S.seen.has(it.key) || S.queued.has(it.key)) return false;
-  if (region().anime && !it.genres.includes(16)) return false;
   return true;
 }

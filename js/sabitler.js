@@ -67,4 +67,4 @@ const FALLBACK_PROVIDERS = [
   {id:8, name:'Netflix', logo:''}, {id:337, name:'Disney Plus', logo:''},
   {id:119, name:'Amazon Prime Video', logo:''}, {id:350, name:'Apple TV+', logo:''}, {id:11, name:'MUBI', logo:''},
 ];
-const DEFAULT_FILTERS = { type:'both', sort:'random', period:'all', from:1990, to:NOW_Y, genres:[], region:'all', minRating:0, minVotes:100, providers:[] };
+const DEFAULT_FILTERS = { type:'both', sort:'random', periods:[], from:1990, to:NOW_Y, genres:[], regions:[], minRating:0, minVotes:100, providers:[] };

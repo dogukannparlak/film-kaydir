@@ -56,11 +56,15 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 
 ## Veri akışı
 
-1. `fetchMore` (motor) → `tmdb('/discover/...')` → `norm` → `accept` (görülmemiş, afişli, oy eşiği).
-2. Sıralama IMDb/RT ise parti önce `fetchIds` + `loadScores` ile zenginleşir ve puana göre dizilir.
-3. `renderDeck` ilk üç kartı çizer; ilk ikisi için `ensureExtra` yönetmeni, IMDb kimliğini,
+1. `sources()` (tmdb) filtreleri kaynaklara açar: içerik tipi × bölge × dönem. TMDB tek sorguda dönemleri ya da
+   dilleri "ya da" ile birleştiremediği için her kaynak ayrı akıştır; `fetchMore` her turda en çok
+   `MAX_PARALLEL` (4) kaynağı rastgele seçip çeker. Boş seçim = hepsi. Eski tekli kayıtları
+   (`period`, `region`) `migrateFilters` (durum) diziye çevirir.
+2. `fetchMore` (motor) → `tmdb('/discover/...')` → `norm` → `accept` (görülmemiş, afişli, oy eşiği).
+3. Sıralama IMDb/RT ise parti önce `fetchIds` + `loadScores` ile zenginleşir ve puana göre dizilir.
+4. `renderDeck` ilk üç kartı çizer; ilk ikisi için `ensureExtra` yönetmeni, IMDb kimliğini,
    özeti ve puanları tamamlar.
-4. Kaydırma → `act` → `setItem`: öğe `S.items`'a yazılır (localStorage `kd_items`).
+5. Kaydırma → `act` → `setItem`: öğe `S.items`'a yazılır (localStorage `kd_items`).
 
 ## Saklanan veri (localStorage)
 

@@ -18,16 +18,16 @@ function renderFilterSheet() {
       ${SORTS.map(s => chip(s.id, s.label, f.sort === s.id)).join('')}</div>
       <p class="note">Rastgele: dönemi dilimlere bölüp eski ve yeni yapımları karıştırır.<br>
       IMDb/RT: en çok oy alanlar gelir, her parti kendi içinde puana göre dizilir (yaklaşık). OMDb anahtarı gerekir; yoksa çok oy alanlar sırasıyla gelir.</p></section>
-    <section><h3>Dönem</h3><div class="chips" data-single="period">
-      ${PERIODS.map(p => chip(p.id, p.label, f.period === p.id)).join('')}</div>
-      <div class="years ${f.period === 'custom' ? '' : 'hidden'}" id="yearsRow">
+    <section><h3>Dönem <small>birden fazla seçilebilir</small></h3><div class="chips" data-multi="periods">
+      ${PERIODS.map(p => chip(p.id, p.label, p.id === 'all' ? !f.periods.length : f.periods.includes(p.id))).join('')}</div>
+      <div class="years ${f.periods.includes('custom') ? '' : 'hidden'}" id="yearsRow">
         <input type="number" inputmode="numeric" id="yFrom" min="1900" max="${NOW_Y}" value="${f.from}" aria-label="Başlangıç yılı">
         <span>–</span>
         <input type="number" inputmode="numeric" id="yTo" min="1900" max="${NOW_Y}" value="${f.to}" aria-label="Bitiş yılı"></div></section>
     <section><h3>Tür <small>birden fazla seçilebilir · herhangi biri</small></h3><div class="chips" data-multi="genres">
       ${GENRES.map(g => chip(g.id, g.label, f.genres.includes(g.id), genreHiddenFor(g, f.type) ? 'hidden' : '')).join('')}</div></section>
-    <section><h3>Dil / bölge</h3><div class="chips" data-single="region">
-      ${REGIONS.map(r => chip(r.id, r.label, f.region === r.id)).join('')}</div></section>
+    <section><h3>Dil / bölge <small>birden fazla seçilebilir</small></h3><div class="chips" data-multi="regions">
+      ${REGIONS.map(r => chip(r.id, r.label, r.id === 'all' ? !f.regions.length : f.regions.includes(r.id))).join('')}</div></section>
     <section><h3>Minimum puan <small id="ratingOut">${f.minRating ? '★ ' + f.minRating : 'yok'}</small></h3>
       <input type="range" id="minRating" min="0" max="9" step="0.5" value="${f.minRating}"></section>
     <section><h3>Minimum oy sayısı</h3><div class="chips" data-single="minVotes">
@@ -46,7 +46,6 @@ function onFilterClick(e) {
     const k = box.dataset.single;
     draft[k] = k === 'minVotes' ? +raw : raw;
     $$('.chip', box).forEach(x => x.setAttribute('aria-pressed', x === c));
-    if (k === 'period') $('#yearsRow').classList.toggle('hidden', raw !== 'custom');
     if (k === 'type') {
       $$('[data-multi="genres"] .chip').forEach(x => {
         const g = GENRES.find(g => g.id === x.dataset.val);
@@ -59,12 +58,17 @@ function onFilterClick(e) {
     const k = box.dataset.multi;
     const val = k === 'providers' ? +raw : raw;
     const on = draft[k].includes(val);
-    draft[k] = on ? draft[k].filter(v => v !== val) : [...draft[k], val];
-    c.setAttribute('aria-pressed', !on);
+    // "Hepsi" çipi seçimi boşaltır; boş seçim = hepsi
+    draft[k] = val === 'all' ? [] : on ? draft[k].filter(v => v !== val) : [...draft[k], val];
+    $$('.chip', box).forEach(x => {
+      const v = k === 'providers' ? +x.dataset.val : x.dataset.val;
+      x.setAttribute('aria-pressed', v === 'all' ? !draft[k].length : draft[k].includes(v));
+    });
+    if (k === 'periods') $('#yearsRow').classList.toggle('hidden', !draft.periods.includes('custom'));
   }
 }
 function applyFilters() {
-  if (draft.period === 'custom') {
+  if (draft.periods.includes('custom')) {
     draft.from = clamp(parseInt($('#yFrom').value) || 1900, 1900, NOW_Y);
     draft.to = clamp(parseInt($('#yTo').value) || NOW_Y, 1900, NOW_Y);
   }
@@ -79,16 +83,16 @@ function updateSummary() {
   const parts = [
     SORTS.find(s => s.id === f.sort).label,
     { both:'Film + dizi', movie:'Film', tv:'Dizi' }[f.type],
-    f.period === 'custom' ? `${Math.min(f.from, f.to)}–${Math.max(f.from, f.to)}` : f.period === 'all' ? 'Tüm dönemler' : PERIODS.find(p => p.id === f.period).label,
+    f.periods.length ? f.periods.map(id => id === 'custom' ? `${Math.min(f.from, f.to)}–${Math.max(f.from, f.to)}` : PERIODS.find(p => p.id === id)?.label).join(', ') : 'Tüm dönemler',
   ];
   if (f.genres.length) parts.push(f.genres.map(id => GENRES.find(g => g.id === id)?.label).join(', '));
-  if (f.region !== 'all') parts.push(region().label);
+  if (f.regions.length) parts.push(selRegions(f).map(r => r.label).join(', '));
   if (f.minRating) parts.push('★ ' + f.minRating + '+');
   if (f.providers.length) parts.push(f.providers.length + ' platform');
   $('#summary').textContent = parts.join(' · ');
   let n = 0;
-  if (f.type !== 'both') n++; if (f.sort !== 'random') n++; if (f.period !== 'all') n++;
-  if (f.region !== 'all') n++; if (f.minRating) n++; if (f.minVotes !== DEFAULT_FILTERS.minVotes) n++;
+  if (f.type !== 'both') n++; if (f.sort !== 'random') n++; if (f.periods.length) n++;
+  if (f.regions.length) n++; if (f.minRating) n++; if (f.minVotes !== DEFAULT_FILTERS.minVotes) n++;
   n += f.genres.length ? 1 : 0; n += f.providers.length ? 1 : 0;
   $('#filterDot').textContent = n;
   $('#filterDot').classList.toggle('hidden', !n);
