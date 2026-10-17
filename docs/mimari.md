@@ -92,6 +92,10 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 
 ## Dış API'ler
 
+- TMDB isteği (`js/tmdb.js` › `tmdb`): kullanıcının anahtarı varsa doğrudan TMDB'ye, yoksa sitenin ara katmanına
+  (`/api/tmdb/*`, `src/worker.js`; anahtar Cloudflare secret `TMDB_KEY`). Ara katman 401/403/404/503 dönerse
+  `S.proxyDown` olur ve anahtar kutusu çıkar. `tmdbReady()` ikisinden biri kullanılabilir mi söyler.
+
 - TMDB v3: `/configuration` (anahtar sınaması), `/discover/{movie,tv}`, `/{movie,tv}/{id}`
   (`append_to_response=external_ids,credits`), `/watch/providers/movie`. Afişler `image.tmdb.org/t/p/`.
 - OMDb: `?apikey=…&i=tt…` → `imdbRating`, `Ratings[]` (Rotten Tomatoes, Metacritic).

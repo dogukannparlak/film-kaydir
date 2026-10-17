@@ -10,11 +10,11 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
       <div id="accBox"></div>
     </section>
     <section>
-      <h3>TMDB API anahtarı</h3>
+      <h3>TMDB API anahtarı <small>isteğe bağlı</small></h3>
       <input class="field" id="setKey" type="password" placeholder="API anahtarı ya da okuma erişim jetonu" autocomplete="off">
       <div class="row-btns"><button class="btn btn-primary" id="btnSaveKey2">Kaydet</button><button class="btn btn-danger" id="btnDelKey">Anahtarı sil</button></div>
       <div class="err" id="setKeyErr"></div>
-      <p class="note">Anahtar bu tarayıcıda saklanır; giriş yaptıysan hesabında da yedeklenir, diğer cihazlarda yeniden girmen gerekmez.</p>
+      <p class="note">Gerekmez: site TMDB'ye kendi ortak bağlantısıyla bağlanır. Kendi anahtarını girersen istekler doğrudan onunla gider; bu tarayıcıda saklanır, giriş yaptıysan hesabında da yedeklenir.</p>
     </section>
     <section>
       <h3>OMDb anahtarı <small>isteğe bağlı · IMDb, RT, Metacritic puanı</small></h3>

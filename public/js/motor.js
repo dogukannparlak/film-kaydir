@@ -66,7 +66,7 @@ function interleave(lists) {
   return out;
 }
 async function fetchMore() {
-  if (!S.apiKey || E.loading || E.exhausted || E.error) return;
+  if (!tmdbReady() || E.loading || E.exhausted || E.error) return;
   E.loading = true;
   const gen = E.gen;
   let added = 0;
@@ -101,7 +101,11 @@ async function fetchMore() {
     if (E.dry >= 3) E.exhausted = true;
   } catch (err) {
     if (gen !== E.gen) return;
-    if (err instanceof AuthError) { S.apiKey = ''; store.del(K.key); S.keyMsg = 'Anahtar geçersiz. Yeniden yapıştır.'; return; }
+    if (err instanceof AuthError) {
+      if (err.message === 'proxy') S.keyMsg = 'Sitenin ortak TMDB bağlantısı şu an çalışmıyor. Kendi anahtarını yapıştırabilirsin.';
+      else { S.apiKey = ''; store.del(K.key); S.keyMsg = 'Anahtar geçersiz. Yeniden yapıştır.'; }
+      return;
+    }
     E.error = err;
   } finally {
     if (gen === E.gen) { E.loading = false; renderDeck(); }

@@ -192,7 +192,7 @@ let seriesOrder = null;
 const scanTried = new Set();
 // Listedeki filmlerin hangi seriye ait olduğunu (belongs_to_collection) TMDB'den tamamla
 async function scanCollections() {
-  if (scanning || !S.apiKey) return;
+  if (scanning || !tmdbReady()) return;
   const need = Object.entries(S.items).filter(([k, i]) => i.type === 'movie' && i.collection === undefined && !scanTried.has(k));
   if (!need.length) return;
   scanning = true;

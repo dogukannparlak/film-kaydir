@@ -57,7 +57,7 @@ function init() {
 
   $('#btnSaveKey2').onclick = () => saveKey($('#setKey').value, $('#setKeyErr'));
   $('#btnDelKey').onclick = () => {
-    store.del(K.key); S.apiKey = ''; stateChanged(); closeSheet(); resetEngine(); toast('Anahtar silindi');
+    store.del(K.key); S.apiKey = ''; S.proxyDown = false; stateChanged(); closeSheet(); resetEngine(); toast(TMDB_PROXY ? 'Anahtar silindi: ortak bağlantı kullanılıyor' : 'Anahtar silindi');
   };
   $('#btnSaveOmdb').onclick = saveOmdb;
   $('#btnDelOmdb').onclick = () => { store.del(K.omdb); S.omdbKey = ''; stateChanged(); $('#setOmdb').value = ''; toast('OMDb anahtarı silindi'); };
@@ -78,14 +78,14 @@ function init() {
     if (openSheetEl) return;
     if (e.metaKey || e.ctrlKey || e.altKey) return; // Cmd+← tarayıcıda geri gitsin, kart kaydırılmasın
     if (e.key === '/' && !e.metaKey && !e.ctrlKey) { e.preventDefault(); openSearch(); return; }
-    if (S.view !== 'discover' || !S.apiKey) return;
+    if (S.view !== 'discover' || !tmdbReady()) return;
     const dir = { ArrowRight:'right', ArrowLeft:'left', ArrowUp:'up' }[e.key];
     if (dir) { e.preventDefault(); if (!e.repeat) act(dir); } // basılı tutmak art arda kart geçirmesin
     else if (e.key === 'Backspace' || e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); }
   });
 
   renderDeck();
-  if (S.apiKey) loadProviders();
+  if (tmdbReady()) loadProviders();
   initAccount();
   initGuide();
   setTimeout(checkNewSeasons, 4000); // izlenen dizilerde yeni sezon (12 saatte bir)

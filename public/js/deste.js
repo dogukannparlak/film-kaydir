@@ -8,8 +8,8 @@ function preload(it) {
 
 function renderDeck(keyMsg) {
   const deck = $('#deck');
-  $('#actions').classList.toggle('hidden', !S.apiKey);
-  if (!S.apiKey) { deck.innerHTML = keyBoxHTML(keyMsg ?? S.keyMsg); bindKeyBox(); return; }
+  $('#actions').classList.toggle('hidden', !tmdbReady());
+  if (!tmdbReady()) { deck.innerHTML = keyBoxHTML(keyMsg ?? S.keyMsg); bindKeyBox(); return; }
   $('.keybox', deck)?.remove();
   const top = S.queue.slice(0, 3);
   const live = $$('.card:not(.leaving)', deck);
@@ -29,7 +29,7 @@ function renderDeck(keyMsg) {
 function updateDeckStatus() {
   const deck = $('#deck');
   let st = $('.deck-status', deck);
-  if (!S.apiKey || S.queue.length) { st?.remove(); return; }
+  if (!tmdbReady() || S.queue.length) { st?.remove(); return; }
   if (!st) { st = document.createElement('div'); st.className = 'deck-status'; deck.prepend(st); }
   if (E.loading) st.innerHTML = '<div class="spinner"></div><div>Yükleniyor…</div>';
   else if (E.error) st.innerHTML = `<div>Bağlantı hatası: ${esc(E.error.message)}</div><button class="btn btn-primary" data-retry>Tekrar dene</button>`;

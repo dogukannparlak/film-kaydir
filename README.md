@@ -3,19 +3,31 @@
 Tinder tarzı film/dizi keşfi: kartı sağa kaydır "istiyorum", sola "geç", yukarı "izledim".
 Veri TMDB'den, IMDb / Rotten Tomatoes / Metacritic puanları isteğe bağlı OMDb'den gelir.
 Sunucu, derleme ya da paket yok. Site dosyaları `public/` altında: `public/index.html` dosyasını tarayıcıda aç.
-Yayın: https://kaydir.dogukanparlak.com (Cloudflare Workers, GitHub'a bağlı; `wrangler.jsonc` ile `public/` yayınlanır).
+Yayın: https://kaydir.dogukanparlak.com (Cloudflare Workers, GitHub'a bağlı; `wrangler.jsonc` ile `public/` yayınlanır,
+`src/worker.js` TMDB ara katmanıdır).
 
 ## Kurulum
 
-1. `public/index.html` dosyasını çift tıkla ya da https://kaydir.dogukanparlak.com adresini aç.
-2. Ayarlar → TMDB anahtarını yapıştır. İkisi de olur:
+1. https://kaydir.dogukanparlak.com adresini aç: TMDB anahtarı gerekmez, site sitenin ortak bağlantısını
+   (`/api/tmdb/*`, aşağıda) kullanır. `public/index.html` dosyadan açılırsa ortak bağlantı yoktur, 2. adım gerekir.
+2. İsteğe bağlı: Ayarlar → kendi TMDB anahtarını yapıştır (istekler doğrudan TMDB'ye gider). İkisi de olur:
    - "API Read Access Token" (`eyJ...`): `Authorization: Bearer` başlığıyla gider.
    - v3 "API Key" (32 karakter): `api_key=` parametresiyle gider.
    Anahtar: themoviedb.org → Ayarlar → API.
 3. İsteğe bağlı: Ayarlar → OMDb anahtarı. Ücretsiz anahtar: omdbapi.com/apikey.aspx
    (günde 1000 istek; e-postadaki bağlantıyla etkinleştirilir).
 
-Anahtarlar yalnız bu tarayıcının `localStorage`'ında durur; depoya ya da başka yere yazılmaz.
+Kullanıcı anahtarları tarayıcının `localStorage`'ında durur; giriş yapılmışsa hesapta da yedeklenir (aşağıda).
+
+### TMDB ortak bağlantısı (Cloudflare Worker)
+
+- `src/worker.js`: `public/` dosyalarını sunar, `/api/tmdb/<yol>` isteklerini `api.themoviedb.org/3/<yol>`'a iletir.
+- Sitenin TMDB anahtarı **Cloudflare'de gizli değişkendir** (secret `TMDB_KEY`): kodda, repoda ve tarayıcıda yoktur;
+  repo public olsa da görünmez. Ekleme: Workers & Pages › kaydir › Settings › Variables and secrets › Add › Secret.
+- Yalnız sitenin kendi sayfalarından gelen GET istekleri kabul edilir (`Sec-Fetch-Site` / Origin / Referer).
+  Yanıtlar 6 saat kenar önbellekte tutulur (aynı istek TMDB'ye tekrar gitmez).
+- Secret yoksa ya da geçersizse site "ortak bağlantı çalışmıyor" der ve kendi anahtarını ister.
+- Yerel deneme için anahtar `.dev.vars` dosyasına yazılır (`TMDB_KEY=…`); bu dosya `.gitignore`'dadır.
 
 ## Özellikler
 

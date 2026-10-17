@@ -8,7 +8,7 @@ let seasonChecking = false;
 const dayStr = ms => new Date(ms).toISOString().slice(0, 10);
 const shortDate = d => new Date(d + 'T00:00:00').toLocaleDateString('tr-TR', { day:'numeric', month:'short' });
 async function checkNewSeasons() {
-  if (seasonChecking || !S.apiKey) return;
+  if (seasonChecking || !tmdbReady()) return;
   const due = Object.entries(S.items).filter(([, i]) => i.type === 'tv' && i.status === 'watched' && !(Date.now() - (i.tvCheckedAt || 0) < SEASON_CHECK_EVERY)).slice(0, SEASON_BATCH);
   if (!due.length) return;
   seasonChecking = true;

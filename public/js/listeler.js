@@ -155,7 +155,7 @@ let backfilling = false;
 const triedTitle = new Set();
 let fillingTitles = false;
 async function backfillTitles(arr) {
-  if (fillingTitles || !S.apiKey) return;
+  if (fillingTitles || !tmdbReady()) return;
   const need = arr.filter(i => (i.originalTitle === undefined || (i.type === 'movie' && i.collection === undefined)) && !triedTitle.has(i.key)).slice(0, 40);
   if (!need.length) return;
   fillingTitles = true;

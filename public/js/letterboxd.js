@@ -78,7 +78,7 @@ async function matchTMDB(name, year) {
 }
 async function importLetterboxd(files) {
   const out = $('#lbStatus'), btn = $('#btnLetterboxd');
-  if (!S.apiKey) { out.textContent = 'Önce TMDB anahtarını kaydet.'; return; }
+  if (!tmdbReady()) { out.textContent = 'TMDB\'ye bağlanılamıyor: Ayarlar\'dan kendi anahtarını kaydet.'; return; }
   let data;
   try { data = await readLetterboxd(files); }
   catch (e) { out.textContent = 'Okunamadı: ' + e.message; return; }

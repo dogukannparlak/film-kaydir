@@ -24,10 +24,9 @@ function closeGuide() {
 }
 function accountStepHTML() {
   if (S.user) return `<p>Hesabınla giriş yaptın: listelerin ve API anahtarların bu hesapta yedekleniyor, cihazlar arasında düzenli eşitleniyor.</p>`;
-  return `<p><b>Hesap açarsan</b> listelerin ve API anahtarların her cihazda aynı olur, düzenli eşitlenir. Telefonda ya da bilgisayarda giriş yapınca anahtarı yeniden girmen gerekmez.</p>
+  return `<p><b>Hesap açarsan</b> listelerin ve API anahtarların her cihazda aynı olur, düzenli eşitlenir. OMDb gibi anahtarlarını telefonda ya da bilgisayarda yeniden girmen gerekmez.</p>
     <p><b>Hesapsız</b> devam edersen her şey yalnız bu tarayıcıda kalır. İstediğin zaman Ayarlar › Hesap'tan giriş yapabilirsin.</p>
-    <div class="guide-acc"><button class="btn btn-primary" data-acc="up">Kaydol</button><button class="btn" data-acc="in">Giriş yap</button></div>
-    <p class="note">Film verisi için ücretsiz bir TMDB anahtarı gerekir; hesabında kayıtlıysa giriş yapınca kendiliğinden gelir.</p>`;
+    <div class="guide-acc"><button class="btn btn-primary" data-acc="up">Kaydol</button><button class="btn" data-acc="in">Giriş yap</button></div>`;
 }
 function renderGuide() {
   const s = GUIDE_STEPS[guideStep], last = guideStep === GUIDE_STEPS.length - 1;

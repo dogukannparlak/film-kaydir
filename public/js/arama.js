@@ -6,7 +6,7 @@
 let searchGen = 0, searchTimer = null, searchResults = [], searchColls = [];
 const searchIndex = new Map(); // key → öğe (seri filmleri + sonuçlar), tek tek eklemede bulmak için
 function openSearch() {
-  if (!S.apiKey) { toast('Önce Ayarlar\'dan TMDB anahtarını kaydet.'); return; }
+  if (!tmdbReady()) { toast('TMDB\'ye bağlanılamıyor: Ayarlar\'dan kendi anahtarını kaydet.'); return; }
   openSheet('#sheetSearch');
   setTimeout(() => $('#sq').focus(), 250);
   if ($('#sq').value.trim()) renderSearch();

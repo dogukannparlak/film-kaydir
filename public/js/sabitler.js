@@ -2,6 +2,8 @@
 /* ================= Sabitler ================= */
 const API = 'https://api.themoviedb.org/3';
 const IMG = 'https://image.tmdb.org/t/p/';
+// Sitenin TMDB ara katmanı (src/worker.js; anahtar Cloudflare'de gizli). Dosyadan açıkken (file://) yok: kendi anahtarı gerekir.
+const TMDB_PROXY = location.protocol.startsWith('http') ? '/api/tmdb' : null;
 const K = { key:'kd_apikey', items:'kd_items', seen:'kd_seen', filters:'kd_filters', prov:'kd_providers', listF:'kd_listf', omdb:'kd_omdbkey', omdbCache:'kd_omdb', coll:'kd_coll', guide:'kd_guide', dirty:'kd_dirty' };
 const NOW_Y = new Date().getFullYear();
 const TODAY = new Date().toISOString().slice(0, 10);

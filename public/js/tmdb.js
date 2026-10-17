@@ -1,14 +1,19 @@
 'use strict';
 /* ================= TMDB ================= */
 class AuthError extends Error {}
+// Kendi anahtarı varsa TMDB'ye doğrudan, yoksa sitenin ara katmanından (ortak bağlantı) gider
+const tmdbReady = () => !!S.apiKey || (!!TMDB_PROXY && !S.proxyDown);
 async function tmdb(path, params = {}) {
-  const url = new URL(API + path);
+  const own = !!S.apiKey;
+  const url = own ? new URL(API + path) : new URL(TMDB_PROXY + path, location.origin);
   const headers = { accept: 'application/json' };
   // v4 "okuma erişim jetonu" (eyJ...) Bearer ile, v3 anahtar api_key ile gider
-  if (S.apiKey.startsWith('eyJ')) headers.Authorization = 'Bearer ' + S.apiKey;
-  else url.searchParams.set('api_key', S.apiKey);
+  if (own && S.apiKey.startsWith('eyJ')) headers.Authorization = 'Bearer ' + S.apiKey;
+  else if (own) url.searchParams.set('api_key', S.apiKey);
   for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, v);
   const r = await fetch(url, { headers });
+  // Ortak bağlantı çalışmıyor (sunucu anahtarı yok/geçersiz, ara katman yok): kendi anahtarını isteyelim
+  if (!own && [401, 403, 404, 503].includes(r.status)) { S.proxyDown = true; throw new AuthError('proxy'); }
   if (r.status === 401) throw new AuthError('auth');
   if (!r.ok) throw new Error('TMDB ' + r.status);
   return r.json();

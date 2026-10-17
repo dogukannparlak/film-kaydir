@@ -1,6 +1,9 @@
-// Cloudflare Workers yayın ayarı: derleme yok, public/ klasörü statik site olarak yayınlanır.
+// Cloudflare Workers yayın ayarı: derleme yok. public/ statik site, src/worker.js yalnız /api/tmdb/* için çalışır
+// (dosyası olmayan adresler Worker'a düşer). TMDB anahtarı burada değil, panelde secret TMDB_KEY olarak durur.
 {
   "name": "kaydir",
+  "main": "src/worker.js",
   "compatibility_date": "2026-10-01",
-  "assets": { "directory": "./public" }
+  "assets": { "directory": "./public", "binding": "ASSETS" },
+  "observability": { "enabled": true }
 }

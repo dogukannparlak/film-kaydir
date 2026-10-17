@@ -118,7 +118,7 @@ function providersFor() {
   return out.length ? out : FALLBACK_PROVIDERS;
 }
 async function loadProviders(countries = WATCH_REGIONS) {
-  if (!S.apiKey) return;
+  if (!tmdbReady()) return;
   const cache = providerCache();
   const need = countries.filter(c => !(cache[c] && Date.now() - cache[c].at < 3 * 864e5));
   await Promise.all(need.map(async c => {
