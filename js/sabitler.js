@@ -13,6 +13,7 @@ const STATUS_TO = { want:'İstek listesine', watched:'İzlediklerim\'e', passed:
 const DIR_STATUS = { right:'want', left:'passed', up:'watched' };
 // İzlediklerim içinde "yarım kaldı" işareti; öğe İzlediklerim'de kalır
 const PROGRESS = {
+  watching:{ label:'İzliyorum',  icon:'▶', tvOnly:true },
   season:  { label:'Yeni sezon', icon:'◐', tvOnly:true },
   dropped: { label:'Bıraktım',   icon:'⏸' },
 };

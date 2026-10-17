@@ -40,6 +40,8 @@ Anahtarlar yalnız bu tarayıcının `localStorage`'ında durur; depoya ya da ba
 - Yeni sezon: İzlediklerim'deki dizilerde, diziyi eklediğin tarihten sonra yayınlanan sezon 12 saatte bir kontrol edilir;
   bulununca "◐ Yeni sezon" kendiliğinden konur (🆕 rozet + bildirim). İşareti kaldırınca o sezon görüldü sayılır.
   "Bıraktım" işaretli dizilere dokunulmaz. Tarihi açıklanmış gelecek sezon 📅 rozetiyle görünür.
+- İzliyorum (diziler): İzlediklerim'de "▶ İzliyorum" + kaldığın yer ("📍 2. sezon 5. bölüm"); sezon/bölüm seçici,
+  "+1 bölüm" ile sonraki yayınlanmış bölüm. Süzgeçte "İzliyorum". Yeni sezon gelirse rozet çıkar, işaret değişmez.
 - Fragman: kartta ve listede ▶ Fragman (YouTube, önce Türkçe).
 - JSON dışa/içe aktarma (yedek): Ayarlar → Yedek. İçe aktarmada buradaki daha yeni kayıt korunur.
 - Letterboxd'dan içe aktarma: Ayarlar → Letterboxd. Export zip'i (ya da `watched.csv`, `watchlist.csv`) seçilir;

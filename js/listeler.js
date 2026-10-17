@@ -136,6 +136,7 @@ function itemHTML(i, tab, inGroup = false) {
         </div>
         ${sub ? `<div class="item-sub">${esc(sub)}</div>` : ''}
         ${scores ? `<div class="item-scores">${scores}</div>` : ''}
+        ${watchingRow(i)}
         ${i.collection && !inGroup ? `<div>${collListTag(i)}</div>` : ''}
       </div>
       <div class="item-acts">
@@ -202,6 +203,8 @@ function onListClick(e) {
   if (e.target.closest('[data-resort]')) { listOrder = null; resortReady = false; return renderList(); }
   const tr = e.target.closest('[data-trailer]');
   if (tr) { const li = tr.closest('.item'), it = li && S.items[li.dataset.key]; if (it) openTrailer(it.type, it.id); return; }
+  if (e.target.closest('[data-ep-open]')) return openEpisodes(e.target.closest('.item').dataset.key);
+  if (e.target.closest('[data-ep-next]')) return nextEpisode(e.target.closest('.item').dataset.key);
   const ct = e.target.closest('[data-coll-open]');
   if (ct) return openCollection(+ct.dataset.collOpen);
   const li = e.target.closest('.item');
@@ -215,7 +218,9 @@ function onListClick(e) {
     const snap = { ...item }, prev = item.progress || null, next = prev === pg.dataset.progress ? null : pg.dataset.progress;
     if (next) item.progress = next; else delete item.progress;
     if (prev === 'season' && next !== 'season') ackSeason(item); // yeni sezon görüldü: bir daha işaretlenmesin
+    if (prev === 'watching' && next !== 'watching') delete item.at;
     saveItems(); renderList();
+    if (next === 'watching' && !item.at) return openEpisodes(k);
     toast(next ? `Yarım kaldı: ${PROGRESS[next].label}` : 'Bitti olarak işaretlendi', 'Geri al', () => {
       S.items[k] = snap; saveItems(); renderList();
     });
@@ -256,7 +261,7 @@ async function importJSON(file) {
       const k = `${i.type}:${+i.id}`;
       if (S.items[k] && (S.items[k].addedAt || 0) > (+i.addedAt || 0)) { S.seen.add(k); kept++; continue; } // buradaki daha yeni
       S.items[k] = { id:+i.id, type:i.type, title:String(i.title || '—'), ...(typeof i.originalTitle === 'string' ? { originalTitle:i.originalTitle.slice(0, 300) } : {}), poster:i.poster || null, date:String(i.date || ''),
-        status:i.status, genres:Array.isArray(i.genres) ? i.genres.map(Number) : [], rating:+i.rating || 0, imdb:/^tt\d+$/.test(i.imdb) ? i.imdb : null, imdbRating:i.imdbRating ? String(i.imdbRating) : null, rt:/^\d+%$/.test(i.rt) ? i.rt : null, director:typeof i.director === 'string' ? i.director.slice(0, 200) : null, ...(typeof i.trailer === 'string' && /^[\w-]{0,20}$/.test(i.trailer) ? { trailer:i.trailer } : {}), ...(+i.seasonAck > 0 ? { seasonAck:+i.seasonAck } : {}), ...(i.collection === null || (i.collection && +i.collection.id > 0) ? { collection:i.collection && { id:+i.collection.id, name:String(i.collection.name || '').slice(0, 200) } } : {}), ...(i.status === 'watched' && Object.hasOwn(PROGRESS, i.progress) ? { progress:i.progress } : {}), ...(+i.lbRating > 0 && +i.lbRating <= 5 ? { lbRating:+i.lbRating } : {}), scoreAt:+i.scoreAt || null, addedAt:+i.addedAt || Date.now() };
+        status:i.status, genres:Array.isArray(i.genres) ? i.genres.map(Number) : [], rating:+i.rating || 0, imdb:/^tt\d+$/.test(i.imdb) ? i.imdb : null, imdbRating:i.imdbRating ? String(i.imdbRating) : null, rt:/^\d+%$/.test(i.rt) ? i.rt : null, director:typeof i.director === 'string' ? i.director.slice(0, 200) : null, ...(typeof i.trailer === 'string' && /^[\w-]{0,20}$/.test(i.trailer) ? { trailer:i.trailer } : {}), ...(+i.seasonAck > 0 ? { seasonAck:+i.seasonAck } : {}), ...(i.at && +i.at.s > 0 && +i.at.e > 0 ? { at:{ s:+i.at.s, e:+i.at.e } } : {}), ...(i.collection === null || (i.collection && +i.collection.id > 0) ? { collection:i.collection && { id:+i.collection.id, name:String(i.collection.name || '').slice(0, 200) } } : {}), ...(i.status === 'watched' && Object.hasOwn(PROGRESS, i.progress) ? { progress:i.progress } : {}), ...(+i.lbRating > 0 && +i.lbRating <= 5 ? { lbRating:+i.lbRating } : {}), scoreAt:+i.scoreAt || null, addedAt:+i.addedAt || Date.now() };
       S.seen.add(k); n++;
     }
     (Array.isArray(data.seen) ? data.seen : []).forEach(k => typeof k === 'string' && /^(movie|tv):\d+$/.test(k) && S.seen.add(k));

@@ -51,6 +51,7 @@ function init() {
   $('#sq').oninput = onSearchInput;
   $('#sq').onkeydown = e => { if (e.key === 'Enter') { clearTimeout(searchTimer); runSearch(); } };
   $('#sResults').addEventListener('click', onSearchClick);
+  $('#epBody').addEventListener('click', onEpisodeClick);
   $('#btnLetterboxd').onclick = () => $('#fileLetterboxd').click();
   $('#fileLetterboxd').onchange = e => { const fs = [...e.target.files]; if (fs.length) importLetterboxd(fs); e.target.value = ''; };
 

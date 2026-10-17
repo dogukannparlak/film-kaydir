@@ -266,3 +266,14 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .sc-new{background:rgba(255,209,102,.16);color:#ffd166}
 .sc-trailer{border:0;cursor:pointer;color:#ff6b6b}
 .score-trailer{color:#ff8a8a;text-decoration:none}
+/* İzliyorum: kaldığın bölüm */
+.item-acts{flex-wrap:wrap;row-gap:8px}
+.ep-row{display:flex;gap:6px;align-items:center;margin-top:2px}
+.ep-where{padding:4px 10px;border-radius:9px;border:1px solid rgba(59,130,246,.5);background:rgba(59,130,246,.12);color:#cfe0ff;font-size:12.5px;font-weight:700}
+.ep-next{padding:4px 10px;border-radius:9px;border:0;background:var(--watched);color:#fff;font-size:12.5px;font-weight:800}
+.ep-seasons{flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.ep-seasons .chip{flex:none}
+.ep-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(46px,1fr));gap:8px;margin-top:12px}
+.ep{height:44px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);font-weight:750}
+.ep.seen{background:color-mix(in srgb,var(--watched) 30%,var(--surface-2));border-color:color-mix(in srgb,var(--watched) 50%,transparent)}
+.ep.here{background:var(--watched);color:#fff;outline:2px solid #fff;outline-offset:-2px}

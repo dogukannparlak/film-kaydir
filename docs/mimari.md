@@ -19,6 +19,7 @@ Parçalarda ters tırnak (`` ` ``) ve `${` kullanma; şablon metnini bozar.
 | `html/alt-gezinti.js` | Alt sekmeler ve TMDB atıf satırı |
 | `html/filtreler.js` | Filtreler alt sayfasının kabı (içeriği `js/filtreler.js` çizer) |
 | `html/arama.js` | Arama alt sayfası: arama kutusu ve sonuç listesi |
+| `html/bolum.js` | Bölüm seçici alt sayfası |
 | `html/ayarlar.js` | Ayarlar alt sayfası: anahtarlar, görülenler, kısayollar |
 
 `index.html` içinde yalnız `.app` kabı, `#backdrop`, `#toasts` ve betik etiketleri kalır.
@@ -56,6 +57,7 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 | `js/seriler.js` | Film serileri: `/collection/{id}` önbelleği (`kd_coll`, 7 gün), seri kutusu ve sonuç satırı (arama + Listeler › Seriler ortak), toplu taşıma, kart etiketi, listedeki filmlerin `belongs_to_collection` taraması | `getCollection`, `collHTML`, `onCollAction`, `renderSeries`, `scanCollections` |
 | `js/arama.js` | Arama sayfası: `/search/collection` + `/collection/{id}` (seriler, en üstte), `/search/multi`, kişilerin `known_for` işleri, toplu taşıma, sonuçtan listeye ekleme + geri al | `openSearch`, `runSearch`, `renderSearch`, `onSearchClick` |
 | `js/sezonlar.js` | Yeni sezon tespiti (`/tv/{id}` sezon tarihleri ↔ `addedAt`, `seasonAck`), fragman (`videos`) | `checkNewSeasons`, `ackSeason`, `pickTrailer`, `openTrailer` |
+| `js/bolumler.js` | İzliyorum: kaldığın sezon/bölüm (`at`), yayınlanmış bölüm sayıları (`eps`, 12 saat), seçici ve +1 | `openEpisodes`, `setAt`, `nextEpisode`, `nextEp`, `watchingRow` |
 | `js/letterboxd.js` | Letterboxd zip/CSV okuma (tarayıcıda `DecompressionStream` ile açar), TMDB eşleştirme, listelere yazma | `importLetterboxd`, `unzipFiles`, `parseCSV`, `matchTMDB` |
 | `js/baslat.js` | Olay bağlama ve `init()` çağrısı; en sonda yüklenir | `init` |
 

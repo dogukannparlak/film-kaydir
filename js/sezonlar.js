@@ -27,7 +27,7 @@ async function checkNewSeasons() {
       if (fresh && item.progress !== 'dropped') {
         if (item.newSeason?.n !== fresh.season_number) found.push(item.title);
         item.newSeason = { n: fresh.season_number, date: fresh.air_date };
-        item.progress = 'season';
+        if (item.progress !== 'watching') item.progress = 'season';
       }
       // Tarihi açıklanmış gelecek sezon (bilgi)
       const nx = d.next_episode_to_air;
@@ -55,7 +55,7 @@ function ackSeason(item) {
 }
 function seasonBadges(i) {
   if (i.type !== 'tv' || i.status !== 'watched') return '';
-  return (i.newSeason && i.progress === 'season' ? `<span class="sc sc-new" title="Eklediğinden sonra yayınlandı">🆕 ${i.newSeason.n}. sezon · ${shortDate(i.newSeason.date)}</span>` : '')
+  return (i.newSeason && ['season', 'watching'].includes(i.progress) ? `<span class="sc sc-new" title="Eklediğinden sonra yayınlandı">🆕 ${i.newSeason.n}. sezon · ${shortDate(i.newSeason.date)}</span>` : '')
     + (i.nextSeason ? `<span class="sc" title="Yayın tarihi açıklandı">📅 ${i.nextSeason.n}. sezon · ${shortDate(i.nextSeason.date)}</span>` : '');
 }
 

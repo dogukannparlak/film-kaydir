@@ -20,7 +20,7 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
       </label>
     </div>
     <div class="lfilters">
-      <select id="lProgress" aria-label="İzleme durumu"><option value="all">Biten + yarım</option><option value="done">Bitenler</option><option value="partial">Yarım kalanlar</option><option value="season">Yeni sezon</option><option value="dropped">Bıraktıklarım</option></select>
+      <select id="lProgress" aria-label="İzleme durumu"><option value="all">Hepsi</option><option value="done">Bitenler</option><option value="watching">İzliyorum</option><option value="partial">Yarım kalanlar</option><option value="season">Yeni sezon</option><option value="dropped">Bıraktıklarım</option></select>
       <select id="lType" aria-label="İçerik türü"><option value="all">Film + Dizi</option><option value="movie">Film</option><option value="tv">Dizi</option></select>
       <select id="lGenre" aria-label="Tür"></select>
       <select id="lPeriod" aria-label="Dönem"></select>
