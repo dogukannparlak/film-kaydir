@@ -59,6 +59,11 @@ header{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-are
 .votes{color:var(--muted)}
 .title{font-size:25px;line-height:1.12;margin:7px 0 4px;font-weight:850;letter-spacing:-.02em;text-wrap:balance}
 .genres{color:#b7b7c9;font-size:13px}
+.scores{display:flex;gap:6px;flex-wrap:wrap;margin-top:7px;min-height:0}
+.score{display:inline-flex;align-items:center;gap:5px;padding:3px 8px;border-radius:7px;font-size:12px;font-weight:800;text-decoration:none;
+  background:rgba(255,255,255,.12);color:#fff;-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.score-imdb{background:#f5c518;color:#000}
+.score-imdb b{font-weight:900;letter-spacing:-.02em}
 .overview{margin:8px 0 0;font-size:14px;color:#dedee8;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 .more{font-size:12px;color:var(--muted);margin-top:4px}
 .card.expanded .shade{background:rgba(6,6,12,.86)}
@@ -256,6 +261,13 @@ input[type=range]{width:100%;accent-color:var(--accent)}
       <p class="note">Anahtar yalnız bu tarayıcıda (localStorage) saklanır.</p>
     </section>
     <section>
+      <h3>OMDb anahtarı <small>isteğe bağlı · IMDb, RT, Metacritic puanı</small></h3>
+      <input class="field" id="setOmdb" type="password" placeholder="OMDb API anahtarı" autocomplete="off">
+      <div class="row-btns"><button class="btn btn-primary" id="btnSaveOmdb">Kaydet</button><button class="btn btn-danger" id="btnDelOmdb">Sil</button></div>
+      <div class="err" id="omdbErr"></div>
+      <p class="note">Ücretsiz anahtar: <a href="https://www.omdbapi.com/apikey.aspx" target="_blank" rel="noopener">omdbapi.com/apikey.aspx</a> (FREE, günde 1000 istek). Anahtarsız da IMDb bağlantısı görünür.</p>
+    </section>
+    <section>
       <h3>Görülenler <small id="seenCount"></small></h3>
       <p class="note" style="margin:0 0 10px">Kaydırdığın içerik bir daha çıkmaz. Listeden sildiklerin de görüldü sayılır. Sıfırlarsan listelerde olmayanlar yeniden çıkabilir.</p>
       <button class="btn btn-danger" id="btnResetSeen">Görülenleri sıfırla</button>
@@ -277,7 +289,7 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 /* ================= Sabitler ================= */
 const API = 'https://api.themoviedb.org/3';
 const IMG = 'https://image.tmdb.org/t/p/';
-const K = { key:'kd_apikey', items:'kd_items', seen:'kd_seen', filters:'kd_filters', prov:'kd_providers', listF:'kd_listf' };
+const K = { key:'kd_apikey', items:'kd_items', seen:'kd_seen', filters:'kd_filters', prov:'kd_providers', listF:'kd_listf', omdb:'kd_omdbkey', omdbCache:'kd_omdb' };
 const NOW_Y = new Date().getFullYear();
 const TODAY = new Date().toISOString().slice(0, 10);
 const PREFETCH_AT = 12;         // kuyruk bunun altına inince arka planda yeni sayfa çek
@@ -375,6 +387,8 @@ const vibrate = () => { try { navigator.vibrate && navigator.vibrate(8); } catch
 /* ================= Durum ================= */
 const S = {
   apiKey: store.get(K.key, ''),
+  omdbKey: store.get(K.omdb, ''),
+  omdbCache: store.get(K.omdbCache, {}),
   items: store.get(K.items, {}),
   seen: new Set(store.get(K.seen, [])),
   filters: { ...DEFAULT_FILTERS, ...store.get(K.filters, {}) },
@@ -582,21 +596,76 @@ function createCard(it) {
       </div>
       <h2 class="title">${esc(it.title)}</h2>
       <div class="genres">${esc(genreNames(it.type, it.genres).join(' · '))}</div>
+      <div class="scores">${scoresHTML(it)}</div>
       <p class="overview">${esc(it.overview || 'Özet yükleniyor…')}</p>
       <div class="more">Dokun: özetin tamamı</div>
     </div>`;
   attachDrag(el);
   return el;
 }
-async function ensureOverview(it) {
-  if (it.overview || it._ov) return;
-  it._ov = true;
+// Kart ekrana yaklaşınca: IMDb kimliği (TMDB) + OMDb puanları + eksikse İngilizce özet
+async function ensureExtra(it) {
+  if (it._extra) return;
+  it._extra = true;
   try {
-    const d = await tmdb(`/${it.type}/${it.id}`, { language:'en-US' });
-    it.overview = d.overview || '';
+    if (it.imdb === undefined) {
+      const d = await tmdb(`/${it.type}/${it.id}`, { append_to_response:'external_ids', language:'tr-TR' });
+      it.imdb = d.external_ids?.imdb_id || d.imdb_id || null;
+      if (!it.overview) it.overview = d.overview || '';
+    }
+    if (!it.overview) {
+      const d = await tmdb(`/${it.type}/${it.id}`, { language:'en-US' });
+      it.overview = d.overview || '';
+    }
   } catch {}
-  const el = $(keySel(it.key) + ' .overview');
-  if (el) el.textContent = it.overview || 'Özet yok.';
+  const el = $(keySel(it.key));
+  if (el) $('.overview', el).textContent = it.overview || 'Özet yok.';
+  await loadScores(it);
+  refreshScores(it);
+}
+async function loadScores(it) {
+  if (!it.imdb || !S.omdbKey || it.scores) return;
+  const c = S.omdbCache[it.imdb];
+  if (c && Date.now() - c.at < 14 * 864e5) { it.scores = c; return; }
+  try {
+    const r = await fetch(`https://www.omdbapi.com/?apikey=${encodeURIComponent(S.omdbKey)}&i=${encodeURIComponent(it.imdb)}`);
+    const d = await r.json();
+    if (d.Response === 'False') {
+      if (/api key|limit/i.test(d.Error || '')) { omdbWarn(d.Error); }
+      return;
+    }
+    const src = n => (d.Ratings || []).find(x => x.Source === n)?.Value || null;
+    it.scores = { imdb: d.imdbRating !== 'N/A' ? d.imdbRating : null, votes: d.imdbVotes !== 'N/A' ? d.imdbVotes : null,
+      rt: src('Rotten Tomatoes'), mc: src('Metacritic'), at: Date.now() };
+    S.omdbCache[it.imdb] = it.scores;
+    const keys = Object.keys(S.omdbCache);
+    if (keys.length > 3000) keys.sort((a, b) => S.omdbCache[a].at - S.omdbCache[b].at).slice(0, 500).forEach(k => delete S.omdbCache[k]);
+    store.set(K.omdbCache, S.omdbCache);
+  } catch {}
+}
+let omdbWarned = false;
+function omdbWarn(msg) {
+  if (omdbWarned) return;
+  omdbWarned = true;
+  toast('OMDb: ' + (/limit/i.test(msg) ? 'günlük istek sınırı doldu.' : 'anahtar geçersiz.'), null, null, 4000);
+}
+function scoresHTML(it) {
+  if (!it.imdb) return '';
+  const s = it.scores || {};
+  const url = `https://www.imdb.com/title/${encodeURIComponent(it.imdb)}/`;
+  let h = `<a class="score score-imdb" href="${url}" target="_blank" rel="noopener"><b>IMDb</b>${s.imdb ? ' ' + esc(s.imdb.replace('.', ',')) : ''}</a>`;
+  if (s.rt) h += `<span class="score" title="Rotten Tomatoes">🍅 ${esc(s.rt)}</span>`;
+  if (s.mc) h += `<span class="score" title="Metacritic">MC ${esc(s.mc.split('/')[0])}</span>`;
+  return h;
+}
+function refreshScores(it) {
+  const box = $(keySel(it.key) + ' .scores');
+  if (box) box.innerHTML = scoresHTML(it);
+  if (S.items[it.key] && (it.imdb || it.scores)) {
+    S.items[it.key].imdb = it.imdb;
+    if (it.scores?.imdb) S.items[it.key].imdbRating = it.scores.imdb;
+    saveItems();
+  }
 }
 const preloaded = new Set();
 function preload(it) {
@@ -618,7 +687,7 @@ function renderDeck(keyMsg) {
     if (!el) { el = createCard(it); el.classList.add('enter'); deck.appendChild(el); }
     if (el.dataset.depth !== String(i)) { el.dataset.depth = i; if (i === 0) el.classList.remove('enter'); }
     el.style.zIndex = 10 - i;
-    if (i < 2) ensureOverview(it);
+    if (i < 2) ensureExtra(it);
   });
   S.queue.slice(0, 6).forEach(preload);
   updateDeckStatus();
@@ -653,6 +722,7 @@ function attachDrag(el) {
   el.addEventListener('pointerdown', e => {
     if (el.dataset.depth !== '0' || el.classList.contains('leaving')) return;
     if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (e.target.closest('a')) return; // IMDb bağlantısına dokunmak kartı sürüklemesin
     if (el.classList.contains('expanded') && e.target.closest('.overview')) return; // özeti kaydırmaya izin ver
     id = e.pointerId; el.setPointerCapture(id);
     sx = e.clientX; sy = e.clientY; dx = dy = 0; moved = false;
@@ -712,7 +782,7 @@ function flyOut(el, dir, from = { dx:0, dy:0 }) {
 /* ---- Eylemler ---- */
 function setItem(it, status) {
   S.items[it.key] = { id:it.id, type:it.type, title:it.title, poster:it.poster, date:it.date, status,
-    genres:it.genres, rating:it.rating, addedAt:Date.now() };
+    genres:it.genres, rating:it.rating, imdb:it.imdb || null, imdbRating:it.scores?.imdb || null, addedAt:Date.now() };
   saveItems();
 }
 function act(dir, from) {
@@ -796,6 +866,20 @@ async function saveKey(raw, errEl) {
   toast('Anahtar kaydedildi');
   loadProviders();
   resetEngine();
+}
+
+async function saveOmdb() {
+  const key = $('#setOmdb').value.trim(), err = $('#omdbErr');
+  if (!key) { err.textContent = 'Anahtar boş.'; return; }
+  err.textContent = 'Kontrol ediliyor…';
+  try {
+    const d = await (await fetch(`https://www.omdbapi.com/?apikey=${encodeURIComponent(key)}&i=tt0111161`)).json();
+    if (d.Response === 'False') { err.textContent = 'OMDb: ' + (d.Error || 'anahtar geçersiz'); return; }
+  } catch (e) { err.textContent = 'OMDb\'ye ulaşılamadı.'; return; }
+  S.omdbKey = key; store.set(K.omdb, key); omdbWarned = false;
+  err.textContent = '';
+  toast('OMDb anahtarı kaydedildi');
+  S.queue.slice(0, 2).forEach(it => loadScores(it).then(() => refreshScores(it)));
 }
 
 /* ================= Filtreler ================= */
@@ -947,7 +1031,7 @@ function renderList() {
       <img src="${i.poster ? IMG + 'w185' + esc(i.poster) : ''}" alt="" loading="lazy">
       <div class="item-main">
         <a class="item-title" href="https://www.themoviedb.org/${i.type}/${i.id}" target="_blank" rel="noopener">${esc(i.title)}</a>
-        <div class="item-sub">${i.type === 'movie' ? 'Film' : 'Dizi'}${yearOf(i.date) ? ' · ' + yearOf(i.date) : ''}${i.rating ? ' · ★ ' + (+i.rating).toFixed(1) : ''}</div>
+        <div class="item-sub">${i.type === 'movie' ? 'Film' : 'Dizi'}${yearOf(i.date) ? ' · ' + yearOf(i.date) : ''}${i.rating ? ' · ★ ' + (+i.rating).toFixed(1) : ''}${i.imdb ? ` · <a href="https://www.imdb.com/title/${encodeURIComponent(i.imdb)}/" target="_blank" rel="noopener">IMDb${i.imdbRating ? ' ' + esc(String(i.imdbRating).replace('.', ',')) : ''}</a>` : ''}</div>
         <div class="item-sub">${esc(genreNames(i.type, i.genres || []).slice(0, 3).join(' · '))}</div>
         <div class="item-acts">
           ${Object.keys(moves).filter(s => s !== tab).map(s => `<button class="pill pill-${s}" data-move="${s}">→ ${moves[s]}</button>`).join('')}
@@ -994,7 +1078,7 @@ async function importJSON(file) {
       if (!i || !Number.isFinite(+i.id) || !['movie', 'tv'].includes(i.type) || !STATUS[i.status]) continue;
       const k = `${i.type}:${+i.id}`;
       S.items[k] = { id:+i.id, type:i.type, title:String(i.title || '—'), poster:i.poster || null, date:String(i.date || ''),
-        status:i.status, genres:Array.isArray(i.genres) ? i.genres.map(Number) : [], rating:+i.rating || 0, addedAt:+i.addedAt || Date.now() };
+        status:i.status, genres:Array.isArray(i.genres) ? i.genres.map(Number) : [], rating:+i.rating || 0, imdb:/^tt\d+$/.test(i.imdb) ? i.imdb : null, imdbRating:i.imdbRating ? String(i.imdbRating) : null, addedAt:+i.addedAt || Date.now() };
       S.seen.add(k); n++;
     }
     (Array.isArray(data.seen) ? data.seen : []).forEach(k => typeof k === 'string' && /^(movie|tv):\d+$/.test(k) && S.seen.add(k));
@@ -1029,6 +1113,8 @@ function closeSheet() {
 }
 function openSettings() {
   $('#setKey').value = S.apiKey;
+  $('#setOmdb').value = S.omdbKey;
+  $('#omdbErr').textContent = '';
   $('#setKeyErr').textContent = '';
   $('#seenCount').textContent = S.seen.size.toLocaleString('tr-TR') + ' içerik';
   resetSeenArmed = false;
@@ -1086,6 +1172,8 @@ function init() {
   $('#btnDelKey').onclick = () => {
     store.del(K.key); S.apiKey = ''; closeSheet(); resetEngine(); toast('Anahtar silindi');
   };
+  $('#btnSaveOmdb').onclick = saveOmdb;
+  $('#btnDelOmdb').onclick = () => { store.del(K.omdb); S.omdbKey = ''; $('#setOmdb').value = ''; toast('OMDb anahtarı silindi'); };
   $('#btnResetSeen').onclick = () => {
     if (!resetSeenArmed) { resetSeenArmed = true; $('#btnResetSeen').textContent = 'Emin misin? Tekrar dokun'; return; }
     S.seen = new Set(Object.keys(S.items)); saveSeen();
