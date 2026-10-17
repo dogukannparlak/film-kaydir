@@ -65,18 +65,26 @@ async function pullChanges(first = false) {
     if (data.length < 1000) break;
   }
   sync.since = since || sync.since;
-  // Kullanıcı durumu: görülenler birleşir; anahtar/filtre ilk girişte buluttan (yerelde yoksa)
+  // Kullanıcı durumu: görülenler birleşir; filtreler ilk girişte buluttan gelir
   const { data: st } = await sb.from('user_state').select('*').maybeSingle();
   if (st) {
     const before = S.seen.size;
     (st.seen || []).forEach(k => S.seen.add(k));
     if (S.seen.size !== before) { store.set(K.seen, [...S.seen]); S.queue = S.queue.filter(it => !S.seen.has(it.key)); }
     if (S.seen.size > (st.seen || []).length) S.seenDirty = true;
+    // API anahtarları: ilk girişte yerelde yoksa buluttan gelir; sonra başka cihazda değişen anahtar da gelir
+    // (bu cihazda gönderilmemiş anahtar değişikliği varsa yereldeki kazanır)
+    let keys = 0;
+    if (!S.stateDirty) {
+      const take = (cloud, local) => cloud && cloud !== local && (!first || !local);
+      if (take(st.tmdb_key, S.apiKey)) { S.apiKey = st.tmdb_key; S.keyMsg = ''; store.set(K.key, st.tmdb_key); keys++; if (!first) { resetEngine(); loadProviders(); } }
+      if (take(st.omdb_key, S.omdbKey)) { S.omdbKey = st.omdb_key; store.set(K.omdb, st.omdb_key); keys++; }
+      if (keys) toast('🔑 API anahtarların hesabından geldi');
+    }
     if (first) {
-      if (st.tmdb_key && !S.apiKey) { S.apiKey = st.tmdb_key; store.set(K.key, st.tmdb_key); resetEngine(); loadProviders(); }
-      if (st.omdb_key && !S.omdbKey) { S.omdbKey = st.omdb_key; store.set(K.omdb, st.omdb_key); }
-      if (st.filters) { S.filters = { ...DEFAULT_FILTERS, ...migrateFilters(st.filters) }; store.set(K.filters, S.filters); updateSummary(); resetEngine(); }
-      if (S.apiKey && !st.tmdb_key) S.stateDirty = true;
+      if (st.filters) { S.filters = { ...DEFAULT_FILTERS, ...migrateFilters(st.filters) }; store.set(K.filters, S.filters); updateSummary(); }
+      if (st.filters || keys) { resetEngine(); loadProviders(); }
+      if ((S.apiKey && !st.tmdb_key) || (S.omdbKey && !st.omdb_key)) S.stateDirty = true; // yerel anahtarları hesaba yedekle
     }
   } else S.stateDirty = true;
   if (changed || first) {
@@ -164,7 +172,7 @@ async function onAccountClick(e) {
       ? await sb.auth.signInWithPassword({ email, password:pass })
       : await sb.auth.signUp({ email, password:pass, options:{ emailRedirectTo:redirectTo() } });
     if (error) return accErr(authMsg(error));
-    if (id === 'accUp' && !data.session) accErr('Onay e-postası gönderildi: bağlantıya tıklayınca giriş yapılır.');
+    if (id === 'accUp' && !data.session) accErr('Onay e-postası gönderildi: bağlantıya tıklayınca giriş yapılır, listelerin ve API anahtarların hesabına yedeklenir.');
   } else if (id === 'accForgot') {
     if (!/^\S+@\S+\.\S+$/.test(email || '')) return accErr('Önce e-postanı yaz.');
     const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo:redirectTo() });

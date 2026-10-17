@@ -12,13 +12,15 @@ function keyBoxHTML(msg) {
     <input class="field" id="keyInput" type="password" placeholder="API anahtarı" autocomplete="off">
     <div class="row-btns"><button class="btn btn-primary" id="btnSaveKey" style="flex:1">Kaydet ve başla</button></div>
     <div class="err" id="keyErr">${esc(msg || '')}</div>
-    <p class="note">Anahtar yalnız bu tarayıcıda saklanır.</p>
+    <p class="note">Anahtar bu tarayıcıda saklanır; giriş yaparsan hesabında da yedeklenir.</p>
+    ${S.user ? '' : '<button class="linkish" id="btnKeyLogin">Hesabın var mı? Giriş yap, anahtarın gelsin</button>'}
   </div>`;
 }
 function bindKeyBox() {
   const save = () => saveKey($('#keyInput').value, $('#keyErr'));
   $('#btnSaveKey').onclick = save;
   $('#keyInput').onkeydown = e => { if (e.key === 'Enter') save(); };
+  const login = $('#btnKeyLogin'); if (login) login.onclick = openAccount;
 }
 async function saveKey(raw, errEl) {
   const key = raw.trim();

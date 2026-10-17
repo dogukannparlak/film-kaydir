@@ -21,6 +21,7 @@ Parçalarda ters tırnak (`` ` ``) ve `${` kullanma; şablon metnini bozar.
 | `html/arama.js` | Arama alt sayfası: arama kutusu ve sonuç listesi |
 | `html/bolum.js` | Bölüm seçici alt sayfası |
 | `html/ayarlar.js` | Ayarlar alt sayfası: anahtarlar, görülenler, kısayollar |
+| `html/rehber.js` | İlk açılış rehberinin kabı (adımları `js/rehber.js` çizer) |
 
 `index.html` içinde yalnız `.app` kabı, `#backdrop`, `#toasts` ve betik etiketleri kalır.
 
@@ -60,6 +61,7 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 | `js/bolumler.js` | İzliyorum: kaldığın sezon/bölüm (`at`), yayınlanmış bölüm sayıları (`eps`, 12 saat), seçici ve +1 | `openEpisodes`, `setAt`, `nextEpisode`, `nextEp`, `watchingRow` |
 | `js/letterboxd.js` | Letterboxd zip/CSV okuma (tarayıcıda `DecompressionStream` ile açar), TMDB eşleştirme, listelere yazma | `importLetterboxd`, `unzipFiles`, `parseCSV`, `matchTMDB` |
 | `js/hesap.js` | Supabase hesap + eşitleme: giriş (şifre, sıfırlama; Google `GOOGLE_AUTH` ile kapalı), değişen öğeleri gönderme, `updated_at > since` ile çekme, ilk girişte birleştirme | `syncSoon`, `pushChanges`, `pullChanges`, `syncNow`, `initAccount` |
+| `js/rehber.js` | İlk açılış rehberi: adımlar, bir kez gösterme (`kd_guide`), Ayarlar › Kısayollar'dan yeniden açma | `openGuide`, `closeGuide`, `initGuide` |
 | `js/baslat.js` | Olay bağlama ve `init()` çağrısı; en sonda yüklenir | `init` |
 
 ## Veri akışı
@@ -84,6 +86,7 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 | `kd_filters`, `kd_listf` | Deste ve liste filtreleri |
 | `kd_providers` | Ülke başına platform listesi önbelleği: `{ TR: {at, list}, US: … }` (3 gün); çiplerde birleşimi gösterilir |
 | `kd_coll` | Seri önbelleği: `{ id: {at, title, originalTitle, poster, parts[]} }` (7 gün, en çok 300) |
+| `kd_guide` | Rehber görüldü işareti (`1`) |
 | `kd_omdb` | OMDb puan önbelleği (14 gün, en çok 3000 kayıt) |
 
 ## Dış API'ler

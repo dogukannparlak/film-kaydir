@@ -28,4 +28,10 @@ function openSettings() {
   $('#btnResetSeen').textContent = 'Görülenleri sıfırla';
   openSheet('#sheetSettings');
 }
+// Ayarları aç ve Hesap bölümüne odaklan (rehber ve anahtar kutusundan "giriş yap")
+function openAccount() {
+  openSettings();
+  $('#accBox').scrollIntoView({ block:'nearest' });
+  setTimeout(() => $('#accEmail')?.focus(), 300);
+}
 let resetSeenArmed = false;

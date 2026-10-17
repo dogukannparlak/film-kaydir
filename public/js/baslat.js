@@ -87,6 +87,7 @@ function init() {
   renderDeck();
   if (S.apiKey) loadProviders();
   initAccount();
+  initGuide();
   setTimeout(checkNewSeasons, 4000); // izlenen dizilerde yeni sezon (12 saatte bir)
 }
 init();

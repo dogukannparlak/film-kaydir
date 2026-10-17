@@ -14,7 +14,7 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
       <input class="field" id="setKey" type="password" placeholder="API anahtarı ya da okuma erişim jetonu" autocomplete="off">
       <div class="row-btns"><button class="btn btn-primary" id="btnSaveKey2">Kaydet</button><button class="btn btn-danger" id="btnDelKey">Anahtarı sil</button></div>
       <div class="err" id="setKeyErr"></div>
-      <p class="note">Anahtar yalnız bu tarayıcıda (localStorage) saklanır.</p>
+      <p class="note">Anahtar bu tarayıcıda saklanır; giriş yaptıysan hesabında da yedeklenir, diğer cihazlarda yeniden girmen gerekmez.</p>
     </section>
     <section>
       <h3>OMDb anahtarı <small>isteğe bağlı · IMDb, RT, Metacritic puanı</small></h3>
@@ -43,6 +43,7 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
     <section>
       <h3>Kısayollar</h3>
       <p class="note" style="margin:0">→ istiyorum · ← geç · ↑ izledim · Backspace / Z geri al · Kartın üstüne dokun: özetin tamamı</p>
+      <button class="linkish" id="btnGuide">Rehberi yeniden göster</button>
     </section>
     <section>
       <p class="note" style="margin:0">Veriler ve afişler <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a>'den gelir. Platform bilgisi TMDB'nin JustWatch kaynaklı, birçok ülkenin verisidir.<br>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>

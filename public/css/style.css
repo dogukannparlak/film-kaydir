@@ -285,3 +285,15 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .acc-or::before,.acc-or::after{content:"";flex:1;height:1px;background:var(--line)}
 .linkish{background:none;border:0;padding:8px 0 0;color:var(--accent);font-size:13px;font-weight:650}
 .acc-who{margin:0;font-size:15px}
+.guide{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:16px}
+.guide-card{position:relative;width:100%;max-width:420px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 22px 20px}
+.guide-body{min-height:220px}
+.guide-body h2{margin:0 0 8px;font-size:20px}
+.guide-body p{margin:0 0 10px;color:var(--muted);font-size:14.5px;line-height:1.5}
+.guide-icon{font-size:40px;margin-bottom:10px}
+.guide-moves{list-style:none;margin:0 0 12px;padding:0;display:grid;gap:8px;font-size:15px}
+.guide-moves li{background:var(--surface-2);border-radius:12px;padding:10px 12px}
+.guide-skip{position:absolute;top:14px;right:16px;background:none;border:0;color:var(--muted);font-size:13px;font-weight:650}
+.guide-dots{display:flex;gap:6px;justify-content:center;margin-top:8px}
+.guide-dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}
+.guide-dots i.on{background:var(--accent)}
