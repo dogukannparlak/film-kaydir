@@ -7,10 +7,11 @@ function openFilters() {
   draft = JSON.parse(JSON.stringify(S.filters));
   renderFilterSheet();
   openSheet('#sheetFilters');
+  const want = draft.countries;
+  loadProviders(want).then(() => { if (draft && draft.countries === want) $('#provChips').innerHTML = providerChips(draft); });
 }
 function renderFilterSheet() {
   const f = draft;
-  const provs = S.providers || FALLBACK_PROVIDERS;
   $('#filterBody').innerHTML = `
     <section><h3>İçerik</h3><div class="chips" data-single="type">
       ${[['both','İkisi'],['movie','Film'],['tv','Dizi']].map(([v, l]) => chip(v, l, f.type === v)).join('')}</div></section>
@@ -33,9 +34,15 @@ function renderFilterSheet() {
     <section><h3>Minimum oy sayısı</h3><div class="chips" data-single="minVotes">
       ${VOTE_OPTS.map(v => chip(v, v.toLocaleString('tr-TR'), f.minVotes === v)).join('')}</div>
       <p class="note">Az bilinen yapımlar (ör. Türk dizileri) için düşük tut.</p></section>
-    <section><h3>Platform <small>Türkiye · abonelikle</small></h3><div class="chips" data-multi="providers">
-      ${provs.map(p => chip(p.id, `${p.logo ? `<img src="${IMG}w45${esc(p.logo)}" alt="">` : ''}${esc(p.name)}`, f.providers.includes(p.id))).join('')}</div>
-      <p class="note">Seçilirse yalnız bu platformlardan en az birinde olanlar gelir.</p></section>`;
+    <section><h3>Platform <small>abonelikle · ülke birden fazla seçilebilir</small></h3>
+      <div class="chips" data-multi="countries">
+      ${WATCH_COUNTRIES.map(c => chip(c.id, c.label, selCountries(f).includes(c.id))).join('')}</div>
+      <div class="chips" data-multi="providers" id="provChips" style="margin-top:10px">${providerChips(f)}</div>
+      <p class="note">Seçilirse yalnız seçili ülkelerden birinde, bu platformlardan en az birinde olanlar gelir.</p></section>`;
+}
+function providerChips(f) {
+  const provs = providersFor(selCountries(f));
+  return provs.map(p => chip(p.id, `${p.logo ? `<img src="${IMG}w45${esc(p.logo)}" alt="">` : ''}${esc(p.name)}`, f.providers.includes(p.id))).join('');
 }
 function onFilterClick(e) {
   const c = e.target.closest('.chip');
@@ -65,6 +72,11 @@ function onFilterClick(e) {
       x.setAttribute('aria-pressed', v === 'all' ? !draft[k].length : draft[k].includes(v));
     });
     if (k === 'periods') $('#yearsRow').classList.toggle('hidden', !draft.periods.includes('custom'));
+    if (k === 'countries') {
+      if (!draft.countries.length) { draft.countries = ['TR']; $('.chip[data-val="TR"]', box).setAttribute('aria-pressed', 'true'); }
+      const want = draft.countries;
+      loadProviders(want).then(() => { if (draft && draft.countries === want) $('#provChips').innerHTML = providerChips(draft); });
+    }
   }
 }
 function applyFilters() {
@@ -88,7 +100,7 @@ function updateSummary() {
   if (f.genres.length) parts.push(f.genres.map(id => GENRES.find(g => g.id === id)?.label).join(', '));
   if (f.regions.length) parts.push(selRegions(f).map(r => r.label).join(', '));
   if (f.minRating) parts.push('★ ' + f.minRating + '+');
-  if (f.providers.length) parts.push(f.providers.length + ' platform');
+  if (f.providers.length) parts.push(`${f.providers.length} platform (${selCountries(f).join(', ')})`);
   $('#summary').textContent = parts.join(' · ');
   let n = 0;
   if (f.type !== 'both') n++; if (f.sort !== 'random') n++; if (f.periods.length) n++;
@@ -97,17 +109,31 @@ function updateSummary() {
   $('#filterDot').textContent = n;
   $('#filterDot').classList.toggle('hidden', !n);
 }
-async function loadProviders() {
-  const cached = store.get(K.prov, null);
-  if (cached && Date.now() - cached.at < 3 * 864e5) { S.providers = cached.list; return; }
+// Ülke başına platform listesi önbelleği (3 gün): { TR: {at, list}, US: … }
+function providerCache() {
+  const c = store.get(K.prov, {});
+  return c && !Array.isArray(c.list) ? c : {}; // eski biçim ({at, list}, yalnız TR) atılır
+}
+// Seçili ülkelerin platformlarının birleşimi; listesi henüz yoksa yedek liste
+function providersFor(countries) {
+  const cache = providerCache(), seen = new Set(), out = [];
+  countries.forEach(c => (cache[c]?.list || []).forEach(p => { if (!seen.has(p.id)) { seen.add(p.id); out.push(p); } }));
+  return out.length ? out : FALLBACK_PROVIDERS;
+}
+async function loadProviders(countries = selCountries(S.filters)) {
   if (!S.apiKey) return;
-  try {
-    const d = await tmdb('/watch/providers/movie', { watch_region:'TR', language:'tr-TR' });
-    const list = (d.results || [])
-      .filter(p => p.display_priorities && p.display_priorities.TR != null)
-      .sort((a, b) => a.display_priorities.TR - b.display_priorities.TR)
-      .slice(0, 14)
-      .map(p => ({ id:p.provider_id, name:p.provider_name, logo:p.logo_path }));
-    if (list.length) { S.providers = list; store.set(K.prov, { at:Date.now(), list }); }
-  } catch {}
+  const cache = providerCache();
+  const need = countries.filter(c => !(cache[c] && Date.now() - cache[c].at < 3 * 864e5));
+  await Promise.all(need.map(async c => {
+    try {
+      const d = await tmdb('/watch/providers/movie', { watch_region:c, language:'tr-TR' });
+      const list = (d.results || [])
+        .filter(p => p.display_priorities && p.display_priorities[c] != null)
+        .sort((a, b) => a.display_priorities[c] - b.display_priorities[c])
+        .slice(0, 14)
+        .map(p => ({ id:p.provider_id, name:p.provider_name, logo:p.logo_path }));
+      if (list.length) cache[c] = { at:Date.now(), list };
+    } catch {}
+  }));
+  if (need.length) store.set(K.prov, cache);
 }

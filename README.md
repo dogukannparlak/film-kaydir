@@ -19,7 +19,7 @@ Anahtarlar yalnız bu tarayıcının `localStorage`'ında durur; depoya ya da ba
 ## Özellikler
 
 - Kaydırma (fare, dokunma, klavye ← → ↑), geri al.
-- Filtreler: film/dizi, dönem, tür, bölge/dil, en az puan, en az oy, Türkiye'deki platformlar.
+- Filtreler: film/dizi, dönem, tür, bölge/dil, en az puan, en az oy, platform (ülke seçilir: Türkiye, ABD, İngiltere …).
   Dönem, tür, bölge/dil ve platformda birden fazla seçim yapılır ("ya da": seçilenlerden herhangi biri).
 - Sıralama: rastgele, popüler, en yüksek puan, en yeni, **IMDb yüksek**, **RT yüksek**.
 - Kartta: TMDB puanı, IMDb bağlantısı, OMDb puanları, yönetmen (dizide yaratıcı), özet.
@@ -27,7 +27,7 @@ Anahtarlar yalnız bu tarayıcının `localStorage`'ında durur; depoya ya da ba
   (son eklenen, IMDb, Rotten Tomatoes, TMDB).
 - İzlediklerim'de "yarım kaldı" işareti: ◐ Yeni sezon (yalnız dizi) ya da ⏸ Bıraktım. Öğe İzlediklerim'de
   kalır; durum kutusuyla bitenler / yarım kalanlar / yeni sezon bekleyenler / bıraktıklarım süzülür.
-- JSON dışa/içe aktarma (yedek).
+- JSON dışa/içe aktarma (yedek): Ayarlar → Yedek.
 
 ## Bilinen sınırlar
 

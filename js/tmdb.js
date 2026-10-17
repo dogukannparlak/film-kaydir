@@ -22,7 +22,8 @@ function norm(r, type) {
     genres: r.genre_ids || [], overview: r.overview || '',
   };
 }
-// Boş seçim = hepsi
+// Boş seçim = hepsi (ülkede boş = Türkiye)
+const selCountries = f => f.countries?.length ? f.countries : ['TR'];
 const selRegions = f => f.regions.length ? REGIONS.filter(r => f.regions.includes(r.id)) : [REGIONS[0]];
 const selPeriods = f => f.periods.length ? PERIODS.filter(p => f.periods.includes(p.id)) : [PERIODS[0]];
 function periodRange(p, f) {
@@ -48,7 +49,6 @@ function baseParams(type, reg) {
   else if (reg.anime) p.with_genres = '16';
   if (f.providers.length) {
     p.with_watch_providers = f.providers.join('|');
-    p.watch_region = 'TR';
     p.with_watch_monetization_types = 'flatrate|free|ads';
   }
   if (type === 'tv') p.include_null_first_air_dates = false;
@@ -69,8 +69,11 @@ function sources() {
     for (const reg of selRegions(f)) {
       const base = baseParams(type, reg);
       if (!base) continue;
-      for (const p of selPeriods(f))
-        out.push({ key:`${type}|${reg.id}|${p.id}`, type, reg, pid:p.id, base, range:periodRange(p, f) });
+      // Platform seçiliyse her ülke ayrı akış; seçili değilse ülke önemsiz
+      for (const c of f.providers.length ? selCountries(f) : [null])
+        for (const p of selPeriods(f))
+          out.push({ key:`${type}|${reg.id}|${p.id}|${c || '-'}`, type, reg, pid:p.id, range:periodRange(p, f),
+            base: c ? { ...base, watch_region:c } : base });
     }
   return out;
 }

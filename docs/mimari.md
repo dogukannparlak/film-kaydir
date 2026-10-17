@@ -56,7 +56,7 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 
 ## Veri akışı
 
-1. `sources()` (tmdb) filtreleri kaynaklara açar: içerik tipi × bölge × dönem. TMDB tek sorguda dönemleri ya da
+1. `sources()` (tmdb) filtreleri kaynaklara açar: içerik tipi × bölge × dönem (platform seçiliyse × ülke, `watch_region`). TMDB tek sorguda dönemleri ya da
    dilleri "ya da" ile birleştiremediği için her kaynak ayrı akıştır; `fetchMore` her turda en çok
    `MAX_PARALLEL` (4) kaynağı rastgele seçip çeker. Boş seçim = hepsi. Eski tekli kayıtları
    (`period`, `region`) `migrateFilters` (durum) diziye çevirir.
@@ -74,7 +74,7 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 | `kd_items` | Liste öğeleri: `id, type, title, poster, date, status, genres, rating, imdb, imdbRating, rt, director, scoreAt, addedAt`, İzlediklerim'de isteğe bağlı `progress` (`season` \| `dropped`, bkz. `PROGRESS`; başka listeye taşınınca silinir) |
 | `kd_seen` | Daha önce gösterilenler (tekrar gelmesin) |
 | `kd_filters`, `kd_listf` | Deste ve liste filtreleri |
-| `kd_providers` | Türkiye platform listesi önbelleği |
+| `kd_providers` | Ülke başına platform listesi önbelleği: `{ TR: {at, list}, US: … }` (3 gün) |
 | `kd_omdb` | OMDb puan önbelleği (14 gün, en çok 3000 kayıt) |
 
 ## Dış API'ler

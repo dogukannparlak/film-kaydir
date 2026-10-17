@@ -38,27 +38,54 @@ function renderList() {
   if (by) backfillScores(arr);
   const list = $('#list');
   $('#lProgress').hidden = tab !== 'watched';
+  // Varsayılandan farklı süzgeçler vurgulanır
+  [['#lType', 'all'], ['#lGenre', ''], ['#lPeriod', 'all'], ['#lProgress', 'all']].forEach(([s, d]) => $(s).classList.toggle('on', $(s).value !== d));
+  const total = Object.values(S.items).filter(i => i.status === tab).length;
+  const partial = tab === 'watched' ? arr.filter(i => PROGRESS[i.progress]).length : 0;
+  $('#lCount').innerHTML = total ? `<b>${arr.length}</b> yapım${arr.length < total ? ` · ${total} içinden` : ''}${partial ? ` · ${partial} yarım` : ''}` : '';
   if (!arr.length) {
-    const any = Object.values(S.items).some(i => i.status === tab);
-    list.innerHTML = `<li class="empty">${any ? 'Bu filtrelere uyan öğe yok.' : 'Bu liste boş. Keşfet\'te kaydırmaya başla.'}</li>`;
+    list.innerHTML = total
+      ? `<li class="empty"><span class="empty-icon">🔍</span><b>Bu süzgeçlere uyan yapım yok</b>Aramayı ya da süzgeçleri gevşet.</li>`
+      : `<li class="empty"><span class="empty-icon">${EMPTY_ICON[tab]}</span><b>Bu liste boş</b>Keşfet'te kaydırdıkça burası dolar.</li>`;
     return;
   }
-  const moves = { want:'İstek', watched:'İzledim', passed:'Geç' };
-  list.innerHTML = arr.map(i => `
+  list.innerHTML = arr.map(i => itemHTML(i, tab)).join('');
+}
+const EMPTY_ICON = { want:'💚', watched:'🎬', passed:'🙅' };
+// Taşıma düğmeleri: destedeki simgelerle aynı (♥ istek, ✓ izledim, ✕ geç)
+const MOVES = { want:['♥', 'İstek listesine taşı'], watched:['✓', 'İzlediklerim\'e taşı'], passed:['✕', 'Geçtiklerim\'e taşı'] };
+const TRASH = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
+function itemHTML(i, tab) {
+  const scores = [
+    i.imdb ? `<a class="sc sc-imdb" href="https://www.imdb.com/title/${encodeURIComponent(i.imdb)}/" target="_blank" rel="noopener">IMDb${i.imdbRating ? ' ' + esc(String(i.imdbRating).replace('.', ',')) : ''}</a>` : '',
+    i.rt ? `<span class="sc" title="Rotten Tomatoes">🍅 ${esc(i.rt)}</span>` : '',
+    i.rating ? `<span class="sc sc-tmdb" title="TMDB">★ ${(+i.rating).toFixed(1).replace('.', ',')}</span>` : '',
+  ].join('');
+  const sub = [genreNames(i.type, i.genres || []).slice(0, 2).join(' · '), i.director ? '🎬 ' + i.director : ''].filter(Boolean).join(' · ');
+  const progBtns = tab === 'watched' ? Object.entries(PROGRESS).filter(([, p]) => !p.tvOnly || i.type === 'tv').map(([id, p]) =>
+    `<button class="pill pill-prog" data-progress="${id}" aria-pressed="${i.progress === id}">${p.icon} ${p.label}</button>`).join('') : '';
+  return `
     <li class="item" data-key="${esc(i.key)}">
-      <img src="${i.poster ? IMG + 'w185' + esc(i.poster) : ''}" alt="" loading="lazy">
+      <a class="item-poster" href="https://www.themoviedb.org/${i.type}/${i.id}" target="_blank" rel="noopener" tabindex="-1">
+        ${i.poster ? `<img src="${IMG}w185${esc(i.poster)}" alt="" loading="lazy">` : ''}
+        <span class="type">${i.type === 'movie' ? 'FİLM' : 'DİZİ'}</span>
+      </a>
       <div class="item-main">
-        <a class="item-title" href="https://www.themoviedb.org/${i.type}/${i.id}" target="_blank" rel="noopener">${esc(i.title)}</a>
-        <div class="item-sub">${i.type === 'movie' ? 'Film' : 'Dizi'}${yearOf(i.date) ? ' · ' + yearOf(i.date) : ''}${i.rating ? ' · ★ ' + (+i.rating).toFixed(1) : ''}${i.imdb ? ` · <a href="https://www.imdb.com/title/${encodeURIComponent(i.imdb)}/" target="_blank" rel="noopener">IMDb${i.imdbRating ? ' ' + esc(String(i.imdbRating).replace('.', ',')) : ''}</a>` : ''}${i.rt ? ' · 🍅 ' + esc(i.rt) : ''}${tab === 'watched' && PROGRESS[i.progress] ? ` · <span class="prog">${PROGRESS[i.progress].icon} ${PROGRESS[i.progress].label}</span>` : ''}</div>
-        <div class="item-sub">${esc(genreNames(i.type, i.genres || []).slice(0, 3).join(' · '))}${i.director ? ' · 🎬 ' + esc(i.director) : ''}</div>
-        <div class="item-acts">
-          ${tab === 'watched' ? Object.entries(PROGRESS).filter(([, p]) => !p.tvOnly || i.type === 'tv').map(([id, p]) =>
-            `<button class="pill pill-prog" data-progress="${id}" aria-pressed="${i.progress === id}">${p.icon} ${p.label}</button>`).join('') : ''}
-          ${Object.keys(moves).filter(s => s !== tab).map(s => `<button class="pill pill-${s}" data-move="${s}">→ ${moves[s]}</button>`).join('')}
-          <button class="pill pill-del" data-del>Sil</button>
+        <div class="item-head">
+          <a class="item-title" href="https://www.themoviedb.org/${i.type}/${i.id}" target="_blank" rel="noopener">${esc(i.title)}</a>
+          ${yearOf(i.date) ? `<span class="item-year">${yearOf(i.date)}</span>` : ''}
         </div>
+        ${sub ? `<div class="item-sub">${esc(sub)}</div>` : ''}
+        ${scores ? `<div class="item-scores">${scores}</div>` : ''}
       </div>
-    </li>`).join('');
+      <div class="item-acts">
+        ${progBtns}
+        <span class="acts-right">
+          ${Object.keys(MOVES).filter(s => s !== tab).map(s => `<button class="pill pill-ico pill-${s}" data-move="${s}" aria-label="${MOVES[s][1]}" title="${MOVES[s][1]}">${MOVES[s][0]}</button>`).join('')}
+          <button class="pill pill-ico pill-del" data-del aria-label="Sil" title="Sil">${TRASH}</button>
+        </span>
+      </div>
+    </li>`;
 }
 // Listede IMDb/RT ile sıralarken puanı hiç alınmamış öğeleri arka planda tamamla (oturumda bir kez dene)
 const triedScore = new Set();

@@ -25,11 +25,16 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
       <button class="btn btn-danger" id="btnResetSeen">Görülenleri sıfırla</button>
     </section>
     <section>
+      <h3>Yedek <small>listeler + görülenler · JSON</small></h3>
+      <div class="row-btns"><button class="btn" id="btnExport">⬇︎ Dışa aktar</button><button class="btn" id="btnImport">⬆︎ İçe aktar</button></div>
+      <input type="file" id="fileImport" accept="application/json,.json" class="hidden">
+    </section>
+    <section>
       <h3>Kısayollar</h3>
       <p class="note" style="margin:0">→ istiyorum · ← geç · ↑ izledim · Backspace / Z geri al · Kartın üstüne dokun: özetin tamamı</p>
     </section>
     <section>
-      <p class="note" style="margin:0">Veriler ve afişler <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a>'den gelir. Platform bilgisi TMDB'nin JustWatch kaynaklı Türkiye verisidir.<br>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+      <p class="note" style="margin:0">Veriler ve afişler <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a>'den gelir. Platform bilgisi TMDB'nin JustWatch kaynaklı, seçtiğin ülkelere ait verisidir.<br>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
     </section>
   </div>
 </div>

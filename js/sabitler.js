@@ -72,4 +72,11 @@ const FALLBACK_PROVIDERS = [
   {id:8, name:'Netflix', logo:''}, {id:337, name:'Disney Plus', logo:''},
   {id:119, name:'Amazon Prime Video', logo:''}, {id:350, name:'Apple TV+', logo:''}, {id:11, name:'MUBI', logo:''},
 ];
-const DEFAULT_FILTERS = { type:'both', sort:'random', periods:[], from:1990, to:NOW_Y, genres:[], regions:[], minRating:0, minVotes:100, providers:[] };
+// Platform süzgecinin ülkeleri. TMDB platform aramasında ülke şart; birden çok seçilirse her ülke ayrı sorgulanır.
+const WATCH_COUNTRIES = [
+  {id:'TR', label:'Türkiye'}, {id:'US', label:'ABD'}, {id:'GB', label:'İngiltere'}, {id:'DE', label:'Almanya'},
+  {id:'NL', label:'Hollanda'}, {id:'FR', label:'Fransa'}, {id:'ES', label:'İspanya'}, {id:'IT', label:'İtalya'},
+  {id:'CA', label:'Kanada'}, {id:'JP', label:'Japonya'}, {id:'KR', label:'Kore'}, {id:'IN', label:'Hindistan'},
+  {id:'BR', label:'Brezilya'}, {id:'AU', label:'Avustralya'},
+];
+const DEFAULT_FILTERS = { type:'both', sort:'random', periods:[], from:1990, to:NOW_Y, genres:[], regions:[], minRating:0, minVotes:100, providers:[], countries:['TR'] };
