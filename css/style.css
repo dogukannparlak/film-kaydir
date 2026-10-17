@@ -157,6 +157,17 @@ a{color:var(--accent)}
 .pill-want{color:var(--want)} .pill-watched{color:var(--watched)} .pill-passed{color:var(--pass)}
 .pill-ico{width:32px;height:32px;padding:0;display:grid;place-items:center;font-size:15px}
 .pill-del{color:var(--muted);background:none}
+/* Arama sayfası */
+.sheet-tall{height:88vh;height:88dvh;display:flex;flex-direction:column}
+.search-top{padding:0 16px 10px;display:flex;flex-direction:column;gap:8px}
+.search-top .lsearch-box{flex:none}
+.search-hint{margin:0}
+.sheet-list{padding-top:2px}
+.sheet-list .item{background:var(--bg)}
+.in-list{font-size:12px;font-weight:750;padding:3px 9px;border-radius:999px;background:var(--surface-2)}
+.in-want{color:var(--want)} .in-watched{color:var(--watched)} .in-passed{color:var(--pass)}
+.pill-ico[aria-pressed="true"]{outline:2px solid currentColor;outline-offset:-2px}
+.pill:disabled{opacity:.9;cursor:default}
 .lb-status{margin:10px 0 0}
 .lb-status b{color:var(--text)}
 .lb-status details{margin-top:6px} .lb-status ul{margin:6px 0 0;padding-left:18px;max-height:160px;overflow:auto}

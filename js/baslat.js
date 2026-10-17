@@ -43,6 +43,10 @@ function init() {
   $('#btnExport').onclick = exportJSON;
   $('#btnImport').onclick = () => $('#fileImport').click();
   $('#fileImport').onchange = e => { const f = e.target.files[0]; if (f) importJSON(f); e.target.value = ''; };
+  $('#btnSearch').onclick = openSearch;
+  $('#sq').oninput = onSearchInput;
+  $('#sq').onkeydown = e => { if (e.key === 'Enter') { clearTimeout(searchTimer); runSearch(); } };
+  $('#sResults').addEventListener('click', onSearchClick);
   $('#btnLetterboxd').onclick = () => $('#fileLetterboxd').click();
   $('#fileLetterboxd').onchange = e => { const fs = [...e.target.files]; if (fs.length) importLetterboxd(fs); e.target.value = ''; };
 
@@ -61,6 +65,7 @@ function init() {
   document.addEventListener('keydown', e => {
     if (e.target.closest?.('input, textarea, select')) return;
     if (openSheetEl) { if (e.key === 'Escape') closeSheet(); return; }
+    if (e.key === '/' && !e.metaKey && !e.ctrlKey) { e.preventDefault(); openSearch(); return; }
     if (S.view !== 'discover' || !S.apiKey) return;
     const dir = { ArrowRight:'right', ArrowLeft:'left', ArrowUp:'up' }[e.key];
     if (dir) { e.preventDefault(); act(dir); }

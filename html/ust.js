@@ -3,6 +3,9 @@
 document.currentScript.insertAdjacentHTML('beforebegin', `
   <header>
     <div class="brand">Kaydır</div>
+    <button class="icon-btn" id="btnSearch" aria-label="Ara (/)" title="Ara (/)">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+    </button>
     <button class="icon-btn" id="btnFilters" aria-label="Filtreler">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
       <span class="dot hidden" id="filterDot"></span>

@@ -18,6 +18,7 @@ Parçalarda ters tırnak (`` ` ``) ve `${` kullanma; şablon metnini bozar.
 | `html/listeler.js` | Listeler görünümü: sekmeler, arama, filtreler, sıralama, yedek düğmeleri |
 | `html/alt-gezinti.js` | Alt sekmeler ve TMDB atıf satırı |
 | `html/filtreler.js` | Filtreler alt sayfasının kabı (içeriği `js/filtreler.js` çizer) |
+| `html/arama.js` | Arama alt sayfası: arama kutusu ve sonuç listesi |
 | `html/ayarlar.js` | Ayarlar alt sayfası: anahtarlar, görülenler, kısayollar |
 
 `index.html` içinde yalnız `.app` kabı, `#backdrop`, `#toasts` ve betik etiketleri kalır.
@@ -52,6 +53,7 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 | `js/filtreler.js` | Filtre sayfası, özet satırı, platform listesi | `openFilters`, `applyFilters`, `loadProviders` |
 | `js/listeler.js` | Listeler: filtre, sıralama, eksik puanları tamamlama, taşıma/silme, JSON yedek | `renderList`, `backfillScores`, `exportJSON`, `importJSON` |
 | `js/gezinti.js` | Sekme geçişi, alt sayfalar (sheet), ayarlar | `setView`, `openSheet`, `closeSheet` |
+| `js/arama.js` | Arama sayfası: `/search/multi`, kişilerin `known_for` işleri, sonuçtan listeye ekleme + geri al | `openSearch`, `runSearch`, `renderSearch`, `onSearchClick` |
 | `js/letterboxd.js` | Letterboxd zip/CSV okuma (tarayıcıda `DecompressionStream` ile açar), TMDB eşleştirme, listelere yazma | `importLetterboxd`, `unzipFiles`, `parseCSV`, `matchTMDB` |
 | `js/baslat.js` | Olay bağlama ve `init()` çağrısı; en sonda yüklenir | `init` |
 

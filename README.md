@@ -19,6 +19,8 @@ Anahtarlar yalnız bu tarayıcının `localStorage`'ında durur; depoya ya da ba
 ## Özellikler
 
 - Kaydırma (fare, dokunma, klavye ← → ↑), geri al.
+- Arama (🔍 ya da `/`): bütün TMDB'de film/dizi; kişi adı (yönetmen, oyuncu) yazınca bilinen işleri de gelir.
+  Sonuçtan doğrudan İstek / İzledim / Geç listesine eklenir; listede olanın durumu görünür.
 - Filtreler: film/dizi, dönem, tür, bölge/dil, en az puan, en az oy, platform ("Hepsi" ya da platformlar; ülke seçilmez, 14 ülkede birden aranır).
   Dönem, tür, bölge/dil ve platformda birden fazla seçim yapılır ("ya da": seçilenlerden herhangi biri).
 - Sıralama: rastgele, popüler, en yüksek puan, en yeni, **IMDb yüksek**, **RT yüksek**.
