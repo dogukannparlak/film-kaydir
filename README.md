@@ -3,7 +3,7 @@
 Tinder tarzı film/dizi keşfi: kartı sağa kaydır "istiyorum", sola "geç", yukarı "izledim".
 Veri TMDB'den, IMDb / Rotten Tomatoes / Metacritic puanları isteğe bağlı OMDb'den gelir.
 Sunucu, derleme ya da paket yok. Site dosyaları `public/` altında: `public/index.html` dosyasını tarayıcıda aç.
-Yayın: https://kaydir.dogukanparlak.com (Cloudflare Pages, GitHub'a bağlı; `public/` yayınlanır).
+Yayın: https://kaydir.dogukanparlak.com (Cloudflare Workers, GitHub'a bağlı; `wrangler.jsonc` ile `public/` yayınlanır).
 
 ## Kurulum
 

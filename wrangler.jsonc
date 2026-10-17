@@ -1,0 +1,6 @@
+// Cloudflare Workers yayın ayarı: derleme yok, public/ klasörü statik site olarak yayınlanır.
+{
+  "name": "kaydir",
+  "compatibility_date": "2026-10-01",
+  "assets": { "directory": "./public" }
+}
