@@ -31,7 +31,7 @@ function init() {
   $$('nav.tabs button').forEach(b => b.onclick = () => setView(b.dataset.view));
   $$('#listTabs button').forEach(b => b.onclick = () => {
     S.listTab = b.dataset.tab;
-    seriesOrder = null;
+    seriesOrder = null; listOrder = null;
     $$('#listTabs button').forEach(x => x.setAttribute('aria-selected', x === b));
     renderList();
   });

@@ -15,6 +15,7 @@ function updateCounts() {
   $('#navDot').classList.toggle('hidden', !c.want);
   $('#btnUndo').disabled = !S.undo.length;
 }
+let listOrder = null;
 function renderList() {
   const lf = S.listF, tab = S.listTab;
   $('#viewLists').classList.toggle('series-mode', tab === 'series');
@@ -38,6 +39,14 @@ function renderList() {
   const by = scoreSort(lf.sort);
   const val = i => by ? scoreVal({ imdb:i.imdbRating, rt:i.rt }, by) : lf.sort === 'tmdb' ? +i.rating || -1 : 0;
   arr.sort((a, b) => val(b) - val(a) || (b.addedAt || 0) - (a.addedAt || 0));
+  // Sekme açıkken sıra sabit: düğmeye basınca satırlar yer değiştirmesin. Yeni gelenler sona eklenir.
+  // Sekme, süzgeç, sıralama ya da arama değişince (ve IMDb/RT puanları gelince) yeniden sıralanır.
+  const okey = JSON.stringify([tab, lf.type, lf.genre, lf.period, lf.sort, lf.progress, q]);
+  if (listOrder?.key === okey) {
+    const pos = new Map(listOrder.ids.map((k, n) => [k, n]));
+    arr.sort((a, b) => (pos.get(a.key) ?? 1e9) - (pos.get(b.key) ?? 1e9));
+  }
+  listOrder = { key: okey, ids: arr.map(i => i.key) };
   if (by) backfillScores(arr);
   backfillTitles(arr);
   const list = $('#list');
@@ -177,6 +186,7 @@ async function backfillScores(arr) {
   }
   saveItems();
   backfilling = false;
+  listOrder = null; // gelen puanlarla yeniden sırala
   if (S.view === 'lists') renderList();
 }
 function onListClick(e) {
