@@ -26,7 +26,7 @@ function renderList() {
     const y = +yearOf(i.date);
     if (p.from && (!y || y < p.from)) return false;
     if (p.to && (!y || y > p.to)) return false;
-    if (q && !String(i.title).toLocaleLowerCase('tr').includes(q)) return false;
+    if (q && ![i.title, i.originalTitle].some(t => String(t || '').toLocaleLowerCase('tr').includes(q))) return false;
     if (tab === 'watched' && lf.progress !== 'all') {
       if (lf.progress === 'done' ? i.progress : lf.progress === 'partial' ? !i.progress : i.progress !== lf.progress) return false;
     }
@@ -36,6 +36,7 @@ function renderList() {
   const val = i => by ? scoreVal({ imdb:i.imdbRating, rt:i.rt }, by) : lf.sort === 'tmdb' ? +i.rating || -1 : 0;
   arr.sort((a, b) => val(b) - val(a) || (b.addedAt || 0) - (a.addedAt || 0));
   if (by) backfillScores(arr);
+  backfillTitles(arr);
   const list = $('#list');
   $('#lProgress').hidden = tab !== 'watched';
   // Varsayılandan farklı süzgeçler vurgulanır
@@ -56,6 +57,7 @@ const EMPTY_ICON = { want:'💚', watched:'🎬', passed:'🙅' };
 const MOVES = { want:['♥', 'İstek listesine taşı'], watched:['✓', 'İzlediklerim\'e taşı'], passed:['✕', 'Geçtiklerim\'e taşı'] };
 const TRASH = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
 function itemHTML(i, tab) {
+  const t = titles(i);
   const scores = [
     i.imdb ? `<a class="sc sc-imdb" href="https://www.imdb.com/title/${encodeURIComponent(i.imdb)}/" target="_blank" rel="noopener">IMDb${i.imdbRating ? ' ' + esc(String(i.imdbRating).replace('.', ',')) : ''}</a>` : '',
     i.rt ? `<span class="sc" title="Rotten Tomatoes">🍅 ${esc(i.rt)}</span>` : '',
@@ -73,7 +75,7 @@ function itemHTML(i, tab) {
       </a>
       <div class="item-main">
         <div class="item-head">
-          <a class="item-title" href="https://www.themoviedb.org/${i.type}/${i.id}" target="_blank" rel="noopener">${esc(i.title)}</a>
+          <a class="item-title" href="https://www.themoviedb.org/${i.type}/${i.id}" target="_blank" rel="noopener"><span class="t-main">${esc(t.main)}</span>${t.sub ? `<small>${esc(t.sub)}</small>` : ''}</a>
           ${yearOf(i.date) ? `<span class="item-year">${yearOf(i.date)}</span>` : ''}
         </div>
         ${sub ? `<div class="item-sub">${esc(sub)}</div>` : ''}
@@ -91,6 +93,29 @@ function itemHTML(i, tab) {
 // Listede IMDb/RT ile sıralarken puanı hiç alınmamış öğeleri arka planda tamamla (oturumda bir kez dene)
 const triedScore = new Set();
 let backfilling = false;
+// Orijinal adı (ve eksikse yönetmeni, IMDb kimliğini) olmayan eski öğeleri TMDB'den tamamla; OMDb harcamaz
+const triedTitle = new Set();
+let fillingTitles = false;
+async function backfillTitles(arr) {
+  if (fillingTitles || !S.apiKey) return;
+  const need = arr.filter(i => i.originalTitle === undefined && !triedTitle.has(i.key)).slice(0, 40);
+  if (!need.length) return;
+  fillingTitles = true;
+  need.forEach(i => triedTitle.add(i.key));
+  await pool(need, 4, async i => {
+    try {
+      const d = await tmdb(`/${i.type}/${i.id}`, { language:'tr-TR', append_to_response:'external_ids,credits' });
+      const item = S.items[i.key];
+      if (!item) return;
+      item.originalTitle = d.original_title || d.original_name || '';
+      if (!item.director) item.director = directorOf(d, i.type);
+      if (!item.imdb) item.imdb = d.external_ids?.imdb_id || d.imdb_id || null;
+    } catch {}
+  });
+  saveItems();
+  fillingTitles = false;
+  if (S.view === 'lists') renderList();
+}
 async function backfillScores(arr) {
   if (backfilling || !S.omdbKey) return;
   const need = arr.filter(i => !i.scoreAt && !triedScore.has(i.key)).slice(0, 40);
@@ -162,7 +187,7 @@ async function importJSON(file) {
     for (const i of items) {
       if (!i || !Number.isFinite(+i.id) || !['movie', 'tv'].includes(i.type) || !STATUS[i.status]) continue;
       const k = `${i.type}:${+i.id}`;
-      S.items[k] = { id:+i.id, type:i.type, title:String(i.title || '—'), poster:i.poster || null, date:String(i.date || ''),
+      S.items[k] = { id:+i.id, type:i.type, title:String(i.title || '—'), ...(typeof i.originalTitle === 'string' ? { originalTitle:i.originalTitle.slice(0, 300) } : {}), poster:i.poster || null, date:String(i.date || ''),
         status:i.status, genres:Array.isArray(i.genres) ? i.genres.map(Number) : [], rating:+i.rating || 0, imdb:/^tt\d+$/.test(i.imdb) ? i.imdb : null, imdbRating:i.imdbRating ? String(i.imdbRating) : null, rt:/^\d+%$/.test(i.rt) ? i.rt : null, director:typeof i.director === 'string' ? i.director.slice(0, 200) : null, ...(i.status === 'watched' && PROGRESS[i.progress] ? { progress:i.progress } : {}), ...(+i.lbRating > 0 && +i.lbRating <= 5 ? { lbRating:+i.lbRating } : {}), scoreAt:+i.scoreAt || null, addedAt:+i.addedAt || Date.now() };
       S.seen.add(k); n++;
     }

@@ -6,6 +6,7 @@ async function fetchIds(it) {
     const d = await tmdb(`/${it.type}/${it.id}`, { append_to_response:'external_ids,credits', language:'tr-TR' });
     it.imdb = d.external_ids?.imdb_id || d.imdb_id || null;
     it.director = directorOf(d, it.type);
+    if (!it.originalTitle) it.originalTitle = d.original_title || d.original_name || '';
     if (!it.overview) it.overview = d.overview || '';
   } catch {}
 }
@@ -83,6 +84,7 @@ function refreshScores(it) {
   if (box) box.innerHTML = scoresHTML(it);
   if (S.items[it.key] && (it.imdb || it.scores)) {
     S.items[it.key].imdb = it.imdb;
+    if (it.originalTitle) S.items[it.key].originalTitle = it.originalTitle;
     if (it.director !== undefined) S.items[it.key].director = it.director;
     if (it.scores) Object.assign(S.items[it.key], { imdbRating: it.scores.imdb || null, rt: it.scores.rt || null, scoreAt: Date.now() });
     saveItems();

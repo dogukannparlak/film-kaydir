@@ -27,3 +27,12 @@ function toast(msg, action, fn, ms = 2800) {
   setTimeout(() => t.remove(), ms);
 }
 const vibrate = () => { try { navigator.vibrate && navigator.vibrate(8); } catch {} };
+// Ana başlık orijinal ad, altında Türkçe ad. Orijinal ad Latin alfabesinde değilse (기생충, 千と千尋…)
+// okunabilir olsun diye Türkçe ad üstte, orijinal altta kalır. İkisi aynıysa alt satır yok.
+const LATIN = /^[\p{Script=Latin}\p{N}\p{P}\p{S}\p{Zs}]+$/u;
+const sameTitle = (a, b) => a.toLocaleLowerCase('tr').replace(/[^\p{L}\p{N}]+/gu, '') === b.toLocaleLowerCase('tr').replace(/[^\p{L}\p{N}]+/gu, '');
+function titles(it) {
+  const t = it.title || '—', o = it.originalTitle || '';
+  if (!o || sameTitle(o, t)) return { main: t, sub: '' };
+  return LATIN.test(o) ? { main: o, sub: t } : { main: t, sub: o };
+}

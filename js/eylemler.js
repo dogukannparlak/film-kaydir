@@ -1,7 +1,7 @@
 'use strict';
 /* ---- Eylemler ---- */
 function setItem(it, status) {
-  S.items[it.key] = { id:it.id, type:it.type, title:it.title, poster:it.poster, date:it.date, status,
+  S.items[it.key] = { id:it.id, type:it.type, title:it.title, originalTitle:it.originalTitle || '', poster:it.poster, date:it.date, status,
     genres:it.genres, rating:it.rating, imdb:it.imdb || null, imdbRating:it.scores?.imdb || null, rt:it.scores?.rt || null,
     director:it.director || null,
     scoreAt:it.scores ? Date.now() : null, addedAt:Date.now() };

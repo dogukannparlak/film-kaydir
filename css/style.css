@@ -48,6 +48,7 @@ header{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-are
   padding:3px 9px;border-radius:999px;font-weight:700;font-size:11.5px;letter-spacing:.02em}
 .rating{color:var(--gold);font-weight:800}
 .votes{color:var(--muted)}
+.title-sub{font-size:14px;color:#c9c9d8;margin:-2px 0 4px;font-weight:600}
 .title{font-size:25px;line-height:1.12;margin:7px 0 4px;font-weight:850;letter-spacing:-.02em;text-wrap:balance}
 .genres{color:#b7b7c9;font-size:13px}
 .director{color:#b7b7c9;font-size:13px;margin-top:2px}
@@ -136,7 +137,9 @@ a{color:var(--accent)}
 .item-poster .type{position:absolute;left:5px;bottom:5px;padding:1px 6px;border-radius:6px;font-size:9.5px;font-weight:800;letter-spacing:.04em;background:rgba(10,10,15,.78);backdrop-filter:blur(6px)}
 .item-main{min-width:0;flex:1;display:flex;flex-direction:column;gap:4px}
 .item-head{display:flex;align-items:flex-start;gap:8px}
-.item-title{flex:1;min-width:0;font-weight:750;font-size:15.5px;color:var(--text);text-decoration:none;line-height:1.25;overflow:hidden;text-overflow:ellipsis;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.item-title{flex:1;min-width:0;display:block;font-weight:750;font-size:15.5px;color:var(--text);text-decoration:none;line-height:1.25}
+.t-main{overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.item-title small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:12.5px;font-weight:600;color:var(--muted);margin-top:1px}
 .item-year{flex:none;font-size:12.5px;color:var(--muted);font-weight:650;padding-top:2px}
 .item-sub{font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .item-scores{display:flex;gap:5px;flex-wrap:wrap}

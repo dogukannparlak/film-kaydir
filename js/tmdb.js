@@ -17,6 +17,7 @@ function norm(r, type) {
   return {
     key: `${type}:${r.id}`, id: r.id, type,
     title: r.title || r.name || r.original_title || r.original_name || '—',
+    originalTitle: r.original_title || r.original_name || '',
     poster: r.poster_path, date: r.release_date || r.first_air_date || '',
     rating: r.vote_average || 0, votes: r.vote_count || 0,
     genres: r.genre_ids || [], overview: r.overview || '',

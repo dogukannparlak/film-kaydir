@@ -104,7 +104,7 @@ async function importLetterboxd(files) {
         const it = norm(det ? { ...r, title:det.title || r.title } : r, 'movie'), cur = S.items[it.key];
         const lb = rating[row['Letterboxd URI']] || null;
         if (!cur) {
-          S.items[it.key] = { id:it.id, type:'movie', title:it.title, poster:it.poster, date:it.date, status, genres:it.genres,
+          S.items[it.key] = { id:it.id, type:'movie', title:it.title, originalTitle:it.originalTitle, poster:it.poster, date:it.date, status, genres:it.genres,
             rating:it.rating, imdb:det?.external_ids?.imdb_id || det?.imdb_id || null, imdbRating:null, rt:null,
             director:det ? directorOf(det, 'movie') : null, scoreAt:null,
             addedAt: Date.parse(row.Date) || Date.now(), ...(lb ? { lbRating:lb } : {}) };

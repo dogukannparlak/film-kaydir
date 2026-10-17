@@ -21,7 +21,8 @@ function createCard(it) {
         ${yearOf(it.date) ? `<span>${yearOf(it.date)}</span>` : ''}
         <span class="rating">★ ${it.rating.toFixed(1)}</span><span class="votes">${votes} oy</span>
       </div>
-      <h2 class="title">${esc(it.title)}</h2>
+      <h2 class="title">${esc(titles(it).main)}</h2>
+      ${titles(it).sub ? `<div class="title-sub">${esc(titles(it).sub)}</div>` : ''}
       <div class="genres">${esc(genreNames(it.type, it.genres).join(' · '))}</div>
       <div class="director">${directorHTML(it)}</div>
       <div class="scores">${scoresHTML(it)}</div>
