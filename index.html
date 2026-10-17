@@ -1,0 +1,1110 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a0a0f">
+<meta name="color-scheme" content="dark">
+<title>Kaydır · Film ve Dizi</title>
+<style>
+:root{
+  --bg:#0a0a0f; --surface:#15151d; --surface-2:#1f1f2a; --line:rgba(255,255,255,.08);
+  --text:#f3f3f7; --muted:#9b9bb0; --want:#22c55e; --pass:#f43f5e; --watched:#3b82f6;
+  --gold:#fbbf24; --accent:#a78bfa; --radius:22px;
+  --ease:cubic-bezier(.2,.8,.2,1);
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--text);
+  font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overscroll-behavior:none}
+button{font:inherit;color:inherit;cursor:pointer}
+button,.card{-webkit-user-select:none;user-select:none}
+input,select{font:inherit;font-size:16px;color:var(--text)}
+.hidden{display:none!important}
+
+.app{display:flex;flex-direction:column;height:100vh;height:100dvh;max-width:520px;margin:0 auto;width:100%}
+header{display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top)) 16px 6px}
+.brand{font-weight:850;font-size:21px;letter-spacing:-.03em;margin-right:auto;
+  background:linear-gradient(90deg,#fff,var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.icon-btn{width:42px;height:42px;border-radius:13px;background:var(--surface);border:1px solid var(--line);
+  display:grid;place-items:center;position:relative;transition:transform .15s var(--ease)}
+.icon-btn:active{transform:scale(.92)}
+.dot{position:absolute;top:-5px;right:-5px;min-width:19px;height:19px;padding:0 5px;border-radius:999px;
+  background:var(--accent);color:#120f1d;font-size:11px;font-weight:800;display:grid;place-items:center}
+.summary{padding:0 16px 8px;color:var(--muted);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  background:none;border:0;text-align:left;width:100%}
+
+.view{flex:1;min-height:0;display:none;flex-direction:column}
+.view.active{display:flex}
+
+/* ---- Deste ---- */
+.deck-wrap{flex:1;min-height:0;padding:4px 16px 0;display:flex;justify-content:center}
+#deck{position:relative;height:100%;width:100%;max-width:100%;aspect-ratio:2/3;--p:0}
+.card{position:absolute;inset:0;border-radius:var(--radius);overflow:hidden;background:var(--surface-2);
+  box-shadow:0 18px 50px rgba(0,0,0,.55);touch-action:none;cursor:grab;will-change:transform;
+  transition:transform .38s var(--ease),opacity .3s}
+.card:active{cursor:grabbing}
+.card[data-depth="1"]{transform:translateY(calc(16px * (1 - var(--p)))) scale(calc(.94 + .06 * var(--p)))}
+.card[data-depth="2"]{transform:translateY(32px) scale(.88);opacity:.6}
+.card:not([data-depth="0"]),.card.leaving{pointer-events:none}
+.card.enter{animation:fadein .4s var(--ease) both}
+@keyframes fadein{from{opacity:0}}
+.poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;pointer-events:none;background:var(--surface-2)}
+.shade{position:absolute;inset:0;transition:background .25s;
+  background:linear-gradient(to bottom,rgba(0,0,0,0) 38%,rgba(6,6,12,.78) 68%,rgba(6,6,12,.97))}
+.info{position:absolute;left:0;right:0;bottom:0;padding:18px 18px 20px}
+.meta{display:flex;gap:8px;align-items:center;flex-wrap:wrap;font-size:13px;color:#d9d9e3}
+.badge{background:rgba(255,255,255,.16);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+  padding:3px 9px;border-radius:999px;font-weight:700;font-size:11.5px;letter-spacing:.02em}
+.rating{color:var(--gold);font-weight:800}
+.votes{color:var(--muted)}
+.title{font-size:25px;line-height:1.12;margin:7px 0 4px;font-weight:850;letter-spacing:-.02em;text-wrap:balance}
+.genres{color:#b7b7c9;font-size:13px}
+.overview{margin:8px 0 0;font-size:14px;color:#dedee8;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.more{font-size:12px;color:var(--muted);margin-top:4px}
+.card.expanded .shade{background:rgba(6,6,12,.86)}
+.card.expanded .overview{display:block;-webkit-line-clamp:unset;max-height:46vh;overflow:auto;touch-action:pan-y}
+.card.expanded .more{display:none}
+.stamp{position:absolute;top:30px;padding:4px 14px;border:4px solid;border-radius:12px;font-weight:900;font-size:26px;
+  letter-spacing:.06em;opacity:0;pointer-events:none;background:rgba(0,0,0,.28)}
+.stamp-want{left:20px;color:var(--want);transform:rotate(-14deg)}
+.stamp-pass{right:20px;color:var(--pass);transform:rotate(14deg)}
+.stamp-watched{left:50%;top:30%;color:var(--watched);transform:translateX(-50%) rotate(-6deg)}
+
+.deck-status{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:14px;text-align:center;padding:24px;border-radius:var(--radius);border:1px dashed var(--line);color:var(--muted)}
+.spinner{width:34px;height:34px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--accent);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.actions{display:flex;justify-content:center;align-items:center;gap:16px;padding:20px 16px 8px}
+.act{border-radius:50%;border:1px solid var(--line);background:var(--surface);display:grid;place-items:center;
+  transition:transform .18s var(--ease),background .2s,opacity .2s;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+.act:active,.act.pop{transform:scale(.86)}
+.act:disabled{opacity:.35;pointer-events:none}
+.act-lg{width:64px;height:64px}
+.act-md{width:54px;height:54px}
+.act-sm{width:44px;height:44px}
+.act-pass{color:var(--pass)} .act-want{color:var(--want)} .act-watched{color:var(--watched)} .act-undo{color:var(--gold)}
+
+/* ---- Anahtar kutusu ---- */
+.keybox{margin:auto 0;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:22px;width:100%}
+.keybox h2{margin:0 0 6px;font-size:20px}
+.keybox p{margin:0 0 14px;color:var(--muted);font-size:14px}
+.keybox ol{margin:0 0 16px;padding-left:20px;color:var(--muted);font-size:14px}
+a{color:var(--accent)}
+.field{width:100%;padding:12px 14px;border-radius:12px;background:var(--bg);border:1px solid var(--line);outline:none}
+.field:focus{border-color:var(--accent)}
+.btn{padding:12px 16px;border-radius:12px;border:1px solid var(--line);background:var(--surface-2);font-weight:700;transition:transform .15s var(--ease)}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--text);color:#111;border-color:transparent}
+.btn-danger{color:var(--pass)}
+.row-btns{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+.err{color:var(--pass);font-size:13.5px;margin-top:10px;min-height:1em}
+
+/* ---- Listeler ---- */
+.seg{display:flex;gap:6px;padding:4px 16px 10px}
+.seg button{flex:1;padding:10px 6px;border-radius:12px;background:var(--surface);border:1px solid var(--line);font-weight:700;font-size:13.5px}
+.seg button[aria-selected="true"]{background:var(--text);color:#111;border-color:transparent}
+.seg small{opacity:.65;font-weight:600}
+.lfilters{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 16px 8px}
+.lfilters select,.lsearch{width:100%;padding:9px 10px;border-radius:11px;background:var(--surface);border:1px solid var(--line);font-size:14px;appearance:none;-webkit-appearance:none}
+.lsearch-wrap{padding:0 16px 8px;display:flex;gap:8px}
+.lsearch{font-size:16px}
+.ltools{display:flex;gap:8px;padding:0 16px 10px}
+.ltools .btn{flex:1;padding:9px 10px;font-size:13.5px}
+.list{list-style:none;margin:0;padding:0 16px 16px;overflow:auto;flex:1;min-height:0}
+.item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);animation:fadein .3s var(--ease) both}
+.item img{width:62px;height:93px;border-radius:10px;object-fit:cover;background:var(--surface-2);flex:none}
+.item-main{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+.item-title{font-weight:750;color:var(--text);text-decoration:none;line-height:1.25}
+.item-sub{font-size:12.5px;color:var(--muted)}
+.item-acts{display:flex;gap:6px;margin-top:auto;flex-wrap:wrap}
+.pill{padding:6px 10px;border-radius:999px;font-size:12.5px;font-weight:700;background:var(--surface);border:1px solid var(--line)}
+.pill-want{color:var(--want)} .pill-watched{color:var(--watched)} .pill-passed{color:var(--pass)} .pill-del{color:var(--muted)}
+.empty{color:var(--muted);text-align:center;padding:40px 10px}
+
+/* ---- Alt gezinti ---- */
+nav.tabs{display:flex;border-top:1px solid var(--line);background:rgba(10,10,15,.92);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+nav.tabs button{flex:1;padding:10px 0 6px;background:none;border:0;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:2px;font-size:12px;font-weight:700;position:relative}
+nav.tabs button[aria-selected="true"]{color:var(--text)}
+nav.tabs .dot{position:static;margin-left:4px;display:inline-grid}
+.attrib{font-size:10.5px;color:var(--muted);text-align:center;padding:2px 16px calc(6px + env(safe-area-inset-bottom));background:rgba(10,10,15,.92)}
+
+/* ---- Alt sayfa (sheet) ---- */
+.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.6);opacity:0;pointer-events:none;transition:opacity .25s;z-index:50}
+.backdrop.open{opacity:1;pointer-events:auto}
+.sheet{position:fixed;left:0;right:0;bottom:0;margin:0 auto;max-width:520px;max-height:88vh;max-height:88dvh;background:var(--surface);
+  border-radius:24px 24px 0 0;transform:translateY(105%);transition:transform .34s var(--ease);z-index:51;display:flex;flex-direction:column;
+  box-shadow:0 -10px 40px rgba(0,0,0,.5)}
+.sheet.open{transform:none}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;padding:10px 16px 6px}
+.sheet-head h2{margin:0;font-size:18px}
+.grip{width:40px;height:5px;border-radius:9px;background:var(--line);margin:8px auto 0}
+.sheet-body{overflow:auto;padding:0 16px 16px;overscroll-behavior:contain}
+.sheet-body section{padding:12px 0;border-bottom:1px solid var(--line)}
+.sheet-body section:last-child{border-bottom:0}
+.sheet-body h3{margin:0 0 10px;font-size:14px;display:flex;justify-content:space-between;align-items:baseline}
+.sheet-body h3 small{color:var(--muted);font-weight:500;font-size:12px}
+.sheet-foot{display:flex;gap:10px;padding:12px 16px calc(12px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
+.sheet-foot .btn{flex:1}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:8px 13px;border-radius:999px;background:var(--surface-2);border:1px solid var(--line);font-size:14px;display:inline-flex;align-items:center;gap:6px;transition:background .15s,color .15s}
+.chip[aria-pressed="true"]{background:var(--text);color:#111;border-color:transparent}
+.chip img{width:20px;height:20px;border-radius:5px}
+.years{display:flex;gap:10px;align-items:center;margin-top:10px}
+.years input{width:100%;padding:10px 12px;border-radius:11px;background:var(--bg);border:1px solid var(--line)}
+input[type=range]{width:100%;accent-color:var(--accent)}
+.note{color:var(--muted);font-size:12.5px;margin:8px 0 0}
+
+/* ---- Bildirim ---- */
+.toast-wrap{position:fixed;left:0;right:0;bottom:calc(96px + env(safe-area-inset-bottom));display:flex;flex-direction:column;align-items:center;gap:8px;pointer-events:none;z-index:60}
+.toast{background:#26263a;border:1px solid var(--line);padding:10px 14px;border-radius:12px;font-size:14px;display:flex;gap:12px;align-items:center;
+  pointer-events:auto;animation:toastin .3s var(--ease) both;box-shadow:0 10px 30px rgba(0,0,0,.4);max-width:calc(100% - 32px)}
+.toast button{background:none;border:0;color:var(--accent);font-weight:800;padding:0}
+@keyframes toastin{from{opacity:0;transform:translateY(10px)}}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.01ms!important;transition-duration:.01ms!important}
+}
+@media (min-height:900px){ .title{font-size:28px} }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">Kaydır</div>
+    <button class="icon-btn" id="btnFilters" aria-label="Filtreler">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M4 6h16M7 12h10M10 18h4"/></svg>
+      <span class="dot hidden" id="filterDot"></span>
+    </button>
+    <button class="icon-btn" id="btnSettings" aria-label="Ayarlar">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </header>
+
+  <!-- KEŞFET -->
+  <section class="view active" id="viewDiscover">
+    <button class="summary" id="summary"></button>
+    <div class="deck-wrap"><div id="deck"></div></div>
+    <div class="actions" id="actions">
+      <button class="act act-sm act-undo" id="btnUndo" aria-label="Geri al (Backspace)" title="Geri al" disabled>
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
+      </button>
+      <button class="act act-lg act-pass" data-dir="left" aria-label="Geç (sol ok)" title="Geç">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+      <button class="act act-md act-watched" data-dir="up" aria-label="İzledim (yukarı ok)" title="İzledim">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+      </button>
+      <button class="act act-lg act-want" data-dir="right" aria-label="İzlemek istiyorum (sağ ok)" title="İstiyorum">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-9.3-9.6C1.5 7.9 3.7 4.5 7.2 4.5c2 0 3.6 1.1 4.8 2.7 1.2-1.6 2.8-2.7 4.8-2.7 3.5 0 5.7 3.4 4.5 6.9C19.5 16.4 12 21 12 21z"/></svg>
+      </button>
+    </div>
+  </section>
+
+  <!-- LİSTELER -->
+  <section class="view" id="viewLists">
+    <div class="seg" role="tablist" id="listTabs">
+      <button role="tab" data-tab="want" aria-selected="true">İstek <small id="cWant">0</small></button>
+      <button role="tab" data-tab="watched" aria-selected="false">İzlediklerim <small id="cWatched">0</small></button>
+      <button role="tab" data-tab="passed" aria-selected="false">Geçtiklerim <small id="cPassed">0</small></button>
+    </div>
+    <div class="lsearch-wrap"><input class="lsearch" id="lq" type="search" placeholder="Listede ara…" autocomplete="off"></div>
+    <div class="lfilters">
+      <select id="lType" aria-label="İçerik türü"><option value="all">Film + Dizi</option><option value="movie">Film</option><option value="tv">Dizi</option></select>
+      <select id="lGenre" aria-label="Tür"></select>
+      <select id="lPeriod" aria-label="Dönem"></select>
+    </div>
+    <div class="ltools">
+      <button class="btn" id="btnExport">⬇︎ Dışa aktar (JSON)</button>
+      <button class="btn" id="btnImport">⬆︎ İçe aktar</button>
+      <input type="file" id="fileImport" accept="application/json,.json" class="hidden">
+    </div>
+    <ul class="list" id="list"></ul>
+  </section>
+
+  <nav class="tabs">
+    <button data-view="discover" aria-selected="true">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="3"/><path d="M2 7v10M22 7v10" stroke-linecap="round"/></svg>
+      Keşfet
+    </button>
+    <button data-view="lists" aria-selected="false">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 6h13M8 12h13M8 18h13M3.5 6h.01M3.5 12h.01M3.5 18h.01"/></svg>
+      <span>Listeler<span class="dot hidden" id="navDot"></span></span>
+    </button>
+  </nav>
+  <div class="attrib">This product uses the TMDB API but is not endorsed or certified by TMDB.</div>
+</div>
+
+<div class="backdrop" id="backdrop"></div>
+
+<div class="sheet" id="sheetFilters" role="dialog" aria-label="Filtreler">
+  <div class="grip"></div>
+  <div class="sheet-head"><h2>Filtreler</h2><button class="icon-btn" data-close aria-label="Kapat">✕</button></div>
+  <div class="sheet-body" id="filterBody"></div>
+  <div class="sheet-foot"><button class="btn" id="btnResetFilters">Sıfırla</button><button class="btn btn-primary" id="btnApplyFilters">Uygula</button></div>
+</div>
+
+<div class="sheet" id="sheetSettings" role="dialog" aria-label="Ayarlar">
+  <div class="grip"></div>
+  <div class="sheet-head"><h2>Ayarlar</h2><button class="icon-btn" data-close aria-label="Kapat">✕</button></div>
+  <div class="sheet-body">
+    <section>
+      <h3>TMDB API anahtarı</h3>
+      <input class="field" id="setKey" type="password" placeholder="API anahtarı ya da okuma erişim jetonu" autocomplete="off">
+      <div class="row-btns"><button class="btn btn-primary" id="btnSaveKey2">Kaydet</button><button class="btn btn-danger" id="btnDelKey">Anahtarı sil</button></div>
+      <div class="err" id="setKeyErr"></div>
+      <p class="note">Anahtar yalnız bu tarayıcıda (localStorage) saklanır.</p>
+    </section>
+    <section>
+      <h3>Görülenler <small id="seenCount"></small></h3>
+      <p class="note" style="margin:0 0 10px">Kaydırdığın içerik bir daha çıkmaz. Listeden sildiklerin de görüldü sayılır. Sıfırlarsan listelerde olmayanlar yeniden çıkabilir.</p>
+      <button class="btn btn-danger" id="btnResetSeen">Görülenleri sıfırla</button>
+    </section>
+    <section>
+      <h3>Kısayollar</h3>
+      <p class="note" style="margin:0">→ istiyorum · ← geç · ↑ izledim · Backspace / Z geri al · Kartın üstüne dokun: özetin tamamı</p>
+    </section>
+    <section>
+      <p class="note" style="margin:0">Veriler ve afişler <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a>'den gelir. Platform bilgisi TMDB'nin JustWatch kaynaklı Türkiye verisidir.<br>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+    </section>
+  </div>
+</div>
+
+<div class="toast-wrap" id="toasts"></div>
+
+<script>
+'use strict';
+/* ================= Sabitler ================= */
+const API = 'https://api.themoviedb.org/3';
+const IMG = 'https://image.tmdb.org/t/p/';
+const K = { key:'kd_apikey', items:'kd_items', seen:'kd_seen', filters:'kd_filters', prov:'kd_providers', listF:'kd_listf' };
+const NOW_Y = new Date().getFullYear();
+const TODAY = new Date().toISOString().slice(0, 10);
+const PREFETCH_AT = 12;         // kuyruk bunun altına inince arka planda yeni sayfa çek
+const RANDOM_PAGE_CAP = 25;     // rastgele modda bir dilimde en fazla kaçıncı sayfaya kadar inilsin
+const STATUS = { want:'İstek listesi', watched:'İzlediklerim', passed:'Geçtiklerim' };
+const DIR_STATUS = { right:'want', left:'passed', up:'watched' };
+
+const MOVIE_G = {28:'Aksiyon',12:'Macera',16:'Animasyon',35:'Komedi',80:'Suç',99:'Belgesel',18:'Dram',10751:'Aile',14:'Fantastik',36:'Tarih',27:'Korku',10402:'Müzik',9648:'Gizem',10749:'Romantik',878:'Bilim Kurgu',10770:'TV Filmi',53:'Gerilim',10752:'Savaş',37:'Vahşi Batı'};
+const TV_G = {10759:'Aksiyon & Macera',16:'Animasyon',35:'Komedi',80:'Suç',99:'Belgesel',18:'Dram',10751:'Aile',10762:'Çocuk',9648:'Gizem',10763:'Haber',10764:'Reality',10765:'Bilim Kurgu & Fantastik',10766:'Pembe Dizi',10767:'Talk Show',10768:'Savaş & Politika',37:'Vahşi Batı'};
+// Film ve dizi türleri TMDB'de farklı kimliklere sahip; filtre için ortak liste
+const GENRES = [
+  {id:'action', label:'Aksiyon', m:[28], t:[10759]},
+  {id:'adventure', label:'Macera', m:[12], t:[10759]},
+  {id:'comedy', label:'Komedi', m:[35], t:[35]},
+  {id:'drama', label:'Dram', m:[18], t:[18]},
+  {id:'crime', label:'Suç', m:[80], t:[80]},
+  {id:'thriller', label:'Gerilim', m:[53], t:[]},
+  {id:'mystery', label:'Gizem', m:[9648], t:[9648]},
+  {id:'horror', label:'Korku', m:[27], t:[]},
+  {id:'scifi', label:'Bilim Kurgu', m:[878], t:[10765]},
+  {id:'fantasy', label:'Fantastik', m:[14], t:[10765]},
+  {id:'romance', label:'Romantik', m:[10749], t:[]},
+  {id:'animation', label:'Animasyon', m:[16], t:[16]},
+  {id:'family', label:'Aile', m:[10751], t:[10751]},
+  {id:'docu', label:'Belgesel', m:[99], t:[99]},
+  {id:'history', label:'Tarih', m:[36], t:[]},
+  {id:'war', label:'Savaş', m:[10752], t:[10768]},
+  {id:'music', label:'Müzik', m:[10402], t:[]},
+  {id:'western', label:'Vahşi Batı', m:[37], t:[37]},
+  {id:'kids', label:'Çocuk', m:[], t:[10762]},
+  {id:'reality', label:'Reality', m:[], t:[10764]},
+];
+const PERIODS = [
+  {id:'all', label:'Hepsi', from:null, to:null},
+  {id:'2020', label:"2020'ler", from:2020, to:null},
+  {id:'2010', label:"2010'lar", from:2010, to:2019},
+  {id:'2000', label:"2000'ler", from:2000, to:2009},
+  {id:'1990', label:"90'lar", from:1990, to:1999},
+  {id:'old', label:"80'ler ve öncesi", from:null, to:1989},
+  {id:'custom', label:'Özel aralık'},
+];
+const SORTS = [
+  {id:'random', label:'Rastgele'}, {id:'popular', label:'Popüler'},
+  {id:'top', label:'En yüksek puan'}, {id:'new', label:'En yeni'},
+];
+const REGIONS = [
+  {id:'all', label:'Hepsi', p:{}},
+  {id:'tr', label:'Türk yapımları', p:{with_original_language:'tr'}},
+  {id:'kr', label:'Kore', p:{with_original_language:'ko'}},
+  {id:'anime', label:'Anime', p:{with_original_language:'ja'}, anime:true},
+  {id:'jp', label:'Japon', p:{with_original_language:'ja'}},
+  {id:'en', label:'İngilizce', p:{with_original_language:'en'}},
+  {id:'es', label:'İspanyolca', p:{with_original_language:'es'}},
+  {id:'fr', label:'Fransız', p:{with_original_language:'fr'}},
+  {id:'in', label:'Hint', p:{with_original_language:'hi'}},
+  {id:'cn', label:'Çin', p:{with_original_language:'zh'}},
+  {id:'de', label:'Alman', p:{with_original_language:'de'}},
+];
+const VOTE_OPTS = [20, 50, 100, 300, 1000, 5000];
+const FALLBACK_PROVIDERS = [
+  {id:8, name:'Netflix', logo:''}, {id:337, name:'Disney Plus', logo:''},
+  {id:119, name:'Amazon Prime Video', logo:''}, {id:350, name:'Apple TV+', logo:''}, {id:11, name:'MUBI', logo:''},
+];
+const DEFAULT_FILTERS = { type:'both', sort:'random', period:'all', from:1990, to:NOW_Y, genres:[], region:'all', minRating:0, minVotes:100, providers:[] };
+
+/* ================= Yardımcılar ================= */
+const $ = (s, el = document) => el.querySelector(s);
+const $$ = (s, el = document) => [...el.querySelectorAll(s)];
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pick = a => a[Math.floor(Math.random() * a.length)];
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+const yearOf = d => (d || '').slice(0, 4);
+const keySel = k => `.card[data-key="${CSS.escape(k)}"]`;
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+const store = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { toast('Kaydedilemedi: tarayıcı depolaması dolu ya da kapalı.'); } },
+  del(k) { try { localStorage.removeItem(k); } catch {} },
+};
+function toast(msg, action, fn, ms = 2800) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.innerHTML = `<span>${esc(msg)}</span>`;
+  if (action) {
+    const b = document.createElement('button');
+    b.textContent = action;
+    b.onclick = () => { fn(); t.remove(); };
+    t.appendChild(b);
+  }
+  $('#toasts').appendChild(t);
+  setTimeout(() => t.remove(), ms);
+}
+const vibrate = () => { try { navigator.vibrate && navigator.vibrate(8); } catch {} };
+
+/* ================= Durum ================= */
+const S = {
+  apiKey: store.get(K.key, ''),
+  items: store.get(K.items, {}),
+  seen: new Set(store.get(K.seen, [])),
+  filters: { ...DEFAULT_FILTERS, ...store.get(K.filters, {}) },
+  providers: null,
+  queue: [], queued: new Set(), undo: [],
+  view: 'discover', listTab: 'want',
+  listF: { type:'all', genre:'', period:'all', q:'', ...store.get(K.listF, {}) },
+  dragging: false,
+};
+Object.keys(S.items).forEach(k => S.seen.add(k));
+const saveItems = () => store.set(K.items, S.items);
+const saveSeen = () => store.set(K.seen, [...S.seen]);
+
+/* ================= TMDB ================= */
+class AuthError extends Error {}
+async function tmdb(path, params = {}) {
+  const url = new URL(API + path);
+  const headers = { accept: 'application/json' };
+  // v4 "okuma erişim jetonu" (eyJ...) Bearer ile, v3 anahtar api_key ile gider
+  if (S.apiKey.startsWith('eyJ')) headers.Authorization = 'Bearer ' + S.apiKey;
+  else url.searchParams.set('api_key', S.apiKey);
+  for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, v);
+  const r = await fetch(url, { headers });
+  if (r.status === 401) throw new AuthError('auth');
+  if (!r.ok) throw new Error('TMDB ' + r.status);
+  return r.json();
+}
+function norm(r, type) {
+  return {
+    key: `${type}:${r.id}`, id: r.id, type,
+    title: r.title || r.name || r.original_title || r.original_name || '—',
+    poster: r.poster_path, date: r.release_date || r.first_air_date || '',
+    rating: r.vote_average || 0, votes: r.vote_count || 0,
+    genres: r.genre_ids || [], overview: r.overview || '',
+  };
+}
+const region = () => REGIONS.find(r => r.id === S.filters.region) || REGIONS[0];
+function periodRange(f) {
+  if (f.period === 'custom') {
+    const a = clamp(+f.from || 1900, 1900, NOW_Y), b = clamp(+f.to || NOW_Y, 1900, NOW_Y);
+    return [Math.min(a, b), Math.max(a, b)];
+  }
+  const p = PERIODS.find(x => x.id === f.period) || PERIODS[0];
+  return [p.from, p.to];
+}
+function genreIds(type, sel) {
+  if (!sel.length) return [];
+  const ids = new Set();
+  GENRES.filter(g => sel.includes(g.id)).forEach(g => (type === 'movie' ? g.m : g.t).forEach(i => ids.add(i)));
+  return ids.size ? [...ids] : null; // null: seçilen türlerin bu içerik tipinde karşılığı yok
+}
+function baseParams(type) {
+  const f = S.filters, reg = region();
+  const g = genreIds(type, f.genres);
+  if (g === null) return null;
+  const p = { language:'tr-TR', include_adult:false, 'vote_count.gte': f.minVotes, ...reg.p };
+  if (f.minRating > 0) p['vote_average.gte'] = f.minRating;
+  if (g.length) p.with_genres = g.join('|');
+  else if (reg.anime) p.with_genres = '16';
+  if (f.providers.length) {
+    p.with_watch_providers = f.providers.join('|');
+    p.watch_region = 'TR';
+    p.with_watch_monetization_types = 'flatrate|free|ads';
+  }
+  if (type === 'tv') p.include_null_first_air_dates = false;
+  return p;
+}
+function dateParams(type, y0, y1) {
+  const pre = type === 'movie' ? 'primary_release_date' : 'first_air_date';
+  const p = {};
+  if (y0) p[pre + '.gte'] = `${y0}-01-01`;
+  const lte = y1 ? `${y1}-12-31` : TODAY;
+  p[pre + '.lte'] = lte < TODAY ? lte : TODAY; // henüz çıkmamışları gösterme
+  return p;
+}
+function activeTypes() {
+  const t = S.filters.type === 'both' ? ['movie', 'tv'] : [S.filters.type];
+  return t.filter(x => baseParams(x));
+}
+function accept(it) {
+  if (!it.poster || it.votes < S.filters.minVotes) return false;
+  if (S.seen.has(it.key) || S.queued.has(it.key)) return false;
+  if (region().anime && !it.genres.includes(16)) return false;
+  return true;
+}
+
+/* ================= Sonsuz akış motoru ================= */
+const E = { gen:0, keys:{}, cursors:{}, done:{}, loading:false, exhausted:false, error:null, dry:0 };
+
+function randomBlocks() {
+  const [a, b] = periodRange(S.filters);
+  const lo = a ?? (S.filters.period === 'old' ? 1930 : 1960), hi = b ?? NOW_Y;
+  const blocks = [];
+  for (let y = lo; y <= hi; y += 5) blocks.push([y, Math.min(y + 4, hi)]);
+  return blocks;
+}
+// Rastgele mod: dönemi 5 yıllık dilimlere böl, rastgele dilim + rastgele sıralama + rastgele sayfa seç.
+// Böylece eski ve yeni içerik eşit şansla karışır.
+async function fetchRandom(type, base) {
+  const blocks = randomBlocks();
+  const sorts = ['popularity.desc', 'vote_count.desc', 'vote_average.desc'];
+  for (let attempt = 0; attempt < 6; attempt++) {
+    const [ys, ye] = pick(blocks), sort = pick(sorts);
+    const k = `${type}|${ys}|${sort}`;
+    const info = E.keys[k] || (E.keys[k] = { total:null, pages:new Set(), dead:false });
+    if (info.dead) continue;
+    let page = 1;
+    if (info.total != null) {
+      const max = Math.min(info.total, RANDOM_PAGE_CAP), free = [];
+      for (let i = 1; i <= max; i++) if (!info.pages.has(i)) free.push(i);
+      if (!free.length) { info.dead = true; continue; }
+      page = pick(free);
+    }
+    info.pages.add(page);
+    const d = await tmdb(`/discover/${type}`, { ...base, ...dateParams(type, ys, ye), sort_by:sort, page });
+    info.total = d.total_pages || 0;
+    if (!info.total) info.dead = true;
+    return { items: (d.results || []).map(r => norm(r, type)) };
+  }
+  const deadCount = Object.entries(E.keys).filter(([k, v]) => k.startsWith(type + '|') && v.dead).length;
+  return { items: [], done: deadCount >= blocks.length * sorts.length };
+}
+async function fetchSeq(type, base) {
+  const f = S.filters;
+  const c = E.cursors[type] || (E.cursors[type] = { page:0, total:1 });
+  if (c.page >= Math.min(c.total, 500)) return { items: [], done: true };
+  c.page++;
+  const [y0, y1] = periodRange(f);
+  const sort = f.sort === 'popular' ? 'popularity.desc' : f.sort === 'top' ? 'vote_average.desc'
+    : type === 'movie' ? 'primary_release_date.desc' : 'first_air_date.desc';
+  const d = await tmdb(`/discover/${type}`, { ...base, ...dateParams(type, y0, y1), sort_by:sort, page:c.page });
+  c.total = d.total_pages || 0;
+  return { items: (d.results || []).map(r => norm(r, type)), done: c.page >= Math.min(c.total, 500) };
+}
+function fetchOne(type) {
+  const base = baseParams(type);
+  return S.filters.sort === 'random' ? fetchRandom(type, base) : fetchSeq(type, base);
+}
+function interleave(lists) {
+  const out = [], n = Math.max(0, ...lists.map(l => l.length));
+  for (let i = 0; i < n; i++) lists.forEach(l => l[i] && out.push(l[i]));
+  return out;
+}
+async function fetchMore() {
+  if (!S.apiKey || E.loading || E.exhausted || E.error) return;
+  E.loading = true;
+  const gen = E.gen;
+  let added = 0;
+  updateDeckStatus();
+  try {
+    for (let round = 0; round < 5 && added < 12; round++) {
+      const types = activeTypes().filter(t => !E.done[t]);
+      if (!types.length) { E.exhausted = true; break; }
+      const res = await Promise.all(types.map(t => fetchOne(t).catch(err => {
+        if (err instanceof AuthError) throw err;
+        console.warn(err);
+        return { items: [], err };
+      })));
+      if (gen !== E.gen) return;
+      res.forEach((r, i) => { if (r.done) E.done[types[i]] = true; });
+      if (res.every(r => r.err)) throw res[0].err;
+      const merged = interleave(res.map(r => r.items));
+      if (S.filters.sort === 'random') shuffle(merged);
+      for (const it of merged) if (accept(it)) { S.queue.push(it); S.queued.add(it.key); added++; }
+    }
+    E.dry = added ? 0 : E.dry + 1;
+    if (E.dry >= 3) E.exhausted = true;
+  } catch (err) {
+    if (gen !== E.gen) return;
+    if (err instanceof AuthError) { S.apiKey = ''; S.keyMsg = 'Anahtar geçersiz. Yeniden yapıştır.'; return; }
+    E.error = err;
+  } finally {
+    if (gen === E.gen) { E.loading = false; renderDeck(); }
+  }
+}
+function resetEngine() {
+  E.gen++;
+  Object.assign(E, { keys:{}, cursors:{}, done:{}, loading:false, exhausted:false, error:null, dry:0 });
+  S.queue = []; S.queued.clear();
+  $$('#deck .card').forEach(c => c.remove());
+  renderDeck();
+}
+
+/* ================= Kartlar ================= */
+function genreNames(type, ids) {
+  const map = type === 'movie' ? MOVIE_G : TV_G;
+  return ids.map(i => map[i]).filter(Boolean);
+}
+function createCard(it) {
+  const el = document.createElement('article');
+  el.className = 'card';
+  el.dataset.key = it.key;
+  const votes = it.votes >= 1000 ? (it.votes / 1000).toLocaleString('tr-TR', { maximumFractionDigits:1 }) + 'B' : it.votes;
+  el.innerHTML = `
+    <img class="poster" src="${IMG}w780${esc(it.poster)}" alt="" draggable="false" onerror="this.style.visibility='hidden'">
+    <div class="shade"></div>
+    <div class="stamp stamp-want">İSTİYORUM</div>
+    <div class="stamp stamp-pass">GEÇ</div>
+    <div class="stamp stamp-watched">İZLEDİM</div>
+    <div class="info">
+      <div class="meta">
+        <span class="badge">${it.type === 'movie' ? 'FİLM' : 'DİZİ'}</span>
+        ${yearOf(it.date) ? `<span>${yearOf(it.date)}</span>` : ''}
+        <span class="rating">★ ${it.rating.toFixed(1)}</span><span class="votes">${votes} oy</span>
+      </div>
+      <h2 class="title">${esc(it.title)}</h2>
+      <div class="genres">${esc(genreNames(it.type, it.genres).join(' · '))}</div>
+      <p class="overview">${esc(it.overview || 'Özet yükleniyor…')}</p>
+      <div class="more">Dokun: özetin tamamı</div>
+    </div>`;
+  attachDrag(el);
+  return el;
+}
+async function ensureOverview(it) {
+  if (it.overview || it._ov) return;
+  it._ov = true;
+  try {
+    const d = await tmdb(`/${it.type}/${it.id}`, { language:'en-US' });
+    it.overview = d.overview || '';
+  } catch {}
+  const el = $(keySel(it.key) + ' .overview');
+  if (el) el.textContent = it.overview || 'Özet yok.';
+}
+const preloaded = new Set();
+function preload(it) {
+  if (preloaded.has(it.key)) return;
+  preloaded.add(it.key);
+  new Image().src = IMG + 'w780' + it.poster;
+}
+
+function renderDeck(keyMsg) {
+  const deck = $('#deck');
+  $('#actions').classList.toggle('hidden', !S.apiKey);
+  if (!S.apiKey) { deck.innerHTML = keyBoxHTML(keyMsg ?? S.keyMsg); bindKeyBox(); return; }
+  $('.keybox', deck)?.remove();
+  const top = S.queue.slice(0, 3);
+  const live = $$('.card:not(.leaving)', deck);
+  live.forEach(el => { if (!top.some(t => t.key === el.dataset.key)) el.remove(); });
+  top.forEach((it, i) => {
+    let el = $(keySel(it.key) + ':not(.leaving)', deck);
+    if (!el) { el = createCard(it); el.classList.add('enter'); deck.appendChild(el); }
+    if (el.dataset.depth !== String(i)) { el.dataset.depth = i; if (i === 0) el.classList.remove('enter'); }
+    el.style.zIndex = 10 - i;
+    if (i < 2) ensureOverview(it);
+  });
+  S.queue.slice(0, 6).forEach(preload);
+  updateDeckStatus();
+  $$('.act[data-dir]').forEach(b => b.disabled = !S.queue.length);
+  if (S.queue.length < PREFETCH_AT) fetchMore();
+}
+function updateDeckStatus() {
+  const deck = $('#deck');
+  let st = $('.deck-status', deck);
+  if (!S.apiKey || S.queue.length) { st?.remove(); return; }
+  if (!st) { st = document.createElement('div'); st.className = 'deck-status'; deck.prepend(st); }
+  if (E.loading) st.innerHTML = '<div class="spinner"></div><div>Yükleniyor…</div>';
+  else if (E.error) st.innerHTML = `<div>Bağlantı hatası: ${esc(E.error.message)}</div><button class="btn btn-primary" data-retry>Tekrar dene</button>`;
+  else if (E.exhausted) st.innerHTML = `<div style="font-size:34px">🍿</div><div>Bu filtrelerle gösterilecek yeni içerik kalmadı.</div><button class="btn btn-primary" data-open-filters>Filtreleri değiştir</button>`;
+  else st.innerHTML = '<div class="spinner"></div>';
+}
+
+/* ---- Sürükleme (Pointer Events) ---- */
+function thresholds() { return { x: Math.min(120, innerWidth * 0.26), y: Math.min(130, innerHeight * 0.16) }; }
+function stampLevels(dx, dy) {
+  const th = thresholds();
+  const up = -dy > Math.abs(dx) ? clamp(-dy / th.y, 0, 1) : 0;
+  return { want: up ? 0 : clamp(dx / th.x, 0, 1), pass: up ? 0 : clamp(-dx / th.x, 0, 1), watched: up };
+}
+function setStamps(el, lv) {
+  $('.stamp-want', el).style.opacity = lv.want;
+  $('.stamp-pass', el).style.opacity = lv.pass;
+  $('.stamp-watched', el).style.opacity = lv.watched;
+}
+function attachDrag(el) {
+  let id = null, sx = 0, sy = 0, dx = 0, dy = 0, moved = false, samples = [];
+  el.addEventListener('pointerdown', e => {
+    if (el.dataset.depth !== '0' || el.classList.contains('leaving')) return;
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+    if (el.classList.contains('expanded') && e.target.closest('.overview')) return; // özeti kaydırmaya izin ver
+    id = e.pointerId; el.setPointerCapture(id);
+    sx = e.clientX; sy = e.clientY; dx = dy = 0; moved = false;
+    samples = [{ x:sx, y:sy, t:e.timeStamp }];
+    el.style.transition = 'none';
+    S.dragging = true;
+  });
+  el.addEventListener('pointermove', e => {
+    if (e.pointerId !== id) return;
+    dx = e.clientX - sx; dy = e.clientY - sy;
+    if (!moved && Math.hypot(dx, dy) > 6) moved = true;
+    samples.push({ x:e.clientX, y:e.clientY, t:e.timeStamp });
+    if (samples.length > 6) samples.shift();
+    el.style.transform = `translate(${dx}px,${dy}px) rotate(${dx / 18}deg)`;
+    setStamps(el, stampLevels(dx, dy));
+    $('#deck').style.setProperty('--p', clamp(Math.hypot(dx, dy) / 160, 0, 1));
+  });
+  const end = e => {
+    if (e.pointerId !== id) return;
+    id = null; S.dragging = false;
+    $('#deck').style.setProperty('--p', 0);
+    const a = samples[0], b = samples[samples.length - 1], dt = Math.max(1, b.t - a.t);
+    const vx = (b.x - a.x) / dt, vy = (b.y - a.y) / dt; // px/ms
+    const th = thresholds();
+    let dir = null;
+    if (e.type !== 'pointercancel') {
+      if (-dy > Math.abs(dx) && (-dy > th.y || (vy < -0.6 && -dy > 40))) dir = 'up';
+      else if (dx > th.x || (vx > 0.6 && dx > 40)) dir = 'right';
+      else if (dx < -th.x || (vx < -0.6 && dx < -40)) dir = 'left';
+    }
+    if (dir) return act(dir, { dx, dy });
+    el.style.transition = '';
+    el.style.transform = '';
+    setStamps(el, { want:0, pass:0, watched:0 });
+    if (!moved && e.type === 'pointerup') el.classList.toggle('expanded');
+  };
+  el.addEventListener('pointerup', end);
+  el.addEventListener('pointercancel', end);
+}
+function flyOut(el, dir, from = { dx:0, dy:0 }) {
+  el.classList.add('leaving');
+  el.style.zIndex = 20;
+  const W = innerWidth + el.offsetWidth, H = innerHeight + el.offsetHeight;
+  let x = 0, y = 0, r = 0;
+  if (dir === 'right') { x = W; y = from.dy * 2; r = 28; }
+  if (dir === 'left') { x = -W; y = from.dy * 2; r = -28; }
+  if (dir === 'up') { x = from.dx * 2; y = -H; r = from.dx / 15; }
+  setStamps(el, { want: +(dir === 'right'), pass: +(dir === 'left'), watched: +(dir === 'up') });
+  el.style.transition = 'transform .5s cubic-bezier(.3,.7,.3,1), opacity .5s';
+  requestAnimationFrame(() => requestAnimationFrame(() => {
+    el.style.transform = `translate(${x}px,${y}px) rotate(${r}deg)`;
+    el.style.opacity = '.4';
+  }));
+  setTimeout(() => el.remove(), 520);
+}
+
+/* ---- Eylemler ---- */
+function setItem(it, status) {
+  S.items[it.key] = { id:it.id, type:it.type, title:it.title, poster:it.poster, date:it.date, status,
+    genres:it.genres, rating:it.rating, addedAt:Date.now() };
+  saveItems();
+}
+function act(dir, from) {
+  const it = S.queue[0];
+  if (!it) return;
+  if (!from && S.dragging) return;
+  S.queue.shift(); S.queued.delete(it.key);
+  const prev = S.items[it.key] ? { ...S.items[it.key] } : null;
+  const wasSeen = S.seen.has(it.key);
+  setItem(it, DIR_STATUS[dir]);
+  S.seen.add(it.key); saveSeen();
+  S.undo.push({ it, prev, wasSeen, dir });
+  if (S.undo.length > 50) S.undo.shift();
+  const el = $(keySel(it.key) + ':not(.leaving)');
+  if (el) flyOut(el, dir, from);
+  const btn = $(`.act[data-dir="${dir}"]`);
+  btn.classList.add('pop'); setTimeout(() => btn.classList.remove('pop'), 160);
+  vibrate();
+  renderDeck(); updateCounts();
+}
+function undo() {
+  const u = S.undo.pop();
+  if (!u) return;
+  const { it } = u;
+  if (u.prev) S.items[it.key] = u.prev; else delete S.items[it.key];
+  saveItems();
+  if (!u.wasSeen) { S.seen.delete(it.key); saveSeen(); }
+  $$(keySel(it.key)).forEach(e => e.remove());
+  S.queue.unshift(it); S.queued.add(it.key);
+  // Kart çıktığı yönden geri gelsin
+  const el = createCard(it);
+  el.dataset.depth = 0; el.style.zIndex = 10;
+  el.style.transition = 'none';
+  const off = { right:`translate(${innerWidth}px,0) rotate(28deg)`, left:`translate(${-innerWidth}px,0) rotate(-28deg)`, up:`translate(0,${-innerHeight}px)` }[u.dir];
+  el.style.transform = off;
+  $('#deck').appendChild(el);
+  el.getBoundingClientRect();
+  el.style.transition = '';
+  el.style.transform = '';
+  renderDeck(); updateCounts();
+  if (S.view === 'lists') renderList();
+}
+
+/* ================= Anahtar kutusu ================= */
+function keyBoxHTML(msg) {
+  return `<div class="keybox">
+    <h2>TMDB anahtarını yapıştır</h2>
+    <p>Film ve dizi verisi TMDB'den gelir. Ücretsiz anahtar 2 dakikada alınır.</p>
+    <ol>
+      <li><a href="https://www.themoviedb.org/signup" target="_blank" rel="noopener">TMDB'de hesap aç</a></li>
+      <li><a href="https://www.themoviedb.org/settings/api" target="_blank" rel="noopener">Ayarlar › API</a> sayfasından anahtar iste</li>
+      <li>"API Anahtarı" ya da "API Okuma Erişim Jetonu"nu aşağı yapıştır</li>
+    </ol>
+    <input class="field" id="keyInput" type="password" placeholder="API anahtarı" autocomplete="off">
+    <div class="row-btns"><button class="btn btn-primary" id="btnSaveKey" style="flex:1">Kaydet ve başla</button></div>
+    <div class="err" id="keyErr">${esc(msg || '')}</div>
+    <p class="note">Anahtar yalnız bu tarayıcıda saklanır.</p>
+  </div>`;
+}
+function bindKeyBox() {
+  const save = () => saveKey($('#keyInput').value, $('#keyErr'));
+  $('#btnSaveKey').onclick = save;
+  $('#keyInput').onkeydown = e => { if (e.key === 'Enter') save(); };
+}
+async function saveKey(raw, errEl) {
+  const key = raw.trim();
+  if (!key) { errEl.textContent = 'Anahtar boş.'; return; }
+  const old = S.apiKey;
+  S.apiKey = key;
+  errEl.textContent = 'Kontrol ediliyor…';
+  try {
+    await tmdb('/configuration');
+  } catch (e) {
+    S.apiKey = old;
+    errEl.textContent = e instanceof AuthError ? 'Anahtar geçersiz.' : 'TMDB\'ye ulaşılamadı: ' + e.message;
+    return;
+  }
+  store.set(K.key, key);
+  errEl.textContent = '';
+  closeSheet();
+  toast('Anahtar kaydedildi');
+  loadProviders();
+  resetEngine();
+}
+
+/* ================= Filtreler ================= */
+let draft = null;
+const chip = (val, label, on, extra = '') => `<button class="chip" data-val="${esc(val)}" aria-pressed="${on}" ${extra}>${label}</button>`;
+function genreHiddenFor(g, type) { return (type === 'movie' && !g.m.length) || (type === 'tv' && !g.t.length); }
+function openFilters() {
+  draft = JSON.parse(JSON.stringify(S.filters));
+  renderFilterSheet();
+  openSheet('#sheetFilters');
+}
+function renderFilterSheet() {
+  const f = draft;
+  const provs = S.providers || FALLBACK_PROVIDERS;
+  $('#filterBody').innerHTML = `
+    <section><h3>İçerik</h3><div class="chips" data-single="type">
+      ${[['both','İkisi'],['movie','Film'],['tv','Dizi']].map(([v, l]) => chip(v, l, f.type === v)).join('')}</div></section>
+    <section><h3>Sıralama</h3><div class="chips" data-single="sort">
+      ${SORTS.map(s => chip(s.id, s.label, f.sort === s.id)).join('')}</div>
+      <p class="note">Rastgele: dönemi dilimlere bölüp eski ve yeni yapımları karıştırır.</p></section>
+    <section><h3>Dönem</h3><div class="chips" data-single="period">
+      ${PERIODS.map(p => chip(p.id, p.label, f.period === p.id)).join('')}</div>
+      <div class="years ${f.period === 'custom' ? '' : 'hidden'}" id="yearsRow">
+        <input type="number" inputmode="numeric" id="yFrom" min="1900" max="${NOW_Y}" value="${f.from}" aria-label="Başlangıç yılı">
+        <span>–</span>
+        <input type="number" inputmode="numeric" id="yTo" min="1900" max="${NOW_Y}" value="${f.to}" aria-label="Bitiş yılı"></div></section>
+    <section><h3>Tür <small>birden fazla seçilebilir · herhangi biri</small></h3><div class="chips" data-multi="genres">
+      ${GENRES.map(g => chip(g.id, g.label, f.genres.includes(g.id), genreHiddenFor(g, f.type) ? 'hidden' : '')).join('')}</div></section>
+    <section><h3>Dil / bölge</h3><div class="chips" data-single="region">
+      ${REGIONS.map(r => chip(r.id, r.label, f.region === r.id)).join('')}</div></section>
+    <section><h3>Minimum puan <small id="ratingOut">${f.minRating ? '★ ' + f.minRating : 'yok'}</small></h3>
+      <input type="range" id="minRating" min="0" max="9" step="0.5" value="${f.minRating}"></section>
+    <section><h3>Minimum oy sayısı</h3><div class="chips" data-single="minVotes">
+      ${VOTE_OPTS.map(v => chip(v, v.toLocaleString('tr-TR'), f.minVotes === v)).join('')}</div>
+      <p class="note">Az bilinen yapımlar (ör. Türk dizileri) için düşük tut.</p></section>
+    <section><h3>Platform <small>Türkiye · abonelikle</small></h3><div class="chips" data-multi="providers">
+      ${provs.map(p => chip(p.id, `${p.logo ? `<img src="${IMG}w45${esc(p.logo)}" alt="">` : ''}${esc(p.name)}`, f.providers.includes(p.id))).join('')}</div>
+      <p class="note">Seçilirse yalnız bu platformlardan en az birinde olanlar gelir.</p></section>`;
+}
+function onFilterClick(e) {
+  const c = e.target.closest('.chip');
+  if (!c) return;
+  const box = c.parentElement;
+  const raw = c.dataset.val;
+  if (box.dataset.single) {
+    const k = box.dataset.single;
+    draft[k] = k === 'minVotes' ? +raw : raw;
+    $$('.chip', box).forEach(x => x.setAttribute('aria-pressed', x === c));
+    if (k === 'period') $('#yearsRow').classList.toggle('hidden', raw !== 'custom');
+    if (k === 'type') {
+      $$('[data-multi="genres"] .chip').forEach(x => {
+        const g = GENRES.find(g => g.id === x.dataset.val);
+        const hide = genreHiddenFor(g, raw);
+        x.hidden = hide;
+        if (hide) { x.setAttribute('aria-pressed', 'false'); draft.genres = draft.genres.filter(id => id !== g.id); }
+      });
+    }
+  } else if (box.dataset.multi) {
+    const k = box.dataset.multi;
+    const val = k === 'providers' ? +raw : raw;
+    const on = draft[k].includes(val);
+    draft[k] = on ? draft[k].filter(v => v !== val) : [...draft[k], val];
+    c.setAttribute('aria-pressed', !on);
+  }
+}
+function applyFilters() {
+  if (draft.period === 'custom') {
+    draft.from = clamp(parseInt($('#yFrom').value) || 1900, 1900, NOW_Y);
+    draft.to = clamp(parseInt($('#yTo').value) || NOW_Y, 1900, NOW_Y);
+  }
+  S.filters = draft;
+  store.set(K.filters, S.filters);
+  closeSheet();
+  updateSummary();
+  resetEngine();
+}
+function updateSummary() {
+  const f = S.filters;
+  const parts = [
+    SORTS.find(s => s.id === f.sort).label,
+    { both:'Film + dizi', movie:'Film', tv:'Dizi' }[f.type],
+    f.period === 'custom' ? `${Math.min(f.from, f.to)}–${Math.max(f.from, f.to)}` : f.period === 'all' ? 'Tüm dönemler' : PERIODS.find(p => p.id === f.period).label,
+  ];
+  if (f.genres.length) parts.push(f.genres.map(id => GENRES.find(g => g.id === id)?.label).join(', '));
+  if (f.region !== 'all') parts.push(region().label);
+  if (f.minRating) parts.push('★ ' + f.minRating + '+');
+  if (f.providers.length) parts.push(f.providers.length + ' platform');
+  $('#summary').textContent = parts.join(' · ');
+  let n = 0;
+  if (f.type !== 'both') n++; if (f.sort !== 'random') n++; if (f.period !== 'all') n++;
+  if (f.region !== 'all') n++; if (f.minRating) n++; if (f.minVotes !== DEFAULT_FILTERS.minVotes) n++;
+  n += f.genres.length ? 1 : 0; n += f.providers.length ? 1 : 0;
+  $('#filterDot').textContent = n;
+  $('#filterDot').classList.toggle('hidden', !n);
+}
+async function loadProviders() {
+  const cached = store.get(K.prov, null);
+  if (cached && Date.now() - cached.at < 3 * 864e5) { S.providers = cached.list; return; }
+  if (!S.apiKey) return;
+  try {
+    const d = await tmdb('/watch/providers/movie', { watch_region:'TR', language:'tr-TR' });
+    const list = (d.results || [])
+      .filter(p => p.display_priorities && p.display_priorities.TR != null)
+      .sort((a, b) => a.display_priorities.TR - b.display_priorities.TR)
+      .slice(0, 14)
+      .map(p => ({ id:p.provider_id, name:p.provider_name, logo:p.logo_path }));
+    if (list.length) { S.providers = list; store.set(K.prov, { at:Date.now(), list }); }
+  } catch {}
+}
+
+/* ================= Listeler ================= */
+function fillListSelects() {
+  $('#lGenre').innerHTML = '<option value="">Tüm türler</option>' + GENRES.map(g => `<option value="${g.id}">${g.label}</option>`).join('');
+  $('#lPeriod').innerHTML = PERIODS.filter(p => p.id !== 'custom').map(p => `<option value="${p.id}">${p.id === 'all' ? 'Tüm dönemler' : p.label}</option>`).join('');
+  $('#lType').value = S.listF.type; $('#lGenre').value = S.listF.genre; $('#lPeriod').value = S.listF.period; $('#lq').value = S.listF.q;
+}
+function updateCounts() {
+  const c = { want:0, watched:0, passed:0 };
+  Object.values(S.items).forEach(i => { if (c[i.status] != null) c[i.status]++; });
+  $('#cWant').textContent = c.want; $('#cWatched').textContent = c.watched; $('#cPassed').textContent = c.passed;
+  $('#navDot').textContent = c.want;
+  $('#navDot').classList.toggle('hidden', !c.want);
+  $('#btnUndo').disabled = !S.undo.length;
+}
+function renderList() {
+  const lf = S.listF, tab = S.listTab;
+  const g = GENRES.find(x => x.id === lf.genre);
+  const p = PERIODS.find(x => x.id === lf.period) || PERIODS[0];
+  const q = lf.q.trim().toLocaleLowerCase('tr');
+  const arr = Object.entries(S.items).map(([key, v]) => ({ key, ...v })).filter(i => {
+    if (i.status !== tab) return false;
+    if (lf.type !== 'all' && i.type !== lf.type) return false;
+    if (g && !(i.genres || []).some(id => (i.type === 'movie' ? g.m : g.t).includes(id))) return false;
+    const y = +yearOf(i.date);
+    if (p.from && (!y || y < p.from)) return false;
+    if (p.to && (!y || y > p.to)) return false;
+    if (q && !String(i.title).toLocaleLowerCase('tr').includes(q)) return false;
+    return true;
+  }).sort((a, b) => (b.addedAt || 0) - (a.addedAt || 0));
+  const list = $('#list');
+  if (!arr.length) {
+    const any = Object.values(S.items).some(i => i.status === tab);
+    list.innerHTML = `<li class="empty">${any ? 'Bu filtrelere uyan öğe yok.' : 'Bu liste boş. Keşfet\'te kaydırmaya başla.'}</li>`;
+    return;
+  }
+  const moves = { want:'İstek', watched:'İzledim', passed:'Geç' };
+  list.innerHTML = arr.map(i => `
+    <li class="item" data-key="${esc(i.key)}">
+      <img src="${i.poster ? IMG + 'w185' + esc(i.poster) : ''}" alt="" loading="lazy">
+      <div class="item-main">
+        <a class="item-title" href="https://www.themoviedb.org/${i.type}/${i.id}" target="_blank" rel="noopener">${esc(i.title)}</a>
+        <div class="item-sub">${i.type === 'movie' ? 'Film' : 'Dizi'}${yearOf(i.date) ? ' · ' + yearOf(i.date) : ''}${i.rating ? ' · ★ ' + (+i.rating).toFixed(1) : ''}</div>
+        <div class="item-sub">${esc(genreNames(i.type, i.genres || []).slice(0, 3).join(' · '))}</div>
+        <div class="item-acts">
+          ${Object.keys(moves).filter(s => s !== tab).map(s => `<button class="pill pill-${s}" data-move="${s}">→ ${moves[s]}</button>`).join('')}
+          <button class="pill pill-del" data-del>Sil</button>
+        </div>
+      </div>
+    </li>`).join('');
+}
+function onListClick(e) {
+  const li = e.target.closest('.item');
+  if (!li) return;
+  const k = li.dataset.key, item = S.items[k];
+  if (!item) return;
+  const mv = e.target.closest('[data-move]');
+  if (mv) {
+    const prev = item.status;
+    item.status = mv.dataset.move; item.addedAt = Date.now();
+    saveItems(); renderList(); updateCounts();
+    toast(`${STATUS[item.status]} listesine taşındı`, 'Geri al', () => { item.status = prev; saveItems(); renderList(); updateCounts(); });
+  } else if (e.target.closest('[data-del]')) {
+    const copy = { ...item };
+    delete S.items[k];
+    saveItems(); renderList(); updateCounts();
+    toast('Silindi', 'Geri al', () => { S.items[k] = copy; saveItems(); renderList(); updateCounts(); }, 4000);
+  }
+}
+function exportJSON() {
+  const data = { app:'kaydir', version:1, exportedAt:new Date().toISOString(), filters:S.filters,
+    items:Object.values(S.items), seen:[...S.seen] };
+  const blob = new Blob([JSON.stringify(data, null, 1)], { type:'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `kaydir-yedek-${TODAY}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  toast(`${data.items.length} öğe dışa aktarıldı`);
+}
+async function importJSON(file) {
+  try {
+    const data = JSON.parse(await file.text());
+    const items = Array.isArray(data) ? data : Array.isArray(data.items) ? data.items : Object.values(data.items || {});
+    let n = 0;
+    for (const i of items) {
+      if (!i || !Number.isFinite(+i.id) || !['movie', 'tv'].includes(i.type) || !STATUS[i.status]) continue;
+      const k = `${i.type}:${+i.id}`;
+      S.items[k] = { id:+i.id, type:i.type, title:String(i.title || '—'), poster:i.poster || null, date:String(i.date || ''),
+        status:i.status, genres:Array.isArray(i.genres) ? i.genres.map(Number) : [], rating:+i.rating || 0, addedAt:+i.addedAt || Date.now() };
+      S.seen.add(k); n++;
+    }
+    (Array.isArray(data.seen) ? data.seen : []).forEach(k => typeof k === 'string' && /^(movie|tv):\d+$/.test(k) && S.seen.add(k));
+    saveItems(); saveSeen();
+    S.queue = S.queue.filter(it => !S.seen.has(it.key));
+    S.queued = new Set(S.queue.map(it => it.key));
+    renderDeck(); renderList(); updateCounts();
+    toast(`${n} öğe içe aktarıldı`);
+  } catch (e) {
+    toast('İçe aktarılamadı: geçerli bir JSON yedeği değil.');
+  }
+}
+
+/* ================= Gezinti ve sheet ================= */
+function setView(v) {
+  S.view = v;
+  $('#viewDiscover').classList.toggle('active', v === 'discover');
+  $('#viewLists').classList.toggle('active', v === 'lists');
+  $$('nav.tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.view === v));
+  if (v === 'lists') renderList();
+}
+let openSheetEl = null;
+function openSheet(sel) {
+  openSheetEl = $(sel);
+  openSheetEl.classList.add('open');
+  $('#backdrop').classList.add('open');
+}
+function closeSheet() {
+  openSheetEl?.classList.remove('open');
+  openSheetEl = null;
+  $('#backdrop').classList.remove('open');
+}
+function openSettings() {
+  $('#setKey').value = S.apiKey;
+  $('#setKeyErr').textContent = '';
+  $('#seenCount').textContent = S.seen.size.toLocaleString('tr-TR') + ' içerik';
+  resetSeenArmed = false;
+  $('#btnResetSeen').textContent = 'Görülenleri sıfırla';
+  openSheet('#sheetSettings');
+}
+let resetSeenArmed = false;
+
+/* ================= Başlat ================= */
+function init() {
+  fillListSelects();
+  updateSummary();
+  updateCounts();
+
+  $$('.act[data-dir]').forEach(b => b.addEventListener('click', () => act(b.dataset.dir)));
+  $('#btnUndo').onclick = undo;
+  $('#btnFilters').onclick = openFilters;
+  $('#summary').onclick = openFilters;
+  $('#btnSettings').onclick = openSettings;
+  $('#backdrop').onclick = closeSheet;
+  $$('[data-close]').forEach(b => b.onclick = closeSheet);
+  $('#filterBody').addEventListener('click', onFilterClick);
+  $('#filterBody').addEventListener('input', e => {
+    if (e.target.id === 'minRating') {
+      draft.minRating = +e.target.value;
+      $('#ratingOut').textContent = draft.minRating ? '★ ' + draft.minRating : 'yok';
+    }
+  });
+  $('#btnApplyFilters').onclick = applyFilters;
+  $('#btnResetFilters').onclick = () => { draft = JSON.parse(JSON.stringify(DEFAULT_FILTERS)); renderFilterSheet(); };
+  $('#deck').addEventListener('click', e => {
+    if (e.target.closest('[data-retry]')) { E.error = null; E.dry = 0; fetchMore(); }
+    if (e.target.closest('[data-open-filters]')) openFilters();
+  });
+
+  $$('nav.tabs button').forEach(b => b.onclick = () => setView(b.dataset.view));
+  $$('#listTabs button').forEach(b => b.onclick = () => {
+    S.listTab = b.dataset.tab;
+    $$('#listTabs button').forEach(x => x.setAttribute('aria-selected', x === b));
+    renderList();
+  });
+  const lfChange = () => {
+    S.listF = { type:$('#lType').value, genre:$('#lGenre').value, period:$('#lPeriod').value, q:$('#lq').value };
+    store.set(K.listF, S.listF);
+    renderList();
+  };
+  ['#lType', '#lGenre', '#lPeriod'].forEach(s => $(s).onchange = lfChange);
+  $('#lq').oninput = lfChange;
+  $('#list').addEventListener('click', onListClick);
+  $('#btnExport').onclick = exportJSON;
+  $('#btnImport').onclick = () => $('#fileImport').click();
+  $('#fileImport').onchange = e => { const f = e.target.files[0]; if (f) importJSON(f); e.target.value = ''; };
+
+  $('#btnSaveKey2').onclick = () => saveKey($('#setKey').value, $('#setKeyErr'));
+  $('#btnDelKey').onclick = () => {
+    store.del(K.key); S.apiKey = ''; closeSheet(); resetEngine(); toast('Anahtar silindi');
+  };
+  $('#btnResetSeen').onclick = () => {
+    if (!resetSeenArmed) { resetSeenArmed = true; $('#btnResetSeen').textContent = 'Emin misin? Tekrar dokun'; return; }
+    S.seen = new Set(Object.keys(S.items)); saveSeen();
+    closeSheet(); resetEngine(); toast('Görülenler sıfırlandı');
+  };
+
+  document.addEventListener('keydown', e => {
+    if (e.target.closest?.('input, textarea, select')) return;
+    if (openSheetEl) { if (e.key === 'Escape') closeSheet(); return; }
+    if (S.view !== 'discover' || !S.apiKey) return;
+    const dir = { ArrowRight:'right', ArrowLeft:'left', ArrowUp:'up' }[e.key];
+    if (dir) { e.preventDefault(); act(dir); }
+    else if (e.key === 'Backspace' || e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); }
+  });
+
+  renderDeck();
+  if (S.apiKey) loadProviders();
+}
+init();
+</script>
+</body>
+</html>
