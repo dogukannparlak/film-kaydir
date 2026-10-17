@@ -17,7 +17,7 @@ const S = {
   providers: null,
   queue: [], queued: new Set(), undo: [],
   view: 'discover', listTab: 'want',
-  listF: { type:'all', genre:'', period:'all', q:'', sort:'added', ...store.get(K.listF, {}) },
+  listF: { type:'all', genre:'', period:'all', q:'', sort:'added', progress:'all', ...store.get(K.listF, {}) },
   dragging: false,
 };
 Object.keys(S.items).forEach(k => S.seen.add(k));

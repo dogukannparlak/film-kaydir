@@ -71,7 +71,7 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 | Anahtar | İçerik |
 |---|---|
 | `kd_apikey`, `kd_omdbkey` | API anahtarları |
-| `kd_items` | Liste öğeleri: `id, type, title, poster, date, status, genres, rating, imdb, imdbRating, rt, director, scoreAt, addedAt` |
+| `kd_items` | Liste öğeleri: `id, type, title, poster, date, status, genres, rating, imdb, imdbRating, rt, director, scoreAt, addedAt`, İzlediklerim'de isteğe bağlı `progress` (`season` \| `dropped`, bkz. `PROGRESS`; başka listeye taşınınca silinir) |
 | `kd_seen` | Daha önce gösterilenler (tekrar gelmesin) |
 | `kd_filters`, `kd_listf` | Deste ve liste filtreleri |
 | `kd_providers` | Türkiye platform listesi önbelleği |

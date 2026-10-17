@@ -33,11 +33,11 @@ function init() {
     renderList();
   });
   const lfChange = () => {
-    S.listF = { type:$('#lType').value, genre:$('#lGenre').value, period:$('#lPeriod').value, q:$('#lq').value, sort:$('#lSort').value };
+    S.listF = { type:$('#lType').value, genre:$('#lGenre').value, period:$('#lPeriod').value, q:$('#lq').value, sort:$('#lSort').value, progress:$('#lProgress').value };
     store.set(K.listF, S.listF);
     renderList();
   };
-  ['#lType', '#lGenre', '#lPeriod', '#lSort'].forEach(s => $(s).onchange = lfChange);
+  ['#lType', '#lGenre', '#lPeriod', '#lSort', '#lProgress'].forEach(s => $(s).onchange = lfChange);
   $('#lq').oninput = lfChange;
   $('#list').addEventListener('click', onListClick);
   $('#btnExport').onclick = exportJSON;

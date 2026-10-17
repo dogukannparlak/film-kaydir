@@ -14,6 +14,7 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
       <select id="lGenre" aria-label="Tür"></select>
       <select id="lPeriod" aria-label="Dönem"></select>
       <select id="lSort" aria-label="Sıralama"><option value="added">Son eklenen</option><option value="imdb">IMDb puanı</option><option value="rt">Rotten Tomatoes</option><option value="tmdb">TMDB puanı</option></select>
+      <select id="lProgress" class="lprogress" aria-label="İzleme durumu"><option value="all">Hepsi (biten + yarım)</option><option value="done">Yalnız bitenler</option><option value="partial">Yalnız yarım kalanlar</option><option value="season">Yeni sezon bekleyenler</option><option value="dropped">Bıraktıklarım</option></select>
     </div>
     <div class="ltools">
       <button class="btn" id="btnExport">⬇︎ Dışa aktar (JSON)</button>

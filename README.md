@@ -25,6 +25,8 @@ Anahtarlar yalnız bu tarayıcının `localStorage`'ında durur; depoya ya da ba
 - Kartta: TMDB puanı, IMDb bağlantısı, OMDb puanları, yönetmen (dizide yaratıcı), özet.
 - Üç liste (İstek, İzledim, Geç): arama, tür/dönem filtresi, sıralama
   (son eklenen, IMDb, Rotten Tomatoes, TMDB).
+- İzlediklerim'de "yarım kaldı" işareti: ◐ Yeni sezon (yalnız dizi) ya da ⏸ Bıraktım. Öğe İzlediklerim'de
+  kalır; durum kutusuyla bitenler / yarım kalanlar / yeni sezon bekleyenler / bıraktıklarım süzülür.
 - JSON dışa/içe aktarma (yedek).
 
 ## Bilinen sınırlar

@@ -4,7 +4,7 @@ function fillListSelects() {
   $('#lGenre').innerHTML = '<option value="">Tüm türler</option>' + GENRES.map(g => `<option value="${g.id}">${g.label}</option>`).join('');
   $('#lPeriod').innerHTML = PERIODS.filter(p => p.id !== 'custom').map(p => `<option value="${p.id}">${p.id === 'all' ? 'Tüm dönemler' : p.label}</option>`).join('');
   $('#lType').value = S.listF.type; $('#lGenre').value = S.listF.genre; $('#lPeriod').value = S.listF.period; $('#lq').value = S.listF.q;
-  $('#lSort').value = S.listF.sort;
+  $('#lSort').value = S.listF.sort; $('#lProgress').value = S.listF.progress;
 }
 function updateCounts() {
   const c = { want:0, watched:0, passed:0 };
@@ -27,6 +27,9 @@ function renderList() {
     if (p.from && (!y || y < p.from)) return false;
     if (p.to && (!y || y > p.to)) return false;
     if (q && !String(i.title).toLocaleLowerCase('tr').includes(q)) return false;
+    if (tab === 'watched' && lf.progress !== 'all') {
+      if (lf.progress === 'done' ? i.progress : lf.progress === 'partial' ? !i.progress : i.progress !== lf.progress) return false;
+    }
     return true;
   });
   const by = scoreSort(lf.sort);
@@ -34,6 +37,7 @@ function renderList() {
   arr.sort((a, b) => val(b) - val(a) || (b.addedAt || 0) - (a.addedAt || 0));
   if (by) backfillScores(arr);
   const list = $('#list');
+  $('#lProgress').hidden = tab !== 'watched';
   if (!arr.length) {
     const any = Object.values(S.items).some(i => i.status === tab);
     list.innerHTML = `<li class="empty">${any ? 'Bu filtrelere uyan öğe yok.' : 'Bu liste boş. Keşfet\'te kaydırmaya başla.'}</li>`;
@@ -45,9 +49,11 @@ function renderList() {
       <img src="${i.poster ? IMG + 'w185' + esc(i.poster) : ''}" alt="" loading="lazy">
       <div class="item-main">
         <a class="item-title" href="https://www.themoviedb.org/${i.type}/${i.id}" target="_blank" rel="noopener">${esc(i.title)}</a>
-        <div class="item-sub">${i.type === 'movie' ? 'Film' : 'Dizi'}${yearOf(i.date) ? ' · ' + yearOf(i.date) : ''}${i.rating ? ' · ★ ' + (+i.rating).toFixed(1) : ''}${i.imdb ? ` · <a href="https://www.imdb.com/title/${encodeURIComponent(i.imdb)}/" target="_blank" rel="noopener">IMDb${i.imdbRating ? ' ' + esc(String(i.imdbRating).replace('.', ',')) : ''}</a>` : ''}${i.rt ? ' · 🍅 ' + esc(i.rt) : ''}</div>
+        <div class="item-sub">${i.type === 'movie' ? 'Film' : 'Dizi'}${yearOf(i.date) ? ' · ' + yearOf(i.date) : ''}${i.rating ? ' · ★ ' + (+i.rating).toFixed(1) : ''}${i.imdb ? ` · <a href="https://www.imdb.com/title/${encodeURIComponent(i.imdb)}/" target="_blank" rel="noopener">IMDb${i.imdbRating ? ' ' + esc(String(i.imdbRating).replace('.', ',')) : ''}</a>` : ''}${i.rt ? ' · 🍅 ' + esc(i.rt) : ''}${tab === 'watched' && PROGRESS[i.progress] ? ` · <span class="prog">${PROGRESS[i.progress].icon} ${PROGRESS[i.progress].label}</span>` : ''}</div>
         <div class="item-sub">${esc(genreNames(i.type, i.genres || []).slice(0, 3).join(' · '))}${i.director ? ' · 🎬 ' + esc(i.director) : ''}</div>
         <div class="item-acts">
+          ${tab === 'watched' ? Object.entries(PROGRESS).filter(([, p]) => !p.tvOnly || i.type === 'tv').map(([id, p]) =>
+            `<button class="pill pill-prog" data-progress="${id}" aria-pressed="${i.progress === id}">${p.icon} ${p.label}</button>`).join('') : ''}
           ${Object.keys(moves).filter(s => s !== tab).map(s => `<button class="pill pill-${s}" data-move="${s}">→ ${moves[s]}</button>`).join('')}
           <button class="pill pill-del" data-del>Sil</button>
         </div>
@@ -83,11 +89,25 @@ function onListClick(e) {
   const k = li.dataset.key, item = S.items[k];
   if (!item) return;
   const mv = e.target.closest('[data-move]');
-  if (mv) {
-    const prev = item.status;
+  const pg = e.target.closest('[data-progress]');
+  if (pg) {
+    // Aynı işarete yeniden basmak kaldırır (biten olur)
+    const prev = item.progress || null, next = prev === pg.dataset.progress ? null : pg.dataset.progress;
+    if (next) item.progress = next; else delete item.progress;
+    saveItems(); renderList();
+    toast(next ? `Yarım kaldı: ${PROGRESS[next].label}` : 'Bitti olarak işaretlendi', 'Geri al', () => {
+      if (prev) item.progress = prev; else delete item.progress;
+      saveItems(); renderList();
+    });
+  } else if (mv) {
+    const prev = item.status, prevProg = item.progress;
     item.status = mv.dataset.move; item.addedAt = Date.now();
+    delete item.progress; // yarım işareti yalnız İzlediklerim'de anlamlı
     saveItems(); renderList(); updateCounts();
-    toast(`${STATUS[item.status]} listesine taşındı`, 'Geri al', () => { item.status = prev; saveItems(); renderList(); updateCounts(); });
+    toast(`${STATUS[item.status]} listesine taşındı`, 'Geri al', () => {
+      item.status = prev; if (prevProg) item.progress = prevProg;
+      saveItems(); renderList(); updateCounts();
+    });
   } else if (e.target.closest('[data-del]')) {
     const copy = { ...item };
     delete S.items[k];
@@ -115,7 +135,7 @@ async function importJSON(file) {
       if (!i || !Number.isFinite(+i.id) || !['movie', 'tv'].includes(i.type) || !STATUS[i.status]) continue;
       const k = `${i.type}:${+i.id}`;
       S.items[k] = { id:+i.id, type:i.type, title:String(i.title || '—'), poster:i.poster || null, date:String(i.date || ''),
-        status:i.status, genres:Array.isArray(i.genres) ? i.genres.map(Number) : [], rating:+i.rating || 0, imdb:/^tt\d+$/.test(i.imdb) ? i.imdb : null, imdbRating:i.imdbRating ? String(i.imdbRating) : null, rt:/^\d+%$/.test(i.rt) ? i.rt : null, director:typeof i.director === 'string' ? i.director.slice(0, 200) : null, scoreAt:+i.scoreAt || null, addedAt:+i.addedAt || Date.now() };
+        status:i.status, genres:Array.isArray(i.genres) ? i.genres.map(Number) : [], rating:+i.rating || 0, imdb:/^tt\d+$/.test(i.imdb) ? i.imdb : null, imdbRating:i.imdbRating ? String(i.imdbRating) : null, rt:/^\d+%$/.test(i.rt) ? i.rt : null, director:typeof i.director === 'string' ? i.director.slice(0, 200) : null, ...(i.status === 'watched' && PROGRESS[i.progress] ? { progress:i.progress } : {}), scoreAt:+i.scoreAt || null, addedAt:+i.addedAt || Date.now() };
       S.seen.add(k); n++;
     }
     (Array.isArray(data.seen) ? data.seen : []).forEach(k => typeof k === 'string' && /^(movie|tv):\d+$/.test(k) && S.seen.add(k));

@@ -9,6 +9,11 @@ const PREFETCH_AT = 12;         // kuyruk bunun altına inince arka planda yeni 
 const RANDOM_PAGE_CAP = 25;     // rastgele modda bir dilimde en fazla kaçıncı sayfaya kadar inilsin
 const STATUS = { want:'İstek listesi', watched:'İzlediklerim', passed:'Geçtiklerim' };
 const DIR_STATUS = { right:'want', left:'passed', up:'watched' };
+// İzlediklerim içinde "yarım kaldı" işareti; öğe İzlediklerim'de kalır
+const PROGRESS = {
+  season:  { label:'Yeni sezon', icon:'◐', tvOnly:true },
+  dropped: { label:'Bıraktım',   icon:'⏸' },
+};
 
 const MOVIE_G = {28:'Aksiyon',12:'Macera',16:'Animasyon',35:'Komedi',80:'Suç',99:'Belgesel',18:'Dram',10751:'Aile',14:'Fantastik',36:'Tarih',27:'Korku',10402:'Müzik',9648:'Gizem',10749:'Romantik',878:'Bilim Kurgu',10770:'TV Filmi',53:'Gerilim',10752:'Savaş',37:'Vahşi Batı'};
 const TV_G = {10759:'Aksiyon & Macera',16:'Animasyon',35:'Komedi',80:'Suç',99:'Belgesel',18:'Dram',10751:'Aile',10762:'Çocuk',9648:'Gizem',10763:'Haber',10764:'Reality',10765:'Bilim Kurgu & Fantastik',10766:'Pembe Dizi',10767:'Talk Show',10768:'Savaş & Politika',37:'Vahşi Batı'};
