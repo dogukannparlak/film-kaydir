@@ -246,3 +246,5 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 @media (min-height:900px){ .title{font-size:28px} }
 .toast button{white-space:nowrap;flex:none}
 @media (max-width:440px){ .seg button{gap:4px;padding:8px 2px;font-size:12.5px} .seg-dot{display:none} .seg small{padding:1px 5px} }
+.coll-tag-sm{white-space:normal;text-align:left;border-radius:10px;line-height:1.35;margin-top:2px;padding:3px 9px;font-size:11.5px;background:color-mix(in srgb,var(--accent) 14%,var(--surface-2));backdrop-filter:none}
+.coll-done{border-color:color-mix(in srgb,var(--watched) 60%,transparent);background:color-mix(in srgb,var(--watched) 14%,var(--surface-2))}

@@ -139,6 +139,21 @@ function collTagHTML(it) {
   const i = c ? c.parts.findIndex(p => p.key === it.key) : -1;
   return `<button class="coll-tag" data-coll-open="${it.collection.id}">🎞️ ${esc(c ? titles(c).main : it.collection.name)}${i >= 0 ? ` · ${i + 1}/${c.parts.length}` : ''} ›</button>`;
 }
+// Liste satırı etiketi: "🎞️ Harry Potter · 3. film · 5/7 izlendi"; seri önbellekte yoksa getirilir ve liste yenilenir
+const collWant = new Set();
+function collListTag(i) {
+  if (!i.collection) return '';
+  const c = collCache[i.collection.id];
+  if (!c && !collWant.has(i.collection.id)) {
+    collWant.add(i.collection.id);
+    getCollection(i.collection.id).then(() => { if (S.view === 'lists') renderList(); }).catch(() => {});
+  }
+  if (!c) return `<button class="coll-tag coll-tag-sm" data-coll-open="${i.collection.id}">🎞️ ${esc(i.collection.name)} ›</button>`;
+  const idx = c.parts.findIndex(p => p.key === i.key), rel = c.parts.filter(released).length;
+  const watched = c.parts.filter(p => S.items[p.key]?.status === 'watched').length;
+  const done = rel && watched >= rel;
+  return `<button class="coll-tag coll-tag-sm${done ? ' coll-done' : ''}" data-coll-open="${c.id}" title="Seriyi aç">🎞️ ${esc(titles(c).main)}${idx >= 0 ? ` · ${idx + 1}. film` : ''} · ${done ? '✓ hepsi izlendi' : `${watched}/${rel} izlendi`} ›</button>`;
+}
 async function refreshCollTag(it) {
   if (!it.collection) return;
   const paint = () => { const box = $(keySel(it.key) + ' .coll-tag-wrap'); if (box) box.innerHTML = collTagHTML(it); };

@@ -83,6 +83,7 @@ function itemHTML(i, tab) {
         </div>
         ${sub ? `<div class="item-sub">${esc(sub)}</div>` : ''}
         ${scores ? `<div class="item-scores">${scores}</div>` : ''}
+        ${i.collection ? `<div>${collListTag(i)}</div>` : ''}
       </div>
       <div class="item-acts">
         ${progBtns}
@@ -143,6 +144,8 @@ async function backfillScores(arr) {
 }
 function onListClick(e) {
   if (S.listTab === 'series') return onCollAction(e, seriesColls, () => null);
+  const ct = e.target.closest('[data-coll-open]');
+  if (ct) return openCollection(+ct.dataset.collOpen);
   const li = e.target.closest('.item');
   if (!li) return;
   const k = li.dataset.key, item = S.items[k];
