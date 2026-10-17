@@ -37,5 +37,5 @@ Anahtarlar yalnız bu tarayıcının `localStorage`'ında durur; depoya ya da ba
 
 ## Geliştirme
 
-Yapı ve modüller: [docs/mimari.md](docs/mimari.md).
+Yapı (html/ parçaları, css/, js/ modülleri): [docs/mimari.md](docs/mimari.md).
 Testler elle ve sahte `fetch` ile yapılır (bkz. mimari belgesinde "Test").

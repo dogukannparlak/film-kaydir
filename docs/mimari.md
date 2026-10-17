@@ -1,7 +1,26 @@
 # Mimari
 
-Tek sayfalık, derlemesiz bir site. `index.html` yalnız iskeleti (HTML) taşır; stil `css/style.css`,
-davranış `js/` altındaki dosyalardadır.
+Tek sayfalık, derlemesiz bir site. `index.html` yalnız iskelettir: arayüz parçaları `html/`,
+stil `css/style.css`, davranış `js/` altındadır.
+
+## HTML parçaları (`html/`)
+
+`file://` ile açılan sayfa başka bir `.html` dosyasını `fetch` ile yükleyemez (CORS). Bu yüzden her
+parça bir `.js` dosyasıdır: işaretlemeyi şablon metni olarak tutar ve
+`document.currentScript.insertAdjacentHTML('beforebegin', …)` ile kendi `<script>` etiketinin yerine yazar.
+Parçalar sayfa ayrıştırılırken sırayla çalışır, böylece `js/` dosyaları yüklendiğinde bütün öğeler hazırdır.
+Parçalarda ters tırnak (`` ` ``) ve `${` kullanma; şablon metnini bozar.
+
+| Dosya | İçerik |
+|---|---|
+| `html/ust.js` | Üst çubuk: marka, filtre ve ayar düğmeleri |
+| `html/kesfet.js` | Keşfet görünümü: özet satırı, deste kabı, eylem düğmeleri |
+| `html/listeler.js` | Listeler görünümü: sekmeler, arama, filtreler, sıralama, yedek düğmeleri |
+| `html/alt-gezinti.js` | Alt sekmeler ve TMDB atıf satırı |
+| `html/filtreler.js` | Filtreler alt sayfasının kabı (içeriği `js/filtreler.js` çizer) |
+| `html/ayarlar.js` | Ayarlar alt sayfası: anahtarlar, görülenler, kısayollar |
+
+`index.html` içinde yalnız `.app` kabı, `#backdrop`, `#toasts` ve betik etiketleri kalır.
 
 ## Neden ES modülü değil
 
