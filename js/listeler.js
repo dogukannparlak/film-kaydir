@@ -53,13 +53,50 @@ function renderList() {
       : `<li class="empty"><span class="empty-icon">${EMPTY_ICON[tab]}</span><b>Bu liste boş</b>Keşfet'te kaydırdıkça burası dolar.</li>`;
     return;
   }
-  list.innerHTML = arr.map(i => itemHTML(i, tab)).join('');
+  // Aynı seriden en az iki film bu listede ise tek kutuda: kutu, grubun en üstteki filminin yerinde durur
+  const groups = new Map();
+  arr.forEach(i => { if (i.collection) (groups.get(i.collection.id) || groups.set(i.collection.id, []).get(i.collection.id)).push(i); });
+  const open = openColls(list), done = new Set();
+  list.innerHTML = arr.map(i => {
+    const g = i.collection && groups.get(i.collection.id);
+    if (!g || g.length < 2) return itemHTML(i, tab);
+    if (done.has(i.collection.id)) return '';
+    done.add(i.collection.id);
+    return groupHTML(i.collection, g, tab, open.has(String(i.collection.id)));
+  }).join('');
 }
 const EMPTY_ICON = { want:'💚', watched:'🎬', passed:'🙅' };
 // Taşıma düğmeleri: destedeki simgelerle aynı (♥ istek, ✓ izledim, ✕ geç)
 const MOVES = { want:['♥', 'İstek listesine taşı'], watched:['✓', 'İzlediklerim\'e taşı'], passed:['✕', 'Geçtiklerim\'e taşı'] };
 const TRASH = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
-function itemHTML(i, tab) {
+function groupHTML(ref, members, tab, open) {
+  const c = collCache[ref.id];
+  if (!c) collListTag(members[0]); // seri önbellekte yoksa getirir ve listeyi yeniler
+  const t = c ? titles(c) : { main: ref.name, sub: '' };
+  // Grubun içinde seri sırasıyla (çıkış tarihi)
+  const sorted = [...members].sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999'));
+  const rel = c ? c.parts.filter(released).length : 0;
+  const watched = c ? c.parts.filter(p => S.items[p.key]?.status === 'watched').length : 0;
+  const poster = c?.poster || sorted[0].poster;
+  return `
+    <li class="coll lgroup" data-coll="${ref.id}">
+      <details ${open ? 'open' : ''}>
+        <summary>
+          <span class="item-poster">${poster ? `<img src="${IMG}w185${esc(poster)}" alt="" loading="lazy">` : ''}<span class="type">SERİ</span></span>
+          <span class="coll-main">
+            <span class="item-title"><span class="t-main">${esc(t.main)}</span>${t.sub ? `<small>${esc(t.sub)}</small>` : ''}</span>
+            <span class="item-sub">Bu listede <b>${members.length}</b> film${c ? ` · seride ${c.parts.length}` : ''}</span>
+            ${c ? `<span class="coll-prog"><i style="width:${rel ? Math.round(100 * Math.min(watched, rel) / rel) : 0}%"></i></span>` : ''}
+            <span class="lg-thumbs">${sorted.slice(0, 6).map(m => m.poster ? `<img src="${IMG}w92${esc(m.poster)}" alt="" loading="lazy">` : '').join('')}${c ? `<span class="coll-frac">${watched}/${rel} izlendi</span>` : ''}</span>
+          </span>
+          <span class="coll-chev" aria-hidden="true">›</span>
+        </summary>
+        <ul class="list coll-parts">${sorted.map(m => itemHTML(m, tab, true)).join('')}</ul>
+        <button class="lg-all" data-coll-open="${ref.id}">Serinin tamamını aç ›</button>
+      </details>
+    </li>`;
+}
+function itemHTML(i, tab, inGroup = false) {
   const t = titles(i);
   const scores = [
     i.imdb ? `<a class="sc sc-imdb" href="https://www.imdb.com/title/${encodeURIComponent(i.imdb)}/" target="_blank" rel="noopener">IMDb${i.imdbRating ? ' ' + esc(String(i.imdbRating).replace('.', ',')) : ''}</a>` : '',
@@ -83,7 +120,7 @@ function itemHTML(i, tab) {
         </div>
         ${sub ? `<div class="item-sub">${esc(sub)}</div>` : ''}
         ${scores ? `<div class="item-scores">${scores}</div>` : ''}
-        ${i.collection ? `<div>${collListTag(i)}</div>` : ''}
+        ${i.collection && !inGroup ? `<div>${collListTag(i)}</div>` : ''}
       </div>
       <div class="item-acts">
         ${progBtns}

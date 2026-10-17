@@ -30,7 +30,8 @@ Anahtarlar yalnız bu tarayıcının `localStorage`'ında durur; depoya ya da ba
   (Korece, Japonca …) Türkçe ad üstte kalır. Listede arama iki adda da çalışır.
 - Kartta: TMDB puanı, IMDb bağlantısı, OMDb puanları, yönetmen (dizide yaratıcı), özet.
 - Seriler: kartta "🎞️ Harry Potter Serisi · 2/8" etiketi (dokununca seri açılır, toplu taşınır);
-  İstek ve İzledim satırlarında "🎞️ Harry Potter Serisi · 3. film · 5/7 izlendi" etiketi (dokununca seri açılır);
+  İstek ve İzledim'de aynı seriden 2+ film tek kutuda toplanır (seri sırasıyla, ilerleme çubuğu, açılır kapanır);
+  tek filmse satırında "🎞️ Harry Potter Serisi · 3. film · 5/7 izlendi" etiketi (dokununca seri açılır);
   Listeler › Seriler sekmesinde listendeki filmlerin serileri, izleme ilerlemesi ve eksik filmleriyle.
 - Üç liste (İstek, İzledim, Geç): arama, tür/dönem filtresi, sıralama
   (son eklenen, IMDb, Rotten Tomatoes, TMDB).
