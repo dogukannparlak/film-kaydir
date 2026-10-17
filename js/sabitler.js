@@ -8,6 +8,8 @@ const TODAY = new Date().toISOString().slice(0, 10);
 const PREFETCH_AT = 12;         // kuyruk bunun altına inince arka planda yeni sayfa çek
 const RANDOM_PAGE_CAP = 25;     // rastgele modda bir dilimde en fazla kaçıncı sayfaya kadar inilsin
 const STATUS = { want:'İstek listesi', watched:'İzlediklerim', passed:'Geçtiklerim' };
+// Bildirimlerde yönelme hâli: "… İstek listesine taşındı"
+const STATUS_TO = { want:'İstek listesine', watched:'İzlediklerim\'e', passed:'Geçtiklerim\'e' };
 const DIR_STATUS = { right:'want', left:'passed', up:'watched' };
 // İzlediklerim içinde "yarım kaldı" işareti; öğe İzlediklerim'de kalır
 const PROGRESS = {

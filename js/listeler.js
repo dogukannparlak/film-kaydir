@@ -157,7 +157,7 @@ function onListClick(e) {
     item.status = mv.dataset.move; item.addedAt = Date.now();
     delete item.progress; // yarım işareti yalnız İzlediklerim'de anlamlı
     saveItems(); renderList(); updateCounts();
-    toast(`${STATUS[item.status]} listesine taşındı`, 'Geri al', () => {
+    toast(`${STATUS_TO[item.status]} taşındı`, 'Geri al', () => {
       item.status = prev; if (prevProg) item.progress = prevProg;
       saveItems(); renderList(); updateCounts();
     });
