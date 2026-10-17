@@ -2,7 +2,8 @@
 /* ================= Hesap ve eşitleme (Supabase) ================= */
 // Önce yerel: site hesapsız da çalışır, veri localStorage'da. Giriş yapınca:
 // - Değişen/silinen öğeler 1,5 sn sonra buluta yazılır (items: key → data, silinen deleted=true).
-// - Buluttan yalnız son eşitlemeden sonra değişenler çekilir (updated_at > since); açılışta, sekmeye dönünce ve 60 sn'de bir.
+// - Buluttan yalnız son eşitlemeden sonra değişenler çekilir (updated_at > since); açılışta, sekmeye dönünce, bağlantı gelince ve 30 sn'de bir.
+// - Sekme gizlenince bekleyen değişiklik hemen gönderilir; gönderilmemiş durum (anahtar, filtre, görülen) yenilemede kaybolmaz (kd_dirty).
 // - Bu cihazda bu hesapla ilk girişte yerel ve bulut birleştirilir: aynı öğede addedAt'i yeni olan kazanır.
 // - Görülenler birleşim (union); API anahtarları ve filtreler kullanıcı durumunda (user_state).
 // Güvenlik: anahtar herkese açık "publishable" anahtardır; her satır RLS ile yalnız sahibine açık.
@@ -13,6 +14,7 @@ const sb = window.supabase?.createClient(SB_URL, SB_KEY, { auth: { persistSessio
 const SYNC_KEY = 'kd_sync'; // { user, since, hashes: { key: imza } } — son eşitlenen hâl
 let sync = store.get(SYNC_KEY, null);
 let syncTimer = null, syncing = false, pullTimer = null;
+const SYNC_EVERY = 30000; // düzenli eşitleme: sekme açıkken 30 sn'de bir çek + gönder
 const sig = o => o ? JSON.stringify(o) : '';
 
 function syncSoon() {
@@ -43,7 +45,7 @@ async function pushState() {
   const row = { user_id:S.user.id, seen:[...S.seen], filters:S.filters, list_filters:S.listF, tmdb_key:S.apiKey || null, omdb_key:S.omdbKey || null };
   const { error } = await sb.from('user_state').upsert(row, { onConflict:'user_id' });
   if (error) throw error;
-  S.seenDirty = S.stateDirty = false;
+  S.seenDirty = S.stateDirty = false; saveDirty();
 }
 // Buluttaki değişiklikleri çek ve uygula
 async function pullChanges(first = false) {
@@ -75,7 +77,7 @@ async function pullChanges(first = false) {
     // API anahtarları: ilk girişte yerelde yoksa buluttan gelir; sonra başka cihazda değişen anahtar da gelir
     // (bu cihazda gönderilmemiş anahtar değişikliği varsa yereldeki kazanır)
     let keys = 0;
-    if (!S.stateDirty) {
+    if (first || !S.stateDirty) {
       const take = (cloud, local) => cloud && cloud !== local && (!first || !local);
       if (take(st.tmdb_key, S.apiKey)) { S.apiKey = st.tmdb_key; S.keyMsg = ''; store.set(K.key, st.tmdb_key); keys++; if (!first) { resetEngine(); loadProviders(); } }
       if (take(st.omdb_key, S.omdbKey)) { S.omdbKey = st.omdb_key; store.set(K.omdb, st.omdb_key); keys++; }
@@ -118,7 +120,7 @@ async function onSignedIn(user) {
   if (first) sync = { user:user.id, since:null, hashes:{} };
   await syncNow(first);
   clearInterval(pullTimer);
-  pullTimer = setInterval(() => document.visibilityState === 'visible' && syncNow(), 60000);
+  pullTimer = setInterval(() => document.visibilityState === 'visible' && syncNow(), SYNC_EVERY);
 }
 function onSignedOut() {
   S.user = null; clearInterval(pullTimer); renderAccount();
@@ -202,5 +204,11 @@ function initAccount() {
       else if (event === 'SIGNED_OUT') onSignedOut();
     }, 0);
   });
-  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible' && S.user) syncNow(); });
+  // Sekmeye dönünce çek; sekme gizlenince / sayfa kapanırken bekleyen değişiklikleri hemen gönder
+  document.addEventListener('visibilitychange', () => {
+    if (!S.user) return;
+    if (document.visibilityState === 'visible') syncNow();
+    else { clearTimeout(syncTimer); pushChanges(); }
+  });
+  window.addEventListener('online', () => { if (S.user) syncNow(); });
 }

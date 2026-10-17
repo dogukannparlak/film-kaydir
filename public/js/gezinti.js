@@ -28,9 +28,13 @@ function openSettings() {
   $('#btnResetSeen').textContent = 'Görülenleri sıfırla';
   openSheet('#sheetSettings');
 }
-// Ayarları aç ve Hesap bölümüne odaklan (rehber ve anahtar kutusundan "giriş yap")
-function openAccount() {
+// Ayarları aç ve Hesap bölümüne odaklan (rehber ve anahtar kutusundan); mode 'up' kayıt düğmesini öne çıkarır
+function openAccount(mode = 'in') {
   openSettings();
+  const up = mode === 'up';
+  $('#accIn')?.classList.toggle('btn-primary', !up);
+  $('#accUp')?.classList.toggle('btn-primary', up);
+  $('#accPass')?.setAttribute('autocomplete', up ? 'new-password' : 'current-password');
   $('#accBox').scrollIntoView({ block:'nearest' });
   setTimeout(() => $('#accEmail')?.focus(), 300);
 }

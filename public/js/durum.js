@@ -25,9 +25,12 @@ const S = {
   view: 'discover', listTab: 'want',
   listF: { type:'all', genre:'', period:'all', q:'', sort:'added', progress:'all', ...store.get(K.listF, {}) },
   dragging: false,
+  // Buluta gönderilmemiş durum değişikliği var mı (sayfa yenilense de kalır)
+  stateDirty: !!store.get(K.dirty, {}).state, seenDirty: !!store.get(K.dirty, {}).seen,
 };
 Object.keys(S.items).forEach(k => S.seen.add(k));
 // Kaydedince, giriş yapılmışsa buluta da gönderilir (js/hesap.js)
 const saveItems = () => { store.set(K.items, S.items); if (typeof syncSoon === 'function') syncSoon(); };
-const saveSeen = () => { store.set(K.seen, [...S.seen]); S.seenDirty = true; if (typeof syncSoon === 'function') syncSoon(); };
-const stateChanged = () => { S.stateDirty = true; if (typeof syncSoon === 'function') syncSoon(); };
+const saveDirty = () => store.set(K.dirty, { state:S.stateDirty, seen:S.seenDirty });
+const saveSeen = () => { store.set(K.seen, [...S.seen]); S.seenDirty = true; saveDirty(); if (typeof syncSoon === 'function') syncSoon(); };
+const stateChanged = () => { S.stateDirty = true; saveDirty(); if (typeof syncSoon === 'function') syncSoon(); };

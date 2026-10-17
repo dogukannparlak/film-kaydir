@@ -20,7 +20,7 @@ function bindKeyBox() {
   const save = () => saveKey($('#keyInput').value, $('#keyErr'));
   $('#btnSaveKey').onclick = save;
   $('#keyInput').onkeydown = e => { if (e.key === 'Enter') save(); };
-  const login = $('#btnKeyLogin'); if (login) login.onclick = openAccount;
+  const login = $('#btnKeyLogin'); if (login) login.onclick = () => openAccount();
 }
 async function saveKey(raw, errEl) {
   const key = raw.trim();

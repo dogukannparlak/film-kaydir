@@ -297,3 +297,4 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .guide-dots{display:flex;gap:6px;justify-content:center;margin-top:8px}
 .guide-dots i{width:7px;height:7px;border-radius:50%;background:var(--line)}
 .guide-dots i.on{background:var(--accent)}
+.guide-acc{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:4px 0 6px}
