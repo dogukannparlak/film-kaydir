@@ -66,6 +66,8 @@ Kullanıcı anahtarları tarayıcının `localStorage`'ında durur; giriş yapı
 - Giriş yapınca listeler, görülenler, filtreler ve API anahtarları hesaba yazılır; cihazlar aynı listeyi görür.
 - API anahtarları: yeni cihazda giriş yapınca hesaptan gelir (yeniden girmek gerekmez); bir cihazda değişen anahtar
   diğerlerine de geçer. Yerelde anahtar varsa ilk girişte o kalır, hesapta yoksa hesaba yedeklenir.
+- Çıkış yapınca önce her şey hesaba yazılır, sonra API anahtarları bu cihazdan silinir (hesapta durur, girişte geri gelir).
+  Listeler cihazda kalır.
 - İlk açılışta kısa bir rehber çıkar, sonunda giriş yap / kaydol / hesapsız devam et seçimi sorulur ("Geç" doğrudan bu seçime atlar); Ayarlar › Kısayollar › "Rehberi yeniden göster" ile tekrar açılır.
 - Önce yerel: değişiklik 1,5 sn sonra (sekme gizlenince hemen) buluta gider; düzenli eşitleme: açılışta, sekmeye dönünce,
   bağlantı gelince ve sekme açıkken 30 sn'de bir çekilir ve gönderilir.

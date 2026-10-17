@@ -122,6 +122,20 @@ async function onSignedIn(user) {
   clearInterval(pullTimer);
   pullTimer = setInterval(() => document.visibilityState === 'visible' && syncNow(), SYNC_EVERY);
 }
+// Çıkış: önce her şeyi hesaba yaz, sonra API anahtarlarını bu cihazdan sil (paylaşılan cihazda kalmasın).
+// Listeler cihazda kalır. Anahtar silmek stateChanged() çağırmaz: hesaptaki yedek silinmesin, girişte geri gelsin.
+async function signOut() {
+  accErr('Çıkış yapılıyor…');
+  await pushChanges();
+  try { await pushState(); }
+  catch (e) { if (!confirm('Hesaba yedeklenemedi (çevrimdışı olabilirsin). Yine de çıkılsın mı? API anahtarları bu cihazdan silinir.')) { accErr(''); return; } }
+  await sb.auth.signOut();
+  const hadKey = !!S.apiKey;
+  S.apiKey = ''; S.omdbKey = ''; S.proxyDown = false; store.del(K.key); store.del(K.omdb);
+  if ($('#setKey')) { $('#setKey').value = ''; $('#setOmdb').value = ''; }
+  if (hadKey) { resetEngine(); loadProviders(); }
+  toast('Çıkış yapıldı: API anahtarları bu cihazdan silindi');
+}
 function onSignedOut() {
   S.user = null; clearInterval(pullTimer); renderAccount();
 }
@@ -136,7 +150,7 @@ function renderAccount() {
       <p class="acc-who">☁️ <b>${esc(S.user.email || 'Hesap')}</b></p>
       <p class="note" id="accSync" style="margin:4px 0 10px">${esc(S.syncMsg || '')}</p>
       <div class="row-btns"><button class="btn" id="accSyncNow">Şimdi eşitle</button><button class="btn btn-danger" id="accOut">Çıkış yap</button></div>
-      <p class="note">Listelerin, görülenler, filtreler ve API anahtarların bu hesapta saklanır; telefon ve bilgisayar aynı listeyi görür. Çıkış yapınca bu cihazdaki veri kalır. <a href="gizlilik.html" target="_blank">Gizlilik</a></p>`;
+      <p class="note">Listelerin, görülenler, filtreler ve API anahtarların bu hesapta saklanır; telefon ve bilgisayar aynı listeyi görür. Çıkış yapınca listeler bu cihazda kalır, API anahtarların bu cihazdan silinir (hesabında durur, giriş yapınca geri gelir). <a href="gizlilik.html" target="_blank">Gizlilik</a></p>`;
     return;
   }
   const local = location.protocol === 'file:';
@@ -180,7 +194,7 @@ async function onAccountClick(e) {
     const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo:redirectTo() });
     accErr(error ? authMsg(error) : 'Şifre sıfırlama bağlantısı gönderildi.');
   } else if (id === 'accSyncNow') syncNow();
-  else if (id === 'accOut') { await pushChanges(); await sb.auth.signOut(); toast('Çıkış yapıldı'); }
+  else if (id === 'accOut') signOut();
   else if (id === 'accNewPass') {
     const np = $('#accNew').value;
     if (np.length < 8) return accErr('Şifre en az 8 karakter olmalı.');
