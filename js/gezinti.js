@@ -5,7 +5,7 @@ function setView(v) {
   $('#viewDiscover').classList.toggle('active', v === 'discover');
   $('#viewLists').classList.toggle('active', v === 'lists');
   $$('nav.tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.view === v));
-  if (v === 'lists') renderList();
+  if (v === 'lists') { seriesOrder = null; renderList(); }
 }
 let openSheetEl = null;
 function openSheet(sel) {

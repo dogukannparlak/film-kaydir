@@ -175,6 +175,8 @@ async function openCollection(id) {
 
 /* ---- Listeler › Seriler ---- */
 let seriesColls = [], scanning = false;
+// Sekme açıkken sıra sabit kalır: düğmeye basınca kutular yer değiştirmesin. Sekmeye girince ya da arama değişince sıfırlanır.
+let seriesOrder = null;
 const scanTried = new Set();
 // Listedeki filmlerin hangi seriye ait olduğunu (belongs_to_collection) TMDB'den tamamla
 async function scanCollections() {
@@ -216,6 +218,11 @@ function renderSeries() {
     // Önce yarım kalan seriler (izlenmeye başlanmış ama bitmemiş), sonra listede çok filmi olanlar
     .sort((a, b) => ((b.watched && b.watched < b.c.parts.filter(released).length) - (a.watched && a.watched < a.c.parts.filter(released).length)) || b.inList - a.inList || titles(a.c).main.localeCompare(titles(b.c).main, 'tr'))
     .map(x => x.c);
+  if (seriesOrder?.q === q) {
+    const pos = new Map(seriesOrder.ids.map((id, n) => [id, n]));
+    seriesColls.sort((a, b) => (pos.get(a.id) ?? 1e9) - (pos.get(b.id) ?? 1e9));
+  }
+  seriesOrder = { q, ids: seriesColls.map(c => c.id) };
   $('#lCount').innerHTML = (seriesColls.length ? `<b>${seriesColls.length}</b> seri` : '') + (pending ? `${seriesColls.length ? ' · ' : ''}<span class="scan">seriler taranıyor: ${pending} film kaldı</span>` : '');
   if (!seriesColls.length) {
     ul.innerHTML = `<li class="empty"><span class="empty-icon">🎞️</span><b>${pending ? 'Seriler taranıyor…' : q ? 'Bu aramaya uyan seri yok' : 'Listende seriye ait film yok'}</b>${pending ? 'Listendeki filmlerin serileri TMDB\'den bulunuyor.' : 'Bir seri filmini listene ekleyince serisi burada görünür.'}</li>`;
