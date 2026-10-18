@@ -513,3 +513,21 @@ nav.tabs button,#viewLists .seg button{position:relative;z-index:1;background:no
 .brand{display:flex;align-items:center;gap:9px}
 .brand-logo{width:28px;height:28px;border-radius:8px;flex:none;box-shadow:0 4px 14px rgba(124,58,237,.35)}
 .brand span{background:linear-gradient(90deg,#fff,var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* ================= Simge seti (A · çizgi) ================= */
+svg.i{width:1.15em;height:1.15em;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.2em;overflow:visible}
+.icon-btn svg.i{width:21px;height:21px}
+.act svg.i{width:26px;height:26px} .act-lg svg.i{width:30px;height:30px} .act-sm svg.i{width:21px;height:21px}
+.act-want svg.i{fill:currentColor} /* kalp dolu: istek */
+nav.tabs svg.i{width:21px;height:21px}
+.lsearch-box svg.i,.lsort svg.i{width:17px;height:17px}
+.pill-ico svg.i{width:17px;height:17px}
+.pill svg.i,.sc svg.i,.coll-tag svg.i,.ep-where svg.i,.score svg.i{width:15px;height:15px}
+.item-sub svg.i{width:14px;height:14px;opacity:.85}
+.btn-ico{display:inline-flex;align-items:center;justify-content:center;gap:8px}
+.sheet-head .icon-btn svg.i{width:19px;height:19px}
+.empty-icon svg.i,.deck-status .empty-icon svg.i{width:38px;height:38px;stroke-width:1.6;opacity:.85}
+.guide-icon svg.i{width:38px;height:38px;color:#fff;stroke-width:1.8}
+.acc-who svg.i{color:var(--accent)}
+.sc-trailer,.score-trailer,.pill-prog,.pill-bulk,.coll-tag{display:inline-flex;align-items:center;gap:5px}
+.item-sub svg.i{margin-right:4px}

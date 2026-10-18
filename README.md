@@ -82,6 +82,12 @@ Kullanıcı anahtarları tarayıcının `localStorage`'ında durur; giriş yapı
 - Supabase projesi `kaydir` (eu-central-1). Tablolar `items`, `user_state`; RLS: her satır yalnız sahibine açık.
 - E-posta bağlantıları (onay, şifre sıfırlama) yalnız yayındaki adreste çalışır (`file://` değil).
 
+## Görsel kimlik
+
+- Logo: sinema bileti (`public/icons/logo.svg`); ana ekran simgeleri ondan üretilir (`icons/*.png`).
+- Simgeler: tek set, çizgi stili (`public/html/simgeler.js`, önizleme `docs/simgeler.html`). Kullanım: `ico('ad')`.
+  Emoji kullanılmaz; yalnız 🍅 (Rotten Tomatoes) ve ★ (TMDB) tanınırlık için kalır.
+
 ## Güvenlik
 
 - Güvenlik başlıkları `public/_headers`: CSP (betik yalnız bu site + jsDelivr), kare içine gömme yasak, nosniff, referrer.

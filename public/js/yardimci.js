@@ -38,3 +38,5 @@ function titles(it) {
 }
 // Arama karşılaştırması: Türkçe küçük harf + aksan/nokta temizliği + ı→i (Inception ↔ inception, Işık ↔ isik)
 const fold = s => String(s || '').toLocaleLowerCase('tr').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/ı/g, 'i');
+// Simge: html/simgeler.js'teki setten (ör. ico('want'))
+const ico = (n, cls = '') => `<svg class="i ${cls}" aria-hidden="true"><use href="#i-${n}"/></svg>`;

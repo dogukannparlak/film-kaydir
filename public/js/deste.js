@@ -34,7 +34,7 @@ function updateDeckStatus() {
   if (!st) { st = document.createElement('div'); st.className = 'deck-status'; deck.prepend(st); }
   if (E.loading) st.innerHTML = '<div class="spinner"></div><div>Yükleniyor…</div>';
   else if (E.error) st.innerHTML = `<div>Bağlantı hatası: ${esc(E.error.message)}</div><button class="btn btn-primary" data-retry>Tekrar dene</button>`;
-  else if (E.exhausted) st.innerHTML = `<div style="font-size:34px">🍿</div><div>Bu filtrelerle gösterilecek yeni içerik kalmadı.</div><button class="btn btn-primary" data-open-filters>Filtreleri değiştir</button>`;
+  else if (E.exhausted) st.innerHTML = `<div class="empty-icon">${ico('popcorn')}</div><div>Bu filtrelerle gösterilecek yeni içerik kalmadı.</div><button class="btn btn-primary" data-open-filters>Filtreleri değiştir</button>`;
   else st.innerHTML = '<div class="spinner"></div>';
 }
 // Cam görünümü: üstteki kartın afişi sayfanın arkasında bulanık yansır (değişince yumuşak geçiş)

@@ -15,9 +15,9 @@ const STATUS_TO = { want:'İstek listesine', watched:'İzlediklerim\'e', passed:
 const DIR_STATUS = { right:'want', left:'passed', up:'watched' };
 // İzlediklerim içinde "yarım kaldı" işareti; öğe İzlediklerim'de kalır
 const PROGRESS = {
-  watching:{ label:'İzliyorum',  icon:'▶', tvOnly:true },
-  season:  { label:'Yeni sezon', icon:'◐', tvOnly:true },
-  dropped: { label:'Bıraktım',   icon:'⏸' },
+  watching:{ label:'İzliyorum',  icon:'watching',  tvOnly:true }, // icon: html/simgeler.js'teki simge adı
+  season:  { label:'Yeni sezon', icon:'newseason', tvOnly:true },
+  dropped: { label:'Bıraktım',   icon:'dropped' },
 };
 
 const MOVIE_G = {28:'Aksiyon',12:'Macera',16:'Animasyon',35:'Komedi',80:'Suç',99:'Belgesel',18:'Dram',10751:'Aile',14:'Fantastik',36:'Tarih',27:'Korku',10402:'Müzik',9648:'Gizem',10749:'Romantik',878:'Bilim Kurgu',10770:'TV Filmi',53:'Gerilim',10752:'Savaş',37:'Vahşi Batı'};

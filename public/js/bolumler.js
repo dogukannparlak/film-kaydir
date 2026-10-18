@@ -69,7 +69,7 @@ function setAt(key, at) {
   saveItems(); renderList();
   const last = item.eps?.at(-1);
   const end = last && at.s === last[0] && at.e === last[1];
-  toast(end ? `📍 ${epLabel(at)} · yayınlanan son bölüm` : `📍 ${epLabel(at)}`, 'Geri al', () => { S.items[key] = snap; saveItems(); renderList(); }, 4000);
+  toast(end ? `${epLabel(at)} · yayınlanan son bölüm` : `Kaldığın yer: ${epLabel(at)}`, 'Geri al', () => { S.items[key] = snap; saveItems(); renderList(); }, 4000);
 }
 // Satırdaki "+1": sonraki yayınlanmış bölüm
 async function nextEpisode(key) {
@@ -84,5 +84,5 @@ async function nextEpisode(key) {
 // Liste satırı: "📍 2. sezon 5. bölüm ›" + "+1"
 function watchingRow(i) {
   if (i.type !== 'tv' || i.status !== 'watched' || i.progress !== 'watching') return '';
-  return `<div class="ep-row"><button class="ep-where" data-ep-open>📍 ${epLabel(i.at)} ›</button>${i.at ? '<button class="ep-next" data-ep-next title="Sonraki bölümü izledim">+1 bölüm</button>' : ''}</div>`;
+  return `<div class="ep-row"><button class="ep-where" data-ep-open>${ico('pin')} ${epLabel(i.at)} ›</button>${i.at ? '<button class="ep-next" data-ep-next title="Sonraki bölümü izledim">+1 bölüm</button>' : ''}</div>`;
 }

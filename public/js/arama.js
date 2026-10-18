@@ -53,7 +53,7 @@ async function runSearch() {
 }
 function renderSearch() {
   const ul = $('#sResults');
-  if (!searchResults.length && !searchColls.length) { ul.innerHTML = '<li class="empty"><span class="empty-icon">🔍</span><b>Sonuç yok</b>Başka bir yazım dene ya da orijinal adıyla ara.</li>'; return; }
+  if (!searchResults.length && !searchColls.length) { ul.innerHTML = '<li class="empty"><span class="empty-icon">' + ico('search') + '</span><b>Sonuç yok</b>Başka bir yazım dene ya da orijinal adıyla ara.</li>'; return; }
   const first = !ul.querySelector('.coll'), open = openColls(ul);
   ul.innerHTML = searchColls.map((c, i) => collHTML(c, first ? i === 0 : open.has(String(c.id)))).join('')
     + (searchColls.length && searchResults.length ? '<li class="sec-head">Diğer sonuçlar</li>' : '')

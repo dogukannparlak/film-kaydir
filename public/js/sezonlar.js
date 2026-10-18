@@ -37,7 +37,7 @@ async function checkNewSeasons() {
   saveItems();
   seasonChecking = false;
   if (S.view === 'lists') renderList();
-  if (found.length) toast(`🆕 ${found.length === 1 ? found[0] : found.length + ' dizi'}: yeni sezon geldi`, 'Göster', showNewSeasons, 6000);
+  if (found.length) toast(`Yeni sezon · ${found.length === 1 ? found[0] : found.length + ' dizi'}`, 'Göster', showNewSeasons, 6000);
   // Kalan varsa sonraki partiyi biraz sonra kontrol et
   if (Object.values(S.items).some(i => i.type === 'tv' && i.status === 'watched' && !(Date.now() - (i.tvCheckedAt || 0) < SEASON_CHECK_EVERY))) setTimeout(checkNewSeasons, 5000);
 }
@@ -55,8 +55,8 @@ function ackSeason(item) {
 }
 function seasonBadges(i) {
   if (i.type !== 'tv' || i.status !== 'watched') return '';
-  return (i.newSeason && ['season', 'watching'].includes(i.progress) ? `<span class="sc sc-new" title="Eklediğinden sonra yayınlandı">🆕 ${i.newSeason.n}. sezon · ${shortDate(i.newSeason.date)}</span>` : '')
-    + (i.nextSeason ? `<span class="sc" title="Yayın tarihi açıklandı">📅 ${i.nextSeason.n}. sezon · ${shortDate(i.nextSeason.date)}</span>` : '');
+  return (i.newSeason && ['season', 'watching'].includes(i.progress) ? `<span class="sc sc-new" title="Eklediğinden sonra yayınlandı">${ico('newseason')} ${i.newSeason.n}. sezon · ${shortDate(i.newSeason.date)}</span>` : '')
+    + (i.nextSeason ? `<span class="sc" title="Yayın tarihi açıklandı">${ico('upcoming')} ${i.nextSeason.n}. sezon · ${shortDate(i.nextSeason.date)}</span>` : '');
 }
 
 /* ---- Fragman ---- */

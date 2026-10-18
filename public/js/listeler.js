@@ -61,8 +61,8 @@ function renderList() {
     + (resortReady ? ' · <button class="resort" data-resort>Puanlar geldi, yeniden sırala</button>' : '');
   if (!arr.length) {
     list.innerHTML = total
-      ? `<li class="empty"><span class="empty-icon">🔍</span><b>Bu süzgeçlere uyan yapım yok</b>Aramayı ya da süzgeçleri gevşet.</li>`
-      : `<li class="empty"><span class="empty-icon">${EMPTY_ICON[tab]}</span><b>Bu liste boş</b>Keşfet'te kaydırdıkça burası dolar.</li>`;
+      ? `<li class="empty"><span class="empty-icon">${ico('search')}</span><b>Bu süzgeçlere uyan yapım yok</b>Aramayı ya da süzgeçleri gevşet.</li>`
+      : `<li class="empty"><span class="empty-icon">${ico(EMPTY_ICON[tab])}</span><b>Bu liste boş</b>Keşfet'te kaydırdıkça burası dolar.</li>`;
     return;
   }
   // Aynı seriden en az iki film bu listede ise tek kutuda: kutu, grubun en üstteki filminin yerinde durur
@@ -79,10 +79,10 @@ function renderList() {
   list.innerHTML = html;
   shownKeys = new Set(arr.map(i => i.key));
 }
-const EMPTY_ICON = { want:'💚', watched:'🎬', passed:'🙅' };
-// Taşıma düğmeleri: destedeki simgelerle aynı (♥ istek, ✓ izledim, ✕ geç)
-const MOVES = { want:['♥', 'İstek listesine taşı'], watched:['✓', 'İzlediklerim\'e taşı'], passed:['✕', 'Geçtiklerim\'e taşı'] };
-const TRASH = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>';
+const EMPTY_ICON = { want:'want', watched:'check', passed:'pass' };
+// Taşıma düğmeleri: destedeki simgelerle aynı (istek, izledim, geç)
+const MOVES = { want:['want', 'İstek listesine taşı'], watched:['check', 'İzlediklerim\'e taşı'], passed:['pass', 'Geçtiklerim\'e taşı'] };
+const TRASH = ico('trash');
 function groupHTML(ref, members, tab, open) {
   const c = collCache[ref.id];
   if (!c) collListTag(members[0]); // seri önbellekte yoksa getirir ve listeyi yeniler
@@ -118,11 +118,11 @@ function itemHTML(i, tab, inGroup = false) {
     seasonBadges(i),
     i.lbRating ? `<span class="sc sc-lb" title="Letterboxd puanın">LB ${String(i.lbRating).replace('.', ',')}★</span>` : '',
     i.rating ? `<span class="sc sc-tmdb" title="TMDB">★ ${(+i.rating).toFixed(1).replace('.', ',')}</span>` : '',
-    i.trailer === '' ? '' : `<button class="sc sc-trailer" data-trailer title="YouTube'da fragman">▶ Fragman</button>`,
+    i.trailer === '' ? '' : `<button class="sc sc-trailer" data-trailer title="YouTube'da fragman">${ico('trailer')} Fragman</button>`,
   ].join('');
-  const sub = [genreNames(i.type, i.genres || []).slice(0, 2).join(' · '), i.director ? '🎬 ' + i.director : ''].filter(Boolean).join(' · ');
+  const sub = [genreNames(i.type, i.genres || []).slice(0, 2).join(' · '), i.director ? '\u0000' + i.director : ''].filter(Boolean).join(' · ');
   const progBtns = tab === 'watched' ? Object.entries(PROGRESS).filter(([, p]) => !p.tvOnly || i.type === 'tv').map(([id, p]) =>
-    `<button class="pill pill-prog" data-progress="${id}" aria-pressed="${i.progress === id}">${p.icon} ${p.label}</button>`).join('') : '';
+    `<button class="pill pill-prog" data-progress="${id}" aria-pressed="${i.progress === id}">${ico(p.icon)} ${p.label}</button>`).join('') : '';
   return `
     <li class="item${shownKeys.has(i.key) ? '' : ' fresh'}" data-key="${esc(i.key)}">
       <a class="item-poster" href="https://www.themoviedb.org/${i.type}/${i.id}" target="_blank" rel="noopener" tabindex="-1">
@@ -134,7 +134,7 @@ function itemHTML(i, tab, inGroup = false) {
           <a class="item-title" href="https://www.themoviedb.org/${i.type}/${i.id}" target="_blank" rel="noopener"><span class="t-main">${esc(t.main)}</span>${t.sub ? `<small>${esc(t.sub)}</small>` : ''}</a>
           ${yearOf(i.date) ? `<span class="item-year">${yearOf(i.date)}</span>` : ''}
         </div>
-        ${sub ? `<div class="item-sub">${esc(sub)}</div>` : ''}
+        ${sub ? `<div class="item-sub">${esc(sub).replace('\u0000', ico('director'))}</div>` : ''}
         ${scores ? `<div class="item-scores">${scores}</div>` : ''}
         ${watchingRow(i)}
         ${i.collection && !inGroup ? `<div>${collListTag(i)}</div>` : ''}
@@ -142,7 +142,7 @@ function itemHTML(i, tab, inGroup = false) {
       <div class="item-acts">
         ${progBtns}
         <span class="acts-right">
-          ${Object.keys(MOVES).filter(s => s !== tab).map(s => `<button class="pill pill-ico pill-${s}" data-move="${s}" aria-label="${MOVES[s][1]}" title="${MOVES[s][1]}">${MOVES[s][0]}</button>`).join('')}
+          ${Object.keys(MOVES).filter(s => s !== tab).map(s => `<button class="pill pill-ico pill-${s}" data-move="${s}" aria-label="${MOVES[s][1]}" title="${MOVES[s][1]}">${ico(MOVES[s][0])}</button>`).join('')}
           <button class="pill pill-ico pill-del" data-del aria-label="Sil" title="Sil">${TRASH}</button>
         </span>
       </div>

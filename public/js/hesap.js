@@ -81,7 +81,7 @@ async function pullChanges(first = false) {
       const take = (cloud, local) => cloud && cloud !== local && (!first || !local);
       if (take(st.tmdb_key, S.apiKey)) { S.apiKey = st.tmdb_key; S.keyMsg = ''; store.set(K.key, st.tmdb_key); keys++; if (!first) { resetEngine(); loadProviders(); } }
       if (take(st.omdb_key, S.omdbKey)) { S.omdbKey = st.omdb_key; store.set(K.omdb, st.omdb_key); keys++; }
-      if (keys) toast('🔑 API anahtarların hesabından geldi');
+      if (keys) toast('API anahtarların hesabından geldi');
     }
     if (first) {
       if (st.filters) { S.filters = { ...DEFAULT_FILTERS, ...migrateFilters(st.filters) }; store.set(K.filters, S.filters); updateSummary(); }
@@ -103,7 +103,7 @@ async function syncNow(first = false) {
   try {
     const n = await pullChanges(first);
     await pushChanges();
-    if (first && n) toast(`☁️ Hesaptan ${n} öğe geldi`);
+    if (first && n) toast(`Hesaptan ${n} öğe geldi`);
   } catch (e) { setSyncStatus('Eşitlenemedi: ' + (e.message || e)); }
 }
 function setSyncStatus(msg) {
@@ -147,7 +147,7 @@ function renderAccount() {
   if (!sb) { box.innerHTML = '<p class="note" style="margin:0">Hesap servisine ulaşılamadı (çevrimdışı olabilirsin). Site yerelde çalışmaya devam ediyor.</p>'; return; }
   if (S.user) {
     box.innerHTML = `
-      <p class="acc-who">☁️ <b>${esc(S.user.email || 'Hesap')}</b></p>
+      <p class="acc-who">${ico('cloud')} <b>${esc(S.user.email || 'Hesap')}</b></p>
       <p class="note" id="accSync" style="margin:4px 0 10px">${esc(S.syncMsg || '')}</p>
       <div class="row-btns"><button class="btn" id="accSyncNow">Şimdi eşitle</button><button class="btn btn-danger" id="accOut">Çıkış yap</button></div>
       <p class="note">Listelerin, görülenler, filtreler ve API anahtarların bu hesapta saklanır; telefon ve bilgisayar aynı listeyi görür. Çıkış yapınca listeler bu cihazda kalır, API anahtarların bu cihazdan silinir (hesabında durur, giriş yapınca geri gelir). <a href="gizlilik.html" target="_blank">Gizlilik</a></p>`;

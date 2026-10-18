@@ -12,11 +12,11 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
     </div>
     <div class="lsearch-wrap">
       <label class="lsearch-box">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+        <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
         <input class="lsearch" id="lq" type="search" placeholder="Listede ara…" autocomplete="off">
       </label>
       <label class="lsort" title="Sıralama">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M7 4v16M3 16l4 4 4-4M17 20V4M13 8l4-4 4 4"/></svg>
+        <svg class="i" aria-hidden="true"><use href="#i-sort"/></svg>
         <select id="lSort" aria-label="Sıralama"><option value="added">Son eklenen</option><option value="imdb">IMDb</option><option value="rt">Rotten Tomatoes</option><option value="tmdb">TMDB</option></select>
       </label>
     </div>

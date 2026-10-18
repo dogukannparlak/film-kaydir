@@ -33,12 +33,12 @@ async function fetchCollection(id) {
   return out;
 }
 const released = it => it.date && it.date <= TODAY;
-const SEARCH_ADD = { want:['♥', 'İstek'], watched:['✓', 'İzledim'], passed:['✕', 'Geç'] };
+const SEARCH_ADD = { want:['want', 'İstek'], watched:['check', 'İzledim'], passed:['pass', 'Geç'] };
 
 // Aramada ve serilerde ortak sonuç satırı
 function resultHTML(it) {
   const t = titles(it), cur = S.items[it.key]?.status;
-  const sub = [genreNames(it.type, it.genres).slice(0, 2).join(' · '), it.via ? '👤 ' + it.via : ''].filter(Boolean).join(' · ');
+  const sub = [genreNames(it.type, it.genres).slice(0, 2).join(' · '), it.via ? '\u0000' + it.via : ''].filter(Boolean).join(' · ');
   return `
     <li class="item" data-key="${esc(it.key)}">
       <a class="item-poster" href="https://www.themoviedb.org/${it.type}/${it.id}" target="_blank" rel="noopener" tabindex="-1">
@@ -50,13 +50,13 @@ function resultHTML(it) {
           <a class="item-title" href="https://www.themoviedb.org/${it.type}/${it.id}" target="_blank" rel="noopener"><span class="t-main">${esc(t.main)}</span>${t.sub ? `<small>${esc(t.sub)}</small>` : ''}</a>
           <span class="item-year">${yearOf(it.date) || 'yakında'}</span>
         </div>
-        ${sub ? `<div class="item-sub">${esc(sub)}</div>` : ''}
+        ${sub ? `<div class="item-sub">${esc(sub).replace('\u0000', ico('account'))}</div>` : ''}
         ${it.rating ? `<div class="item-scores"><span class="sc sc-tmdb" title="TMDB">★ ${it.rating.toFixed(1).replace('.', ',')}</span>${it.votes ? `<span class="sc">${it.votes.toLocaleString('tr-TR')} oy</span>` : ''}</div>` : ''}
       </div>
       <div class="item-acts">
         ${cur ? `<span class="in-list in-${cur}">${STATUS[cur]}</span>` : '<span class="note" style="margin:0">Listene ekle</span>'}
         <span class="acts-right">
-          ${Object.entries(SEARCH_ADD).map(([s, [ic, l]]) => `<button class="pill pill-ico pill-${s}" data-add="${s}" aria-label="${l}" title="${l}" aria-pressed="${cur === s}" ${cur === s ? 'disabled' : ''}>${ic}</button>`).join('')}
+          ${Object.entries(SEARCH_ADD).map(([s, [ic, l]]) => `<button class="pill pill-ico pill-${s}" data-add="${s}" aria-label="${l}" title="${l}" aria-pressed="${cur === s}" ${cur === s ? 'disabled' : ''}>${ico(ic)}</button>`).join('')}
         </span>
       </div>
     </li>`;
@@ -84,7 +84,7 @@ function collHTML(c, open) {
         <div class="coll-bulk">
           <span class="note" style="margin:0">Hepsini taşı</span>
           <span class="acts-right">
-            ${Object.entries(SEARCH_ADD).map(([s, [ic, l]]) => `<button class="pill pill-bulk pill-${s}" data-bulk="${s}" title="Serinin bütün filmleri: ${l}">${ic} ${l}</button>`).join('')}
+            ${Object.entries(SEARCH_ADD).map(([s, [ic, l]]) => `<button class="pill pill-bulk pill-${s}" data-bulk="${s}" title="Serinin bütün filmleri: ${l}">${ico(ic)} ${l}</button>`).join('')}
           </span>
         </div>
         <ul class="list coll-parts">${c.parts.map(resultHTML).join('')}</ul>
@@ -149,7 +149,7 @@ function collTagHTML(it) {
   if (!it.collection) return '';
   const c = collCache[it.collection.id];
   const i = c ? c.parts.findIndex(p => p.key === it.key) : -1;
-  return `<button class="coll-tag" data-coll-open="${it.collection.id}">🎞️ ${esc(c ? titles(c).main : it.collection.name)}${i >= 0 ? ` · ${i + 1}/${c.parts.length}` : ''} ›</button>`;
+  return `<button class="coll-tag" data-coll-open="${it.collection.id}">${ico('series')} ${esc(c ? titles(c).main : it.collection.name)}${i >= 0 ? ` · ${i + 1}/${c.parts.length}` : ''} ›</button>`;
 }
 // Liste satırı etiketi: "🎞️ Harry Potter · 3. film · 5/7 izlendi"; seri önbellekte yoksa getirilir ve liste yenilenir
 const collWant = new Set();
@@ -160,11 +160,11 @@ function collListTag(i) {
     collWant.add(i.collection.id);
     getCollection(i.collection.id).then(() => { if (S.view === 'lists') renderList(); }).catch(() => {});
   }
-  if (!c) return `<button class="coll-tag coll-tag-sm" data-coll-open="${i.collection.id}">🎞️ ${esc(i.collection.name)} ›</button>`;
+  if (!c) return `<button class="coll-tag coll-tag-sm" data-coll-open="${i.collection.id}">${ico('series')} ${esc(i.collection.name)} ›</button>`;
   const idx = c.parts.findIndex(p => p.key === i.key), rel = c.parts.filter(released).length;
   const watched = c.parts.filter(p => S.items[p.key]?.status === 'watched').length;
   const done = rel && watched >= rel;
-  return `<button class="coll-tag coll-tag-sm${done ? ' coll-done' : ''}" data-coll-open="${c.id}" title="Seriyi aç">🎞️ ${esc(titles(c).main)}${idx >= 0 ? ` · ${idx + 1}. film` : ''} · ${done ? '✓ hepsi izlendi' : `${watched}/${rel} izlendi`} ›</button>`;
+  return `<button class="coll-tag coll-tag-sm${done ? ' coll-done' : ''}" data-coll-open="${c.id}" title="Seriyi aç">${ico('series')} ${esc(titles(c).main)}${idx >= 0 ? ` · ${idx + 1}. film` : ''} · ${done ? ico('check') + ' hepsi izlendi' : `${watched}/${rel} izlendi`} ›</button>`;
 }
 async function refreshCollTag(it) {
   if (!it.collection) return;
@@ -237,7 +237,7 @@ function renderSeries() {
   seriesOrder = { q, ids: seriesColls.map(c => c.id) };
   $('#lCount').innerHTML = (seriesColls.length ? `<b>${seriesColls.length}</b> seri` : '') + (pending ? `${seriesColls.length ? ' · ' : ''}<span class="scan">seriler taranıyor: ${pending} film kaldı</span>` : '');
   if (!seriesColls.length) {
-    ul.innerHTML = `<li class="empty"><span class="empty-icon">🎞️</span><b>${pending ? 'Seriler taranıyor…' : q ? 'Bu aramaya uyan seri yok' : 'Listende seriye ait film yok'}</b>${pending ? 'Listendeki filmlerin serileri TMDB\'den bulunuyor.' : 'Bir seri filmini listene ekleyince serisi burada görünür.'}</li>`;
+    ul.innerHTML = `<li class="empty"><span class="empty-icon">${ico('series')}</span><b>${pending ? 'Seriler taranıyor…' : q ? 'Bu aramaya uyan seri yok' : 'Listende seriye ait film yok'}</b>${pending ? 'Listendeki filmlerin serileri TMDB\'den bulunuyor.' : 'Bir seri filmini listene ekleyince serisi burada görünür.'}</li>`;
     return;
   }
   const open = openColls(ul);

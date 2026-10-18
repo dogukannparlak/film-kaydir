@@ -3,7 +3,7 @@
 document.currentScript.insertAdjacentHTML('beforebegin', `
 <div class="sheet" id="sheetSettings" role="dialog" aria-label="Ayarlar">
   <div class="grip"></div>
-  <div class="sheet-head"><h2>Ayarlar</h2><button class="icon-btn" data-close aria-label="Kapat">✕</button></div>
+  <div class="sheet-head"><h2>Ayarlar</h2><button class="icon-btn" data-close aria-label="Kapat"><svg class="i" aria-hidden="true"><use href="#i-close"/></svg></button></div>
   <div class="sheet-body">
     <section>
       <h3>Hesap</h3>
@@ -30,12 +30,12 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
     </section>
     <section>
       <h3>Yedek <small>listeler + görülenler · JSON</small></h3>
-      <div class="row-btns"><button class="btn" id="btnExport">⬇︎ Dışa aktar</button><button class="btn" id="btnImport">⬆︎ İçe aktar</button></div>
+      <div class="row-btns"><button class="btn btn-ico" id="btnExport"><svg class="i" aria-hidden="true"><use href="#i-export"/></svg> Dışa aktar</button><button class="btn btn-ico" id="btnImport"><svg class="i" aria-hidden="true"><use href="#i-import"/></svg> İçe aktar</button></div>
       <input type="file" id="fileImport" accept="application/json,.json" class="hidden">
     </section>
     <section>
       <h3>Letterboxd'dan içe aktar <small>yalnız filmler</small></h3>
-      <button class="btn" id="btnLetterboxd">📥 Letterboxd zip'ini seç</button>
+      <button class="btn btn-ico" id="btnLetterboxd"><svg class="i" aria-hidden="true"><use href="#i-import"/></svg> Letterboxd zip'ini seç</button>
       <input type="file" id="fileLetterboxd" accept=".zip,.csv,application/zip,text/csv" multiple class="hidden">
       <div class="note lb-status" id="lbStatus" aria-live="polite"></div>
       <p class="note">letterboxd.com → Settings → Data → Export Your Data. İzlenenler İzlediklerim'e, izleme listesi İstek'e gider; Letterboxd puanın saklanır. Zip yerine <code>watched.csv</code> ve <code>watchlist.csv</code> da seçilebilir.</p>

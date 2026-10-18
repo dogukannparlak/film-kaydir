@@ -3,15 +3,15 @@
 // Bu tarayıcıda bir kez gösterilir (kd_guide); Ayarlar › Kısayollar'dan yeniden açılır.
 // Son adım hesap seçimidir: giriş yap / kaydol / hesapsız devam et. "Geç" doğrudan bu adıma atlar.
 const GUIDE_STEPS = [
-  { icon:'🎬', title:'Kaydır\'a hoş geldin', text:'Film ve dizileri kart kart keşfet, beğendiklerini listene at. Birkaç adımda nasıl çalıştığını göstereyim.' },
-  { icon:'👆', title:'Kartı kaydır', html:`<ul class="guide-moves">
+  { icon:'ticket', title:'Kaydır\'a hoş geldin', text:'Film ve dizileri kart kart keşfet, beğendiklerini listene at. Birkaç adımda nasıl çalıştığını göstereyim.' },
+  { icon:'discover', title:'Kartı kaydır', html:`<ul class="guide-moves">
       <li><b style="color:var(--want)">Sağa →</b> izlemek istiyorum</li>
       <li><b style="color:var(--pass)">Sola ←</b> geç, bir daha çıkmaz</li>
       <li><b style="color:var(--watched)">Yukarı ↑</b> zaten izledim</li>
-    </ul><p>Alttaki düğmeler de aynı işi yapar. Yanlış mı kaydırdın? ↶ ile geri al. Kartın üstüne dokununca özetin tamamı açılır.</p>` },
-  { icon:'🎛️', title:'Filtrele ve ara', text:'Üstteki düğmelerle tür, dönem, puan ve platforma göre filtrele ya da aklındaki filmi doğrudan ara.' },
-  { icon:'📚', title:'Koleksiyonun', text:'Alttaki Koleksiyonum sekmesinde İstek, İzledim ve Geç listelerin durur. Dizilerde kaldığın bölümü de işaretleyebilirsin.' },
-  { icon:'👤', title:'Hesapla mı, hesapsız mı?', account:true },
+    </ul><p>Alttaki düğmeler de aynı işi yapar. Yanlış mı kaydırdın? Geri al düğmesiyle geri al. Kartın üstüne dokununca özetin tamamı açılır.</p>` },
+  { icon:'filter', title:'Filtrele ve ara', text:'Üstteki düğmelerle tür, dönem, puan ve platforma göre filtrele ya da aklındaki filmi doğrudan ara.' },
+  { icon:'collection', title:'Koleksiyonun', text:'Alttaki Koleksiyonum sekmesinde İstek, İzledim ve Geç listelerin durur. Dizilerde kaldığın bölümü de işaretleyebilirsin.' },
+  { icon:'account', title:'Hesapla mı, hesapsız mı?', account:true },
 ];
 let guideStep = 0;
 function openGuide() {
@@ -31,7 +31,7 @@ function accountStepHTML() {
 function renderGuide() {
   const s = GUIDE_STEPS[guideStep], last = guideStep === GUIDE_STEPS.length - 1;
   const body = s.account ? accountStepHTML() : s.html || `<p>${esc(s.text)}</p>`;
-  $('#guideBody').innerHTML = `<div class="guide-icon">${s.icon}</div><h2>${esc(s.title)}</h2>${body}`;
+  $('#guideBody').innerHTML = `<div class="guide-icon">${ico(s.icon)}</div><h2>${esc(s.title)}</h2>${body}`;
   $('#guideDots').innerHTML = GUIDE_STEPS.map((_, i) => `<i class="${i === guideStep ? 'on' : ''}"></i>`).join('');
   $('#guideBack').classList.toggle('hidden', !guideStep);
   $('#guideNext').textContent = !last ? 'İleri' : S.user ? 'Başla' : 'Hesapsız devam et';

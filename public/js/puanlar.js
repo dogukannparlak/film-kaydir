@@ -78,7 +78,7 @@ function scoresHTML(it) {
   let h = it.imdb ? `<a class="score score-imdb" href="https://www.imdb.com/title/${encodeURIComponent(it.imdb)}/" target="_blank" rel="noopener"><b>IMDb</b>${s.imdb ? ' ' + esc(s.imdb.replace('.', ',')) : ''}</a>` : '';
   if (s.rt) h += `<span class="score" title="Rotten Tomatoes">🍅 ${esc(s.rt)}</span>`;
   if (s.mc) h += `<span class="score" title="Metacritic">MC ${esc(s.mc.split('/')[0])}</span>`;
-  if (it.trailer) h += `<a class="score score-trailer" href="${trailerURL(it.trailer)}" target="_blank" rel="noopener">▶ Fragman</a>`;
+  if (it.trailer) h += `<a class="score score-trailer" href="${trailerURL(it.trailer)}" target="_blank" rel="noopener">${ico('trailer')} Fragman</a>`;
   return h;
 }
 function refreshScores(it) {
