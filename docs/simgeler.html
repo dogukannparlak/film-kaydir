@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaydır simge seti</title>
+<style>
+  :root{--bg:#0a0a0f;--text:#f3f3f7;--muted:#9b9bb0;--accent:#a78bfa;--want:#22c55e;--pass:#f43f5e;--watched:#3b82f6;--gold:#ffd166}
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(60% 40% at 15% 5%,rgba(167,139,250,.25),transparent 60%),var(--bg);color:var(--text);
+    font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:28px 16px 60px}
+  h1{margin:0 auto 6px;max-width:1000px;font-size:24px} h2{max-width:1000px;margin:26px auto 10px;font-size:18px}
+  .lead{max-width:1000px;margin:0 auto 18px;color:var(--muted)}
+  .wrap{max-width:1000px;margin:0 auto}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:760px){.cols{grid-template-columns:1fr}}
+  .panel{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:18px}
+  .panel h3{margin:0 0 4px;font-size:17px} .panel p{margin:0 0 14px;color:var(--muted);font-size:13.5px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px}
+  .ic{display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 4px;border-radius:14px;background:rgba(255,255,255,.04);font-size:11.5px;color:var(--muted);text-align:center}
+  .ic svg{width:28px;height:28px;color:#fff}
+  svg.i{fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+  .duo{--d:.24}
+  .duo .a{color:var(--accent)}
+  /* bağlam örnekleri */
+  .demo{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:14px}
+  .act{border-radius:50%;display:grid;place-items:center;border:1px solid rgba(255,255,255,.2);background:rgba(255,255,255,.08)}
+  .act svg{width:26px;height:26px}
+  .a-sm{width:40px;height:40px;color:#c9a227} .a-lg{width:58px;height:58px} .a-md{width:48px;height:48px}
+  .pass{color:var(--pass);background:rgba(244,63,94,.14)} .watch{color:var(--watched);background:rgba(59,130,246,.14)} .want{color:var(--want);background:rgba(34,197,94,.14)}
+  .bar{display:flex;gap:8px;align-items:center;padding:5px;border-radius:999px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.2);width:100%}
+  .bar span{flex:1;display:flex;justify-content:center;align-items:center;gap:8px;padding:9px;border-radius:999px;font-weight:700;font-size:13.5px;color:rgba(255,255,255,.6)}
+  .bar span.on{background:rgba(255,255,255,.18);color:#fff} .bar span.on svg{color:var(--accent)} .bar svg{width:20px;height:20px}
+  .pill{display:inline-flex;gap:6px;align-items:center;padding:5px 10px;border-radius:999px;background:rgba(255,255,255,.08);font-size:12.5px;font-weight:700}
+  .pill svg{width:15px;height:15px}
+  .tagp{color:#e9e3ff;background:rgba(167,139,250,.25);border:1px solid rgba(167,139,250,.5)}
+</style>
+</head>
+<body>
+<h1>Kaydır · simge seti</h1>
+<p class="lead">Bilet logosunun diliyle tek bir set: 24 px ızgara, 2 px yuvarlak uçlu çizgi, yumuşak köşeler. Emojilerin yerine geçer, her cihazda aynı görünür. Puan logoları (🍅 RT, ★ TMDB) tanınırlık için olduğu gibi kalır. A ya da B'yi seç.</p>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <!-- Üst çubuk -->
+  <symbol id="i-search" viewBox="0 0 24 24"><circle style="fill:currentColor;fill-opacity:var(--d,0)" cx="11" cy="11" r="6.5"/><path d="m20 20-4.2-4.2"/></symbol>
+  <symbol id="i-filter" viewBox="0 0 24 24"><path d="M4 7h9M17 7h3M4 17h3M11 17h9"/><circle style="fill:currentColor;fill-opacity:var(--d,0)" cx="15" cy="7" r="2.3"/><circle style="fill:currentColor;fill-opacity:var(--d,0)" cx="9" cy="17" r="2.3"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path style="fill:currentColor;fill-opacity:var(--d,0)" d="M10.3 3.6a1.8 1.8 0 0 1 3.4 0l.3.9a1.8 1.8 0 0 0 2.5 1l.8-.4a1.8 1.8 0 0 1 2.4 2.4l-.4.8a1.8 1.8 0 0 0 1 2.5l.9.3a1.8 1.8 0 0 1 0 3.4l-.9.3a1.8 1.8 0 0 0-1 2.5l.4.8a1.8 1.8 0 0 1-2.4 2.4l-.8-.4a1.8 1.8 0 0 0-2.5 1l-.3.9a1.8 1.8 0 0 1-3.4 0l-.3-.9a1.8 1.8 0 0 0-2.5-1l-.8.4a1.8 1.8 0 0 1-2.4-2.4l.4-.8a1.8 1.8 0 0 0-1-2.5l-.9-.3a1.8 1.8 0 0 1 0-3.4l.9-.3a1.8 1.8 0 0 0 1-2.5l-.4-.8a1.8 1.8 0 0 1 2.4-2.4l.8.4a1.8 1.8 0 0 0 2.5-1z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <!-- Deste eylemleri -->
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></symbol>
+  <symbol id="i-pass" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18" stroke-width="2.6"/></symbol>
+  <symbol id="i-watched" viewBox="0 0 24 24"><path style="fill:currentColor;fill-opacity:var(--d,0)" d="M2.5 12S6 5.5 12 5.5 21.5 12 21.5 12 18 18.5 12 18.5 2.5 12 2.5 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-want" viewBox="0 0 24 24"><path style="fill:currentColor;fill-opacity:var(--d,0)" d="M12 20s-7.5-4.6-9-9.6C2 7 4.3 4.5 7.3 4.5c2 0 3.6 1.1 4.7 2.7 1.1-1.6 2.7-2.7 4.7-2.7 3 0 5.3 2.5 4.3 5.9-1.5 5-9 9.6-9 9.6z"/></symbol>
+  <!-- Alt sekmeler -->
+  <symbol id="i-discover" viewBox="0 0 24 24"><rect x="3.5" y="5" width="9" height="13" rx="2" opacity=".55"/><g transform="rotate(12 15 12)"><rect style="fill:currentColor;fill-opacity:var(--d,0)" x="9.5" y="4" width="10" height="15" rx="2.2"/><path d="M13.3 9.2v4.6l3.8-2.3z" fill="currentColor" stroke="none"/></g></symbol>
+  <symbol id="i-collection" viewBox="0 0 24 24"><path style="fill:currentColor;fill-opacity:var(--d,0)" d="M6 3.5h12a1.5 1.5 0 0 1 1.5 1.5v15.5L12 16l-7.5 4.5V5A1.5 1.5 0 0 1 6 3.5z"/><path d="M9 8.5h6"/></symbol>
+  <!-- Liste ve durumlar -->
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5" stroke-width="2.6"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6"/><path style="fill:currentColor;fill-opacity:var(--d,0)" d="M6 7l1 12.5A1.5 1.5 0 0 0 8.5 21h7a1.5 1.5 0 0 0 1.5-1.5L18 7"/><path d="M9 7V4.5h6V7"/></symbol>
+  <symbol id="i-trailer" viewBox="0 0 24 24"><rect style="fill:currentColor;fill-opacity:var(--d,0)" x="2.5" y="5" width="19" height="14" rx="3.5"/><path d="M10 9.2v5.6l4.8-2.8z" fill="currentColor"/></symbol>
+  <symbol id="i-series" viewBox="0 0 24 24"><rect x="3" y="6" width="12" height="13" rx="2" opacity=".5"/><rect style="fill:currentColor;fill-opacity:var(--d,0)" x="7" y="3" width="14" height="15" rx="2.2"/><path d="M10 6.5v8M18 6.5v8" stroke-dasharray="1.6 2.2"/></symbol>
+  <symbol id="i-watching" viewBox="0 0 24 24"><circle style="fill:currentColor;fill-opacity:var(--d,0)" cx="12" cy="12" r="9"/><path d="M10 8.5v7l5.5-3.5z" fill="currentColor"/></symbol>
+  <symbol id="i-newseason" viewBox="0 0 24 24"><rect style="fill:currentColor;fill-opacity:var(--d,0)" x="3" y="6.5" width="15" height="11" rx="2.5"/><path d="M8 20.5h5M7.5 3.5l3 3 3-3"/><path d="M20 3v4M18 5h4" stroke-width="1.8"/></symbol>
+  <symbol id="i-dropped" viewBox="0 0 24 24"><circle style="fill:currentColor;fill-opacity:var(--d,0)" cx="12" cy="12" r="9"/><path d="M10 9v6M14 9v6"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path style="fill:currentColor;fill-opacity:var(--d,0)" d="M12 21s-6.5-5.4-6.5-11A6.5 6.5 0 0 1 18.5 10c0 5.6-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.3"/></symbol>
+  <symbol id="i-director" viewBox="0 0 24 24"><rect style="fill:currentColor;fill-opacity:var(--d,0)" x="3.5" y="10" width="17" height="10" rx="2"/><path d="m3.6 9.6 15.8-4.2-.9-3.2L2.7 6.4z"/><path d="m7 5.5 2.2 2.6M11.5 4.3l2.2 2.6"/></symbol>
+  <symbol id="i-upcoming" viewBox="0 0 24 24"><rect style="fill:currentColor;fill-opacity:var(--d,0)" x="3.5" y="5" width="17" height="15" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/><path d="M8.5 14.5h3"/></symbol>
+  <symbol id="i-sort" viewBox="0 0 24 24"><path d="M7 4v16M3 16l4 4 4-4M17 20V4M13 8l4-4 4 4"/></symbol>
+  <!-- Ayarlar ve diğer -->
+  <symbol id="i-account" viewBox="0 0 24 24"><circle style="fill:currentColor;fill-opacity:var(--d,0)" cx="12" cy="8.5" r="4"/><path d="M4.5 20a7.5 7.5 0 0 1 15 0"/></symbol>
+  <symbol id="i-cloud" viewBox="0 0 24 24"><path style="fill:currentColor;fill-opacity:var(--d,0)" d="M7 18.5a4.5 4.5 0 0 1-.6-9 6 6 0 0 1 11.6 1.5A3.8 3.8 0 0 1 17.5 18.5z"/><path d="m9.5 13.5 2 2 3.5-3.5"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24"><circle style="fill:currentColor;fill-opacity:var(--d,0)" cx="8" cy="15" r="4.5"/><path d="m11.2 11.8 8.3-8.3M16.5 6.5l2.5 2.5M14.5 8.5l2 2"/></symbol>
+  <symbol id="i-import" viewBox="0 0 24 24"><path d="M12 3.5v11m0 0-4-4m4 4 4-4"/><path style="fill:currentColor;fill-opacity:var(--d,0)" d="M4 15.5v3A2 2 0 0 0 6 20.5h12a2 2 0 0 0 2-2v-3"/></symbol>
+  <symbol id="i-ticket" viewBox="0 0 24 24"><path style="fill:currentColor;fill-opacity:var(--d,0)" d="M5 5h14a1.5 1.5 0 0 1 1.5 1.5v3.2a2.3 2.3 0 0 0 0 4.6v3.2A1.5 1.5 0 0 1 19 19H5a1.5 1.5 0 0 1-1.5-1.5v-3.2a2.3 2.3 0 0 0 0-4.6V6.5A1.5 1.5 0 0 1 5 5z"/><path d="M10.5 9.3v5.4l4.3-2.7z" fill="currentColor"/></symbol>
+  <symbol id="i-popcorn" viewBox="0 0 24 24"><path style="fill:currentColor;fill-opacity:var(--d,0)" d="M5.5 10h13l-1.6 10.2A1.5 1.5 0 0 1 15.4 21.5H8.6a1.5 1.5 0 0 1-1.5-1.3z"/><path d="M10 10l.5 11.5M14 10l-.5 11.5"/><path d="M6 10a2.8 2.8 0 0 1 2.2-4.6A3.4 3.4 0 0 1 14.5 4a3 3 0 0 1 3.6 6"/></symbol>
+  <symbol id="i-guide" viewBox="0 0 24 24"><circle style="fill:currentColor;fill-opacity:var(--d,0)" cx="12" cy="12" r="9"/><path d="M9.6 9.3a2.5 2.5 0 0 1 4.9.7c0 1.7-2.5 2.2-2.5 3.6M12 16.8v.2"/></symbol>
+</defs></svg>
+
+<div class="wrap">
+<div class="cols">
+  <div class="panel" id="pA"><h3>A · Çizgi</h3><p>Yalnız çizgi. Hafif, sade, Apple'ın SF simgelerine yakın.</p><div class="grid"></div>
+    <div class="demo"></div></div>
+  <div class="panel duo" id="pB"><h3>B · Çift ton</h3><p>Çizgi + yarı saydam dolgu. Cam tasarımla daha uyumlu, küçük boyutta daha dolgun görünür.</p><div class="grid"></div>
+    <div class="demo"></div></div>
+</div>
+</div>
+
+<script>
+// Aynı simgeler iki stilde: A çizgi, B çift ton (sınıf "f" olan parçalar yarı saydam dolgulu)
+const icons = [
+  ['search','Ara'],['filter','Filtreler'],['settings','Ayarlar'],['undo','Geri al'],['pass','Geç'],['watched','İzledim'],['want','İstek'],
+  ['discover','Keşfet'],['collection','Koleksiyonum'],['check','İzledim (liste)'],['trash','Sil'],['trailer','Fragman'],['series','Seri'],
+  ['watching','İzliyorum'],['newseason','Yeni sezon'],['dropped','Bıraktım'],['pin','Kaldığın yer'],['director','Yönetmen'],['upcoming','Yakında'],
+  ['sort','Sıralama'],['account','Hesap'],['cloud','Eşitlendi'],['key','API anahtarı'],['import','İçe aktar'],['ticket','Bilet (logo)'],['popcorn','Boş deste'],['guide','Rehber'],
+];
+// B için dolgulu kopyalar: <use> içine CSS ulaşmadığından simgeyi "-d" ekiyle kopyalayıp dolguyu doğrudan yaz
+const defs = document.querySelector('defs');
+[...defs.querySelectorAll('symbol')].forEach(sym => {
+  const c = sym.cloneNode(true); c.id = sym.id + '-d';
+  c.querySelectorAll('[style*="--d"]').forEach(n => n.setAttribute('style', 'fill:currentColor;fill-opacity:.38'));
+  defs.appendChild(c);
+});
+let suffix = '';
+const ic = id => `<svg class="i"><use href="#i-${id}${suffix}"/></svg>`;
+for (const p of ['pA', 'pB']) {
+  suffix = p === 'pB' ? '-d' : '';
+  const el = document.getElementById(p);
+  el.querySelector('.grid').innerHTML = icons.map(([id, t]) => `<div class="ic">${ic(id)}<span>${t}</span></div>`).join('');
+  el.querySelector('.demo').innerHTML = `
+    <span class="act a-sm">${ic('undo')}</span><span class="act a-lg pass">${ic('pass')}</span><span class="act a-md watch">${ic('watched')}</span><span class="act a-lg want">${ic('want')}</span>
+    <div class="bar"><span class="on">${ic('discover')}Keşfet</span><span>${ic('collection')}Koleksiyonum</span></div>
+    <span class="pill tagp">${ic('series')}John Wick serisi · 4/4</span><span class="pill" style="color:#ffd166">${ic('newseason')}Yeni sezon</span>
+    <span class="pill" style="color:#cfe0ff">${ic('pin')}2. sezon 5. bölüm</span><span class="pill" style="color:#ff8a8a">${ic('trailer')}Fragman</span>
+    <span class="pill">${ic('director')}Chad Stahelski</span>`;
+}
+</script>
+</body>
+</html>
