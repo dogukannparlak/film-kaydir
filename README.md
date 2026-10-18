@@ -120,6 +120,9 @@ Tarayıcı testi: headless Chromium/Brave + CDP (Node'un yerleşik `WebSocket`'i
 
 - Dil desteği (i18n): arayüz metinleri tek sözlük dosyasına toplanacak, Türkçe + İngilizce.
 - Ana README İngilizce olacak (Türkçe belge `docs/` altında kalır).
+- Ziyaretçi istatistiği: kendi sayaç (Supabase, çerezsiz: ziyaretçi + kalma süresi) ve Umami. Cloudflare Web Analytics şu an açık.
+- Admin paneli: istatistikler ve yönetim, yalnız site sahibine açık.
+- API anahtarlarını tarayıcıda şifreleme (sunucuda yalnız şifreli hâli) ya da eşitlemeyi kapatma seçeneği.
 
 ## Lisans
 
