@@ -10,7 +10,7 @@ function createCard(it) {
   el.dataset.key = it.key;
   const votes = it.votes >= 1000 ? (it.votes / 1000).toLocaleString('tr-TR', { maximumFractionDigits:1 }) + 'B' : it.votes;
   el.innerHTML = `
-    <img class="poster" src="${IMG}w780${esc(it.poster)}" alt="" draggable="false" onerror="this.style.visibility='hidden'">
+    <img class="poster" src="${IMG}w780${esc(it.poster)}" alt="" draggable="false">
     <div class="shade"></div>
     <div class="stamp stamp-want">İSTİYORUM</div>
     <div class="stamp stamp-pass">GEÇ</div>
@@ -30,6 +30,8 @@ function createCard(it) {
       <p class="overview">${esc(it.overview || 'Özet yükleniyor…')}</p>
       <div class="more">Dokun: özetin tamamı</div>
     </div>`;
+  // Satır içi onerror yerine dinleyici: güvenlik başlığı (CSP) satır içi betiğe izin vermez
+  $('.poster', el).addEventListener('error', e => { e.target.style.visibility = 'hidden'; });
   attachDrag(el);
   return el;
 }

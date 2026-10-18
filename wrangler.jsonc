@@ -5,5 +5,9 @@
   "main": "src/worker.js",
   "compatibility_date": "2026-10-01",
   "assets": { "directory": "./public", "binding": "ASSETS" },
-  "observability": { "enabled": true }
+  "observability": { "enabled": true },
+  // /api/tmdb/* için IP başına dakikada 600 istek (Letterboxd aktarımı ~600 istek/dk'ya kadar çıkabilir)
+  "ratelimits": [
+    { "name": "TMDB_RL", "namespace_id": "1001", "simple": { "limit": 600, "period": 60 } }
+  ]
 }

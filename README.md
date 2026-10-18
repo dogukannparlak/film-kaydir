@@ -25,6 +25,8 @@ Kullanıcı anahtarları tarayıcının `localStorage`'ında durur; giriş yapı
 - Sitenin TMDB anahtarı **Cloudflare'de gizli değişkendir** (secret `TMDB_KEY`): kodda, repoda ve tarayıcıda yoktur;
   repo public olsa da görünmez. Ekleme: Workers & Pages › kaydir › Settings › Variables and secrets › Add › Secret.
 - Yalnız sitenin kendi sayfalarından gelen GET istekleri kabul edilir (`Sec-Fetch-Site` / Origin / Referer).
+- Yalnız sitenin kullandığı TMDB yollarına izin var (`ALLOWED`); IP başına dakikada 600 istek sınırı (`wrangler.jsonc › ratelimits`,
+  köken başlığı taklit edilebildiği için asıl koruma bu). Aşılınca 429 + `Retry-After`; istemci bekleyip en çok 3 kez yeniden dener.
   Yanıtlar 6 saat kenar önbellekte tutulur (aynı istek TMDB'ye tekrar gitmez).
 - Secret yoksa ya da geçersizse site "ortak bağlantı çalışmıyor" der ve kendi anahtarını ister.
 - Yerel deneme için anahtar `.dev.vars` dosyasına yazılır (`TMDB_KEY=…`); bu dosya `.gitignore`'dadır.
@@ -74,6 +76,15 @@ Kullanıcı anahtarları tarayıcının `localStorage`'ında durur; giriş yapı
   Bir cihazda ilk girişte yerel ve bulut birleşir (aynı öğede yeni olan kazanır).
 - Supabase projesi `kaydir` (eu-central-1). Tablolar `items`, `user_state`; RLS: her satır yalnız sahibine açık.
 - E-posta bağlantıları (onay, şifre sıfırlama) yalnız yayındaki adreste çalışır (`file://` değil).
+
+## Güvenlik
+
+- Güvenlik başlıkları `public/_headers`: CSP (betik yalnız bu site + jsDelivr), kare içine gömme yasak, nosniff, referrer.
+  CSP satır içi betiğe izin vermez: `onerror=` gibi satır içi olay yazma, dinleyici kullan.
+- Supabase kütüphanesi SRI (`integrity`) ile yüklenir; sürüm değişirse özeti yeniden hesapla:
+  `curl -s <adres> | openssl dgst -sha384 -binary | openssl base64 -A`.
+- Veritabanı sınırları (kayıt herkese açık): öğe verisi ≤ 16 KB, kullanıcı başına ≤ 20.000 öğe, görülenler ≤ 100.000,
+  filtreler ≤ 16 KB, anahtarlar ≤ 512 karakter (migration `kaydir_size_limits`).
 
 ## Bilinen sınırlar
 

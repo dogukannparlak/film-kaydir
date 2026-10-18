@@ -3,6 +3,16 @@
 // Panelden: Workers & Pages › kaydir › Settings › Variables and secrets › Add › Secret › TMDB_KEY
 const TMDB = 'https://api.themoviedb.org/3';
 const CACHE_SECONDS = 6 * 3600; // aynı liste/detay isteği 6 saat kenar önbellekten döner
+// Yalnız sitenin kullandığı TMDB yolları: ara katman genel amaçlı TMDB vekili olmasın
+const ALLOWED = [
+  /^\/configuration$/,
+  /^\/search\/(movie|tv|multi|collection|person)$/,
+  /^\/discover\/(movie|tv)$/,
+  /^\/(movie|tv)\/\d+(\/videos)?$/,
+  /^\/collection\/\d+$/,
+  /^\/watch\/providers\/(movie|tv)$/,
+  /^\/genre\/(movie|tv)\/list$/,
+];
 
 export default {
   async fetch(request, env, ctx) {
@@ -18,9 +28,14 @@ export default {
 async function tmdbProxy(request, url, env, ctx) {
   if (request.method !== 'GET') return json({ error:'method' }, 405);
   if (!fromOwnSite(request, url)) return json({ error:'origin' }, 403);
+  // IP başına hız sınırı (wrangler.jsonc › ratelimits): köken başlığı taklit edilebildiği için asıl koruma bu
+  if (env.TMDB_RL) {
+    const { success } = await env.TMDB_RL.limit({ key: request.headers.get('cf-connecting-ip') || 'yok' });
+    if (!success) return new Response(JSON.stringify({ error:'rate' }), { status:429, headers:{ 'content-type':'application/json; charset=utf-8', 'cache-control':'no-store', 'retry-after':'10' } });
+  }
   if (!env.TMDB_KEY) return json({ error:'no_key' }, 503);
   const path = url.pathname.slice('/api/tmdb'.length); // /discover/movie
-  if (!/^(\/[a-z0-9_-]+)+$/i.test(path)) return json({ error:'path' }, 400);
+  if (!ALLOWED.some(re => re.test(path))) return json({ error:'path' }, 400);
 
   // Önbellek anahtarı anahtarsız genel adres: aynı istek herkese aynı yanıtı verir
   const cache = caches.default, cacheKey = new Request(url.toString());

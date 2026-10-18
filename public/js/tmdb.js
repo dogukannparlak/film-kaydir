@@ -11,7 +11,13 @@ async function tmdb(path, params = {}) {
   if (own && S.apiKey.startsWith('eyJ')) headers.Authorization = 'Bearer ' + S.apiKey;
   else if (own) url.searchParams.set('api_key', S.apiKey);
   for (const [k, v] of Object.entries(params)) if (v !== undefined && v !== null && v !== '') url.searchParams.set(k, v);
-  const r = await fetch(url, { headers });
+  // Ortak bağlantıda hız sınırı (429): bekleyip en çok 3 kez yeniden dene
+  let r;
+  for (let attempt = 0; ; attempt++) {
+    r = await fetch(url, { headers });
+    if (r.status !== 429 || attempt >= 3) break;
+    await new Promise(res => setTimeout(res, (+r.headers.get('retry-after') || 2 + attempt * 3) * 1000));
+  }
   // Ortak bağlantı çalışmıyor (sunucu anahtarı yok/geçersiz, ara katman yok): kendi anahtarını isteyelim
   if (!own && [401, 403, 404, 503].includes(r.status)) { S.proxyDown = true; throw new AuthError('proxy'); }
   if (r.status === 401) throw new AuthError('auth');
