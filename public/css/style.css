@@ -468,3 +468,9 @@ nav.tabs button,#viewLists .seg button{position:relative;z-index:1;background:no
 #viewLists .seg{border-radius:14px;padding:4px;margin:4px 10px 10px}
 #viewLists .seg .tab-ind{top:4px;bottom:4px;left:4px;width:calc((100% - 8px) / var(--n,4));border-radius:10px}
 #viewLists .seg button{border-radius:10px;padding:9px 2px;white-space:nowrap;min-width:0}
+
+/* Ortalama: ✕ 👁 ♥ üçlüsü ekranın tam ortasında (👁 merkezde), geri al ✕'in solunda; süzgeç satırı sığarsa ortada */
+.actions,.app.on-discover .actions{display:grid;grid-template-columns:1fr auto auto auto 1fr;align-items:center;justify-items:center}
+.actions .act-undo{grid-column:1;justify-self:end}
+.actions .act-pass{grid-column:2} .actions .act-watched{grid-column:3} .actions .act-want{grid-column:4}
+.lfilters{justify-content:safe center}
