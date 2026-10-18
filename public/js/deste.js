@@ -12,6 +12,7 @@ function renderDeck(keyMsg) {
   if (!tmdbReady()) { deck.innerHTML = keyBoxHTML(keyMsg ?? S.keyMsg); bindKeyBox(); return; }
   $('.keybox', deck)?.remove();
   const top = S.queue.slice(0, 3);
+  setAmbient(top[0]?.poster);
   const live = $$('.card:not(.leaving)', deck);
   live.forEach(el => { if (!top.some(t => t.key === el.dataset.key)) el.remove(); });
   top.forEach((it, i) => {
@@ -35,4 +36,17 @@ function updateDeckStatus() {
   else if (E.error) st.innerHTML = `<div>Bağlantı hatası: ${esc(E.error.message)}</div><button class="btn btn-primary" data-retry>Tekrar dene</button>`;
   else if (E.exhausted) st.innerHTML = `<div style="font-size:34px">🍿</div><div>Bu filtrelerle gösterilecek yeni içerik kalmadı.</div><button class="btn btn-primary" data-open-filters>Filtreleri değiştir</button>`;
   else st.innerHTML = '<div class="spinner"></div>';
+}
+// Cam görünümü: üstteki kartın afişi sayfanın arkasında bulanık yansır (değişince yumuşak geçiş)
+let ambientPoster = null;
+function setAmbient(poster) {
+  if (poster === ambientPoster) return;
+  ambientPoster = poster;
+  const el = $('#ambient');
+  if (!el) return;
+  el.style.opacity = '0';
+  setTimeout(() => {
+    el.style.backgroundImage = poster ? `url("${IMG}w300${encodeURI(poster)}")` : '';
+    el.style.opacity = '';
+  }, poster ? 200 : 0);
 }

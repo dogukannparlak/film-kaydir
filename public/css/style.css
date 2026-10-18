@@ -322,3 +322,55 @@ nav.tabs{padding-bottom:env(safe-area-inset-bottom)}
   .more{display:none}
   .scores{margin-top:5px}
 }
+
+/* ================= Cam (glassmorphism) ================= */
+/* Yüzeyler yarı saydam; sabit öğeler (üst/alt çubuk, düğmeler, alt sayfalar, bildirim, kart bilgisi) bulanık cam.
+   Uzun listelerin satırlarında bulanıklık yok (telefonda pahalı), yalnız saydamlık ve parlak kenar. */
+:root{
+  --surface:rgba(255,255,255,.055); --surface-2:rgba(255,255,255,.09); --line:rgba(255,255,255,.12);
+  --glass:rgba(22,22,34,.42); --glass-strong:rgba(18,18,30,.62); --glass-edge:rgba(255,255,255,.16);
+  --glass-hi:inset 0 1px 0 rgba(255,255,255,.14); --blur:blur(18px) saturate(160%);
+}
+body{background:
+  radial-gradient(55% 38% at 12% 8%, rgba(167,139,250,.30), transparent 62%),
+  radial-gradient(45% 35% at 92% 28%, rgba(59,130,246,.22), transparent 62%),
+  radial-gradient(60% 45% at 50% 105%, rgba(236,72,153,.20), transparent 62%), var(--bg);
+  background-attachment:fixed}
+.ambient{position:fixed;inset:-12%;z-index:0;pointer-events:none;background:center/cover no-repeat;
+  filter:blur(64px) saturate(1.7);opacity:.42;transition:opacity .5s var(--ease)}
+.app{position:relative;z-index:1}
+/* Cam yüzeyler */
+.icon-btn,.act,.seg,.lsearch-box,.lsort,.keybox,.deck-status .btn,.toast{
+  background:var(--glass);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);
+  border:1px solid var(--glass-edge);box-shadow:var(--glass-hi),0 8px 28px rgba(0,0,0,.28)}
+.act{box-shadow:var(--glass-hi),0 10px 30px rgba(0,0,0,.4)}
+.act-want{background:rgba(34,197,94,.14)} .act-pass{background:rgba(244,63,94,.12)} .act-watched{background:rgba(59,130,246,.14)}
+nav.tabs{background:rgba(12,12,20,.45);-webkit-backdrop-filter:var(--blur);backdrop-filter:var(--blur);border-top:1px solid var(--glass-edge)}
+.sheet{background:var(--glass-strong);-webkit-backdrop-filter:blur(28px) saturate(180%);backdrop-filter:blur(28px) saturate(180%);
+  border:1px solid var(--glass-edge);border-bottom:0;box-shadow:var(--glass-hi),0 -12px 48px rgba(0,0,0,.5)}
+.backdrop{background:rgba(5,5,10,.35);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+.toast{background:rgba(30,30,48,.6)}
+.chip,.btn,.field,.pill,.lfilters select,.ep{background-color:rgba(255,255,255,.07);border-color:var(--glass-edge)}
+.btn-primary{background:rgba(255,255,255,.92);color:#111}
+.chip[aria-pressed="true"]{background:rgba(255,255,255,.9);color:#111}
+.field{background:rgba(0,0,0,.25)}
+/* Kart: alt bilgi cam panel (afiş arkadan görünür) */
+.shade{background:linear-gradient(to bottom,rgba(0,0,0,0) 55%,rgba(6,6,12,.35))}
+.info{left:8px;right:8px;bottom:8px;border-radius:18px;padding:14px 14px 14px;
+  background:rgba(14,14,24,.38);-webkit-backdrop-filter:blur(16px) saturate(150%);backdrop-filter:blur(16px) saturate(150%);
+  border:1px solid rgba(255,255,255,.14);box-shadow:inset 0 1px 0 rgba(255,255,255,.12)}
+.card{border:1px solid rgba(255,255,255,.1)}
+/* Liste satırları ve seri kutuları: saydam, bulanıklıksız */
+.item{background:rgba(255,255,255,.05);border-color:rgba(255,255,255,.1);box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.sheet-list .item{background:rgba(255,255,255,.05)}
+.coll{background:rgba(167,139,250,.08)}
+.seg button[aria-selected="true"]{background:rgba(255,255,255,.12)}
+/* Bulanıklığı desteklemeyen tarayıcılar: daha koyu, okunur zemin */
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){
+  .icon-btn,.act,.seg,.lsearch-box,.lsort,.keybox,.toast,nav.tabs,.info{background:rgba(20,20,32,.92)}
+  .sheet{background:rgba(18,18,28,.97)}
+}
+@media (prefers-reduced-transparency:reduce){
+  .ambient{display:none}
+  .info,.sheet,nav.tabs{background:rgba(18,18,28,.95)}
+}
