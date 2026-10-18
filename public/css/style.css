@@ -374,3 +374,34 @@ nav.tabs{background:rgba(12,12,20,.45);-webkit-backdrop-filter:var(--blur);backd
   .ambient{display:none}
   .info,.sheet,nav.tabs{background:rgba(18,18,28,.95)}
 }
+
+/* ================= 2026-10-18: kart eski düzen, telefonda tam ekran kart, sürüklenen cam alt sayfalar ================= */
+/* Kart yazısı yine posterin üstünde (ayrı cam panel yok) */
+.info{left:0;right:0;bottom:0;border-radius:0;background:none;-webkit-backdrop-filter:none;backdrop-filter:none;border:0;box-shadow:none;padding:18px 18px 20px}
+.shade{background:linear-gradient(to bottom,rgba(0,0,0,0) 36%,rgba(6,6,12,.78) 66%,rgba(6,6,12,.97))}
+/* Telefon: kart ekranı doldurur (9:16'ya yakın); üst çubuk, özet ve eylem düğmeleri kartın üstünde yüzer */
+@media (max-width:600px){
+  .app.on-discover header{position:absolute;top:0;left:0;right:0;z-index:30;pointer-events:none;
+    background:linear-gradient(to bottom,rgba(5,5,10,.6),rgba(5,5,10,0))}
+  .app.on-discover header > *{pointer-events:auto}
+  #viewDiscover{position:relative}
+  .app.on-discover .summary{position:absolute;top:calc(env(safe-area-inset-top) + 52px);left:0;right:0;z-index:25;
+    padding:0 16px;color:rgba(255,255,255,.8);text-shadow:0 1px 6px rgba(0,0,0,.7)}
+  .app.on-discover .deck-wrap{padding:calc(env(safe-area-inset-top) + 4px) 6px 6px}
+  .app.on-discover .card{border-radius:26px}
+  .app.on-discover .shade{background:linear-gradient(to bottom,rgba(0,0,0,.45),rgba(0,0,0,0) 20%,rgba(0,0,0,0) 34%,rgba(6,6,12,.8) 62%,rgba(6,6,12,.98))}
+  .app.on-discover .info{padding:14px 16px 104px} /* eylem düğmelerine yer */
+  .app.on-discover .actions{position:absolute;left:0;right:0;bottom:14px;z-index:25;padding:0}
+  .app.on-discover .coll-tag-wrap{top:calc(env(safe-area-inset-top) + 80px)}
+  .app.on-discover .stamp{top:130px}
+  .app.on-discover .deck-status{padding-top:90px}
+}
+/* Alt sayfa: daha açık cam, bölümler ayrı cam kartlar, tutamak sürüklenir */
+.sheet{background:rgba(26,26,42,.46);-webkit-backdrop-filter:blur(32px) saturate(180%);backdrop-filter:blur(32px) saturate(180%)}
+.grip{width:46px;height:5px;background:rgba(255,255,255,.35);margin:10px auto 2px}
+.grip,.sheet-head{touch-action:none;cursor:grab}
+.sheet-body section{background:rgba(255,255,255,.06);border:1px solid var(--glass-edge);border-radius:18px;padding:14px;margin:10px 0;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.1)}
+.sheet-body section:last-child{border-bottom:1px solid var(--glass-edge)}
+.sheet-foot{background:rgba(255,255,255,.04)}
+.backdrop{background:rgba(5,5,10,.3)}
