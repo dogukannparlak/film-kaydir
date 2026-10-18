@@ -11,5 +11,4 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
       <span>Koleksiyonum<span class="dot hidden" id="navDot" title="İstek listesindekiler"></span></span>
     </button>
   </nav>
-  <div class="attrib">This product uses the TMDB API but is not endorsed or certified by TMDB.</div>
 `);
