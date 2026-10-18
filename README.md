@@ -116,6 +116,11 @@ Yapı (html/ parçaları, css/, js/ modülleri): [docs/mimari.md](docs/mimari.md
 Testler elle ve sahte `fetch` ile yapılır (bkz. mimari belgesinde "Test").
 Tarayıcı testi: headless Chromium/Brave + CDP (Node'un yerleşik `WebSocket`'i), sahte `fetch` ile.
 
+## Yol haritası
+
+- Dil desteği (i18n): arayüz metinleri tek sözlük dosyasına toplanacak, Türkçe + İngilizce.
+- Ana README İngilizce olacak (Türkçe belge `docs/` altında kalır).
+
 ## Lisans
 
 [PolyForm Noncommercial License 1.0.0](LICENSE) · © 2026 Doğukan Parlak ([dogukanparlak.com](https://dogukanparlak.com)).
