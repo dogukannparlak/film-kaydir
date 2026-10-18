@@ -531,3 +531,7 @@ nav.tabs svg.i{width:21px;height:21px}
 .acc-who svg.i{color:var(--accent)}
 .sc-trailer,.score-trailer,.pill-prog,.pill-bulk,.coll-tag{display:inline-flex;align-items:center;gap:5px}
 .item-sub svg.i{margin-right:4px}
+.guide-body a{color:#c4b5fd}
+.guide-settings{margin:4px auto 2px}
+.guide-card{max-height:calc(100dvh - 32px);overflow-y:auto;overscroll-behavior:contain}
+.guide-body{min-height:0}

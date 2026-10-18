@@ -11,6 +11,11 @@ const GUIDE_STEPS = [
     </ul><p>Alttaki düğmeler de aynı işi yapar. Yanlış mı kaydırdın? Geri al düğmesiyle geri al. Kartın üstüne dokununca özetin tamamı açılır.</p>` },
   { icon:'filter', title:'Filtrele ve ara', text:'Üstteki düğmelerle tür, dönem, puan ve platforma göre filtrele ya da aklındaki filmi doğrudan ara.' },
   { icon:'collection', title:'Koleksiyonun', text:'Alttaki Koleksiyonum sekmesinde İstek, İzledim ve Geç listelerin durur. Dizilerde kaldığın bölümü de işaretleyebilirsin.' },
+  { icon:'key', title:'API anahtarları', html:`<ul class="guide-moves">
+      <li><b>TMDB</b> · film ve dizi verisi. <b>Gerekmez:</b> site ortak bağlantıyla çalışır. İstersen kendi anahtarını girersin.</li>
+      <li><b>OMDb</b> · isteğe bağlı. Kartlara <b>IMDb, Rotten Tomatoes ve Metacritic</b> puanlarını ve IMDb/RT sıralamasını açar.</li>
+    </ul><p>Ücretsiz OMDb anahtarı: <a href="https://www.omdbapi.com/apikey.aspx" target="_blank" rel="noopener">omdbapi.com/apikey.aspx</a> → FREE, e-postadan etkinleştir, Ayarlar'a yapıştır. Giriş yaparsan anahtarların hesabınla her cihaza gelir.</p>
+    <button class="btn btn-ico guide-settings" data-guide-settings>${ico('settings')} Ayarlar'ı aç</button>` },
   { icon:'account', title:'Hesapla mı, hesapsız mı?', account:true },
 ];
 let guideStep = 0;
@@ -45,6 +50,7 @@ function initGuide() {
   $('#guideBody').addEventListener('click', e => {
     const b = e.target.closest('[data-acc]');
     if (b) { closeGuide(); openAccount(b.dataset.acc); }
+    if (e.target.closest('[data-guide-settings]')) { closeGuide(); openSettings(); }
   });
   $('#btnGuide').onclick = () => { closeSheet(); openGuide(); };
   if (!store.get(K.guide, 0)) openGuide();
