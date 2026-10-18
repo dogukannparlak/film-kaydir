@@ -405,3 +405,35 @@ nav.tabs{background:rgba(12,12,20,.45);-webkit-backdrop-filter:var(--blur);backd
 .sheet-body section:last-child{border-bottom:1px solid var(--glass-edge)}
 .sheet-foot{background:rgba(255,255,255,.04)}
 .backdrop{background:rgba(5,5,10,.3)}
+
+/* ================= Alt sekme: yüzen cam kapsül + kayan vurgu ================= */
+nav.tabs{position:relative;flex:none;width:min(calc(100% - 24px),440px);margin:6px auto calc(8px + env(safe-area-inset-bottom));padding:5px;
+  border-radius:999px;border:1px solid var(--glass-edge);background:rgba(20,20,34,.5);
+  -webkit-backdrop-filter:blur(22px) saturate(180%);backdrop-filter:blur(22px) saturate(180%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14),0 10px 30px rgba(0,0,0,.45);touch-action:none;user-select:none;-webkit-user-select:none}
+.tab-ind{position:absolute;top:5px;bottom:5px;left:5px;width:calc((100% - 10px) / 2);border-radius:999px;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,.1));border:1px solid rgba(255,255,255,.25);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 4px 14px rgba(0,0,0,.35);
+  transform:translateX(calc(var(--i,0) * 100%));transition:transform .38s cubic-bezier(.3,1.35,.5,1)}
+nav.tabs.dragging .tab-ind{transform:scale(1.04)}
+nav.tabs button{position:relative;z-index:1;flex-direction:row;justify-content:center;gap:8px;padding:10px 0;font-size:13.5px;border-radius:999px;
+  color:rgba(255,255,255,.6);transition:color .25s}
+nav.tabs button[aria-selected="true"],nav.tabs button.hover{color:#fff}
+nav.tabs button[aria-selected="true"] svg{color:var(--accent);filter:drop-shadow(0 0 6px rgba(167,139,250,.6))}
+nav.tabs.dragging button[aria-selected="true"]:not(.hover){color:rgba(255,255,255,.6)}
+nav.tabs.dragging button[aria-selected="true"]:not(.hover) svg{color:inherit;filter:none}
+nav.tabs button svg{width:20px;height:20px}
+
+/* ================= Koleksiyonum: cam ================= */
+/* Satırlar bulanık cam; ekran dışındaki satırlar çizilmez (content-visibility), yüzlerce satırda akıcı kalsın */
+.list .item,.list .coll{-webkit-backdrop-filter:blur(14px) saturate(150%);backdrop-filter:blur(14px) saturate(150%);
+  border:1px solid var(--glass-edge);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 6px 20px rgba(0,0,0,.25);
+  content-visibility:auto;contain-intrinsic-size:auto 190px}
+.list .item{background:rgba(24,24,38,.38)}
+.list .coll{background:rgba(167,139,250,.12)}
+.lgroup .coll-parts .item,.coll-parts .item{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(255,255,255,.05);content-visibility:visible}
+#viewLists .seg{background:rgba(20,20,34,.45)}
+.seg button[aria-selected="true"]{background:linear-gradient(180deg,rgba(255,255,255,.2),rgba(255,255,255,.08));border:1px solid rgba(255,255,255,.22);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
+.lfilters select{-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.pill-ico{background:rgba(255,255,255,.08);border:1px solid var(--glass-edge)}

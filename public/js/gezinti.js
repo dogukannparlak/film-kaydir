@@ -1,11 +1,13 @@
 'use strict';
 /* ================= Gezinti ve sheet ================= */
+const TAB_VIEWS = ['discover', 'lists'];
 function setView(v) {
   S.view = v;
   $('#viewDiscover').classList.toggle('active', v === 'discover');
   $('#viewLists').classList.toggle('active', v === 'lists');
   $('.app').classList.toggle('on-discover', v === 'discover'); // telefonda üst çubuk kartın üstünde yüzer
   $$('nav.tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.view === v));
+  $('nav.tabs').style.setProperty('--i', TAB_VIEWS.indexOf(v)); // vurgu kapsülü etkin sekmeye kayar
   if (v === 'lists') { seriesOrder = null; listOrder = null; renderList(); }
 }
 let openSheetEl = null;
@@ -92,4 +94,46 @@ function initSheetDrag() {
   });
   document.addEventListener('mousemove', e => sheetDrag && sheetDragMove(e.clientY, e));
   document.addEventListener('mouseup', sheetDragEnd);
+}
+
+/* ---- Alt sekme çubuğu: iOS gibi parmakla sağa sola kaydırarak sekme değiştirme ---- */
+// Dokunup kaydırınca vurgu kapsülü parmağı izler; bırakınca hangi sekmenin üstündeyse ona geçer. Kısa dokunuş normal tıklamadır.
+function initTabDrag() {
+  const nav = $('nav.tabs'), ind = $('.tab-ind', nav);
+  let st = null;
+  nav.addEventListener('pointerdown', e => {
+    const r = nav.getBoundingClientRect();
+    st = { x0:e.clientX, moved:false, r, w:ind.offsetWidth, id:e.pointerId };
+  });
+  nav.addEventListener('pointermove', e => {
+    if (!st) return;
+    if (!st.moved) {
+      if (Math.abs(e.clientX - st.x0) < 8) return;
+      st.moved = true;
+      nav.setPointerCapture(st.id);
+      ind.style.transition = 'none';
+      nav.classList.add('dragging');
+    }
+    // Kapsülün ortası parmağın altında; iki sekme arasında sınırla
+    const pad = 5, x = Math.min(Math.max(e.clientX - st.r.left - pad - st.w / 2, 0), st.r.width - pad * 2 - st.w);
+    ind.style.transform = `translateX(${x}px)`;
+    const over = e.clientX < st.r.left + st.r.width / 2 ? 0 : 1;
+    $$('button', nav).forEach((b, k) => b.classList.toggle('hover', k === over));
+  });
+  const end = e => {
+    if (!st) return;
+    const s = st; st = null;
+    if (!s.moved) return;
+    ind.style.transition = ''; ind.style.transform = '';
+    nav.classList.remove('dragging');
+    $$('button', nav).forEach(b => b.classList.remove('hover'));
+    const v = TAB_VIEWS[e.clientX < s.r.left + s.r.width / 2 ? 0 : 1];
+    if (v !== S.view) setView(v);
+    // Sürüklemeden sonra gelen tıklama sekmeyi geri çevirmesin
+    const block = ev => { ev.stopPropagation(); ev.preventDefault(); };
+    nav.addEventListener('click', block, true);
+    setTimeout(() => nav.removeEventListener('click', block, true), 300);
+  };
+  nav.addEventListener('pointerup', end);
+  nav.addEventListener('pointercancel', end);
 }

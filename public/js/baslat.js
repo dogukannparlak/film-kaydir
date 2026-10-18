@@ -88,6 +88,7 @@ function init() {
   if (tmdbReady()) loadProviders();
   initAccount();
   initSheetDrag();
+  initTabDrag();
   initGuide();
   setTimeout(checkNewSeasons, 4000); // izlenen dizilerde yeni sezon (12 saatte bir)
 }
