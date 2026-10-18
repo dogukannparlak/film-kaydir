@@ -35,7 +35,8 @@ Kullanıcı anahtarları tarayıcının `localStorage`'ında durur; giriş yapı
 
 - Kaydırma (fare, dokunma, klavye ← → ↑), geri al.
 - Telefonda kart ekranı doldurur (9:16'ya yakın); üst çubuk, özet ve eylem düğmeleri kartın üstünde yüzer.
-- Alt sekme çubuğu yüzen cam kapsül; etkin sekmenin arkasında vurgu. Parmakla sağa sola kaydırarak sekme değişir (iOS gibi).
+- Alt sekme çubuğu ve Koleksiyonum üstündeki İstek/İzledim/Geçtim/Seriler çubuğu yüzen cam kapsül; etkin sekmenin arkasında
+  parlak vurgu. Parmakla sağa sola kaydırarak sekme değişir (iOS gibi).
 - Alt sayfalar (Ayarlar, Filtreler, Arama, Bölüm) aşağı sürüklenerek kapanır: yarısından fazla çekilirse kapanır, azsa geri döner.
   İçerik en üstteyken içerikten de çekilebilir.
 - Arama (🔍 ya da `/`): bütün TMDB'de film/dizi; kişi adı (yönetmen, oyuncu) yazınca bilinen işleri de gelir.

@@ -33,6 +33,7 @@ function init() {
     S.listTab = b.dataset.tab;
     seriesOrder = null; listOrder = null; shownKeys = new Set();
     $$('#listTabs button').forEach(x => x.setAttribute('aria-selected', x === b));
+    $('#listTabs').style.setProperty('--i', $$('#listTabs button').indexOf(b));
     renderList();
   });
   const lfChange = () => {

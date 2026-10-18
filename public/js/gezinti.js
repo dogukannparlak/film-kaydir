@@ -96,44 +96,46 @@ function initSheetDrag() {
   document.addEventListener('mouseup', sheetDragEnd);
 }
 
-/* ---- Alt sekme çubuğu: iOS gibi parmakla sağa sola kaydırarak sekme değiştirme ---- */
+/* ---- Kaydırmalı sekme çubukları (alt çubuk + Koleksiyonum üstü): iOS gibi parmakla sağa sola ---- */
 // Dokunup kaydırınca vurgu kapsülü parmağı izler; bırakınca hangi sekmenin üstündeyse ona geçer. Kısa dokunuş normal tıklamadır.
-function initTabDrag() {
-  const nav = $('nav.tabs'), ind = $('.tab-ind', nav);
+function initSlider(bar, onSelect) {
+  const ind = $('.tab-ind', bar), btns = $$('button', bar);
   let st = null;
-  nav.addEventListener('pointerdown', e => {
-    const r = nav.getBoundingClientRect();
-    st = { x0:e.clientX, moved:false, r, w:ind.offsetWidth, id:e.pointerId };
-  });
-  nav.addEventListener('pointermove', e => {
+  const idxAt = (x, r) => Math.min(btns.length - 1, Math.max(0, Math.floor((x - r.left) / (r.width / btns.length))));
+  bar.addEventListener('pointerdown', e => { st = { x0:e.clientX, moved:false, r:bar.getBoundingClientRect(), w:ind.offsetWidth, id:e.pointerId }; });
+  bar.addEventListener('pointermove', e => {
     if (!st) return;
     if (!st.moved) {
       if (Math.abs(e.clientX - st.x0) < 8) return;
       st.moved = true;
-      nav.setPointerCapture(st.id);
+      bar.setPointerCapture(st.id);
       ind.style.transition = 'none';
-      nav.classList.add('dragging');
+      bar.classList.add('dragging');
     }
-    // Kapsülün ortası parmağın altında; iki sekme arasında sınırla
-    const pad = 5, x = Math.min(Math.max(e.clientX - st.r.left - pad - st.w / 2, 0), st.r.width - pad * 2 - st.w);
+    const pad = parseFloat(getComputedStyle(ind).left) || 0;
+    const x = Math.min(Math.max(e.clientX - st.r.left - pad - st.w / 2, 0), st.r.width - pad * 2 - st.w);
     ind.style.transform = `translateX(${x}px)`;
-    const over = e.clientX < st.r.left + st.r.width / 2 ? 0 : 1;
-    $$('button', nav).forEach((b, k) => b.classList.toggle('hover', k === over));
+    const over = idxAt(e.clientX, st.r);
+    btns.forEach((b, k) => b.classList.toggle('hover', k === over));
   });
   const end = e => {
     if (!st) return;
     const s = st; st = null;
     if (!s.moved) return;
     ind.style.transition = ''; ind.style.transform = '';
-    nav.classList.remove('dragging');
-    $$('button', nav).forEach(b => b.classList.remove('hover'));
-    const v = TAB_VIEWS[e.clientX < s.r.left + s.r.width / 2 ? 0 : 1];
-    if (v !== S.view) setView(v);
-    // Sürüklemeden sonra gelen tıklama sekmeyi geri çevirmesin
+    bar.classList.remove('dragging');
+    btns.forEach(b => b.classList.remove('hover'));
+    onSelect(idxAt(e.clientX, s.r));
+    // Sürüklemeden sonra gelen tıklama seçimi geri çevirmesin
     const block = ev => { ev.stopPropagation(); ev.preventDefault(); };
-    nav.addEventListener('click', block, true);
-    setTimeout(() => nav.removeEventListener('click', block, true), 300);
+    bar.addEventListener('click', block, true);
+    setTimeout(() => bar.removeEventListener('click', block, true), 300);
   };
-  nav.addEventListener('pointerup', end);
-  nav.addEventListener('pointercancel', end);
+  bar.addEventListener('pointerup', end);
+  bar.addEventListener('pointercancel', end);
+}
+function initTabDrag() {
+  initSlider($('nav.tabs'), i => { if (TAB_VIEWS[i] !== S.view) setView(TAB_VIEWS[i]); });
+  // Koleksiyonum sekmeleri: düğmenin kendi işleyicisini doğrudan çağır (tıklama olayı engelli)
+  initSlider($('#listTabs'), i => { const b = $$('#listTabs button')[i]; if (b.dataset.tab !== S.listTab) b.onclick(); });
 }

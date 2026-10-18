@@ -3,7 +3,8 @@
 document.currentScript.insertAdjacentHTML('beforebegin', `
   <!-- LİSTELER -->
   <section class="view" id="viewLists">
-    <div class="seg" role="tablist" id="listTabs">
+    <div class="seg" role="tablist" id="listTabs" style="--i:0;--n:4">
+      <span class="tab-ind" aria-hidden="true"></span>
       <button role="tab" data-tab="want" aria-selected="true"><i class="seg-dot"></i>İstek <small id="cWant">0</small></button>
       <button role="tab" data-tab="watched" aria-selected="false"><i class="seg-dot"></i>İzledim <small id="cWatched">0</small></button>
       <button role="tab" data-tab="passed" aria-selected="false"><i class="seg-dot"></i>Geçtim <small id="cPassed">0</small></button>

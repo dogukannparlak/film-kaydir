@@ -437,3 +437,29 @@ nav.tabs button svg{width:20px;height:20px}
   box-shadow:inset 0 1px 0 rgba(255,255,255,.3)}
 .lfilters select{-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
 .pill-ico{background:rgba(255,255,255,.08);border:1px solid var(--glass-edge)}
+
+/* ================= Belirgin cam: iki sekme çubuğu ortak (yüzen kapsül + kayan vurgu) ================= */
+nav.tabs,#viewLists .seg{position:relative;padding:5px;border-radius:999px;touch-action:none;user-select:none;-webkit-user-select:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.13),rgba(255,255,255,.04));
+  -webkit-backdrop-filter:blur(26px) saturate(210%) brightness(1.08);backdrop-filter:blur(26px) saturate(210%) brightness(1.08);
+  border:1px solid rgba(255,255,255,.26);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),inset 0 -1px 0 rgba(255,255,255,.08),0 12px 34px rgba(0,0,0,.45)}
+/* üst kenarda ışık yansıması */
+nav.tabs::before,#viewLists .seg::before{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,0) 45%)}
+#viewLists .seg{gap:0;margin:4px 12px 10px}
+.tab-ind{position:absolute;top:5px;bottom:5px;left:5px;width:calc((100% - 10px) / var(--n,2));border-radius:999px;pointer-events:none;z-index:0;
+  background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,.12));
+  -webkit-backdrop-filter:blur(6px) brightness(1.35) saturate(160%);backdrop-filter:blur(6px) brightness(1.35) saturate(160%);
+  border:1px solid rgba(255,255,255,.45);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -2px 6px rgba(255,255,255,.08),0 6px 18px rgba(0,0,0,.35),0 0 0 .5px rgba(0,0,0,.2);
+  transform:translateX(calc(var(--i,0) * 100%));transition:transform .4s cubic-bezier(.3,1.35,.5,1)}
+nav.tabs button,#viewLists .seg button{position:relative;z-index:1;background:none!important;border:0!important;box-shadow:none!important}
+#viewLists .seg button{color:rgba(255,255,255,.6);transition:color .25s}
+#viewLists .seg button[aria-selected="true"],#viewLists .seg button.hover{color:#fff}
+#viewLists .seg.dragging button[aria-selected="true"]:not(.hover){color:rgba(255,255,255,.6)}
+/* Liste satırları da daha belirgin cam */
+.list .item{background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.035));border-color:rgba(255,255,255,.2);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 8px 24px rgba(0,0,0,.3)}
+.lsearch-box,.lsort,.lfilters select{background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,.04));border-color:rgba(255,255,255,.22);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.25)}
