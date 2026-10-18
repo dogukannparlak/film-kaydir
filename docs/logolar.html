@@ -92,9 +92,100 @@
       <rect x="28" y="22" width="64" height="30" rx="14" fill="url(#gGlass)" opacity=".35"/>
       <path d="M60 80s-16-9.5-16-21a9 9 0 0 1 16-5.6A9 9 0 0 1 76 59c0 11.5-16 21-16 21z" fill="#fff"/>
     </symbol>
+
+    <!-- ===== 2. tur: 1 ve 2'nin kart + kaydırma fikri, film/dizi işaretiyle ===== -->
+    <!-- A · Film kartı kayıyor: eğik kart, kenarlarında film delikleri, ortada oynat, arkasında kaydırma izi -->
+    <symbol id="A" viewBox="0 0 120 120">
+      <rect width="120" height="120" rx="28" fill="url(#gBg)"/>
+      <rect x="26" y="26" width="46" height="66" rx="10" fill="#fff" fill-opacity=".12" stroke="#fff" stroke-opacity=".22"/>
+      <g transform="rotate(13 66 60)">
+        <rect x="40" y="24" width="50" height="70" rx="10" fill="url(#gAcc)"/>
+        <g fill="#0d0d18" fill-opacity=".55"><rect x="44" y="30" width="5" height="6" rx="1.5"/><rect x="44" y="42" width="5" height="6" rx="1.5"/><rect x="44" y="54" width="5" height="6" rx="1.5"/><rect x="44" y="66" width="5" height="6" rx="1.5"/><rect x="44" y="78" width="5" height="6" rx="1.5"/>
+          <rect x="81" y="30" width="5" height="6" rx="1.5"/><rect x="81" y="42" width="5" height="6" rx="1.5"/><rect x="81" y="54" width="5" height="6" rx="1.5"/><rect x="81" y="66" width="5" height="6" rx="1.5"/><rect x="81" y="78" width="5" height="6" rx="1.5"/></g>
+        <path d="M59 47v24l19-12z" fill="#fff"/>
+      </g>
+      <path d="M80 102h16m0 0-5-5m5 5-5 5" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </symbol>
+
+    <!-- B · Klaket kart: kartın üstü klaket çubuğu, kart sağa kayıyor -->
+    <symbol id="B" viewBox="0 0 120 120">
+      <rect width="120" height="120" rx="28" fill="url(#gBg)"/>
+      <path d="M16 50h12M12 62h16M16 74h12" stroke="#a78bfa" stroke-width="4" stroke-linecap="round" opacity=".7"/>
+      <g transform="rotate(8 64 62)">
+        <rect x="36" y="40" width="58" height="56" rx="10" fill="url(#gAcc)"/>
+        <g transform="rotate(-14 38 38)"><rect x="36" y="24" width="58" height="14" rx="4" fill="#fff"/>
+          <path d="M46 24l-6 14M60 24l-6 14M74 24l-6 14M88 24l-6 14" stroke="#1a1430" stroke-width="5"/></g>
+        <path d="M58 56v24l20-12z" fill="#fff"/>
+      </g>
+    </symbol>
+
+    <!-- C · Film + dizi: arkada televizyon (dizi), önde eğik film kartı (oynat) -->
+    <symbol id="C" viewBox="0 0 120 120">
+      <rect width="120" height="120" rx="28" fill="url(#gBg)"/>
+      <path d="M34 28l8 8M58 28l-8 8" stroke="#fff" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/>
+      <rect x="18" y="36" width="56" height="42" rx="9" fill="#fff" fill-opacity=".14" stroke="#fff" stroke-opacity=".45" stroke-width="2"/>
+      <g transform="rotate(12 76 70)">
+        <rect x="56" y="44" width="40" height="56" rx="9" fill="url(#gAcc)"/>
+        <path d="M70 61v22l17-11z" fill="#fff"/>
+      </g>
+    </symbol>
+
+    <!-- D · Oynat-kart + film şeridi: 2'nin geliştirilmiş hali, kart kenarı film şeridi -->
+    <symbol id="D" viewBox="0 0 120 120">
+      <rect width="120" height="120" rx="28" fill="url(#gBg)"/>
+      <path d="M14 46h14M10 60h18M14 74h14" stroke="#a78bfa" stroke-width="4" stroke-linecap="round" opacity=".75"/>
+      <rect x="36" y="22" width="60" height="76" rx="12" fill="url(#gAcc)"/>
+      <g fill="#0d0d18" fill-opacity=".5"><rect x="41" y="28" width="6" height="7" rx="2"/><rect x="41" y="42" width="6" height="7" rx="2"/><rect x="41" y="56" width="6" height="7" rx="2"/><rect x="41" y="70" width="6" height="7" rx="2"/><rect x="41" y="84" width="6" height="7" rx="2"/>
+        <rect x="85" y="28" width="6" height="7" rx="2"/><rect x="85" y="42" width="6" height="7" rx="2"/><rect x="85" y="56" width="6" height="7" rx="2"/><rect x="85" y="70" width="6" height="7" rx="2"/><rect x="85" y="84" width="6" height="7" rx="2"/></g>
+      <path d="M58 46v28l22-14z" fill="#fff"/>
+    </symbol>
+
+    <!-- E · Sinema bileti: çentikli bilet kart, oynat, kayıyor -->
+    <symbol id="E" viewBox="0 0 120 120">
+      <rect width="120" height="120" rx="28" fill="url(#gBg)"/>
+      <rect x="24" y="30" width="40" height="60" rx="9" fill="#fff" fill-opacity=".12" stroke="#fff" stroke-opacity=".22"/>
+      <g transform="rotate(12 64 60)">
+        <path d="M40 26h48a6 6 0 0 1 6 6v18a8 8 0 0 0 0 16v20a6 6 0 0 1-6 6H40a6 6 0 0 1-6-6V66a8 8 0 0 0 0-16V32a6 6 0 0 1 6-6z" fill="url(#gAcc)"/>
+        <path d="M44 58h40" stroke="#fff" stroke-opacity=".5" stroke-width="2" stroke-dasharray="4 4"/>
+        <path d="M58 33v18l14-9z" fill="#fff"/>
+        <path d="M50 72h28M50 80h18" stroke="#fff" stroke-opacity=".8" stroke-width="4" stroke-linecap="round"/>
+      </g>
+    </symbol>
+
+    <!-- F · Kart desteleri: üç kart yelpaze (film, dizi, film), öndeki oynatlı ve kayıyor -->
+    <symbol id="F" viewBox="0 0 120 120">
+      <rect width="120" height="120" rx="28" fill="url(#gWarm)"/>
+      <g transform="rotate(-14 60 70)"><rect x="34" y="28" width="42" height="60" rx="9" fill="#0d0d18" fill-opacity=".35"/></g>
+      <g transform="rotate(0 60 70)"><rect x="39" y="26" width="42" height="60" rx="9" fill="#0d0d18" fill-opacity=".55"/></g>
+      <g transform="rotate(14 60 70)"><rect x="44" y="26" width="42" height="60" rx="9" fill="#0d0d18"/>
+        <path d="M60 45v22l18-11z" fill="#fff"/></g>
+    </symbol>
   </defs>
 </svg>
 
+<h1 style="margin-top:6px">2. tur · kart + kaydırma, film/dizi belli</h1>
+<p class="lead">1 ve 2'nin fikri korundu; film şeridi, oynat, klaket, televizyon ve bilet işaretleriyle ilk bakışta film/dizi için olduğu anlaşılıyor.</p>
+<div class="grid">
+  <div class="opt"><span class="tag">A</span><h2>Film kartı kayıyor</h2><p>1 + 2: eğik kart, kenarlarında film delikleri, ortada oynat, altta kaydırma oku. İki fikri tam birleştiren.</p>
+    <div class="row"><svg class="icon"><use href="#A"/></svg><div class="small"><svg><use href="#A"/></svg><svg class="xs"><use href="#A"/></svg></div></div>
+    <div class="word"><svg><use href="#A"/></svg><b>Kaydır</b></div><div class="word light" style="margin-top:8px"><svg><use href="#A"/></svg><b>Kaydır</b></div></div>
+  <div class="opt"><span class="tag">B</span><h2>Klaket kart</h2><p>Kartın üstü açık klaket çubuğu, içinde oynat, solda hız çizgileri. "Film" en hızlı anlaşılan.</p>
+    <div class="row"><svg class="icon"><use href="#B"/></svg><div class="small"><svg><use href="#B"/></svg><svg class="xs"><use href="#B"/></svg></div></div>
+    <div class="word"><svg><use href="#B"/></svg><b>Kaydır</b></div><div class="word light" style="margin-top:8px"><svg><use href="#B"/></svg><b>Kaydır</b></div></div>
+  <div class="opt"><span class="tag">C</span><h2>Film + dizi</h2><p>Arkada televizyon (dizi), önde eğik oynatlı film kartı. Hem film hem dizi olduğunu söyleyen tek seçenek.</p>
+    <div class="row"><svg class="icon"><use href="#C"/></svg><div class="small"><svg><use href="#C"/></svg><svg class="xs"><use href="#C"/></svg></div></div>
+    <div class="word"><svg><use href="#C"/></svg><b>Kaydır</b></div><div class="word light" style="margin-top:8px"><svg><use href="#C"/></svg><b>Kaydır</b></div></div>
+  <div class="opt"><span class="tag">D</span><h2>Oynat-kart + şerit</h2><p>2'nin geliştirilmişi: oynat kartın kenarları film şeridi, solda hız çizgileri. Küçük boyutta en okunur.</p>
+    <div class="row"><svg class="icon"><use href="#D"/></svg><div class="small"><svg><use href="#D"/></svg><svg class="xs"><use href="#D"/></svg></div></div>
+    <div class="word"><svg><use href="#D"/></svg><b>Kaydır</b></div><div class="word light" style="margin-top:8px"><svg><use href="#D"/></svg><b>Kaydır</b></div></div>
+  <div class="opt"><span class="tag">E</span><h2>Sinema bileti</h2><p>Çentikli bilet biçiminde kayan kart, oynat ve bilet çizgileri. Farklı ve akılda kalıcı.</p>
+    <div class="row"><svg class="icon"><use href="#E"/></svg><div class="small"><svg><use href="#E"/></svg><svg class="xs"><use href="#E"/></svg></div></div>
+    <div class="word"><svg><use href="#E"/></svg><b>Kaydır</b></div><div class="word light" style="margin-top:8px"><svg><use href="#E"/></svg><b>Kaydır</b></div></div>
+  <div class="opt"><span class="tag">F</span><h2>Kart destesi</h2><p>Pembe-mor zeminde yelpaze üç kart, öndeki oynatlı. Kaydırılan desteyi en iyi anlatan.</p>
+    <div class="row"><svg class="icon"><use href="#F"/></svg><div class="small"><svg><use href="#F"/></svg><svg class="xs"><use href="#F"/></svg></div></div>
+    <div class="word"><svg><use href="#F"/></svg><b>Kaydır</b></div><div class="word light" style="margin-top:8px"><svg><use href="#F"/></svg><b>Kaydır</b></div></div>
+</div>
+<h1 style="margin-top:34px">1. tur</h1>
 <div class="grid">
   <div class="opt"><span class="tag">1</span><h2>Kayan kartlar</h2><p>Destedeki kart öne eğilip kayıyor; altta kaydırma oku. Uygulamanın ne yaptığını en net anlatan.</p>
     <div class="row"><svg class="icon"><use href="#L1"/></svg><div class="small"><svg><use href="#L1"/></svg><svg class="xs"><use href="#L1"/></svg></div></div>
