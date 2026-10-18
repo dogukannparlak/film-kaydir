@@ -474,3 +474,32 @@ nav.tabs button,#viewLists .seg button{position:relative;z-index:1;background:no
 .actions .act-undo{grid-column:1;justify-self:end}
 .actions .act-pass{grid-column:2} .actions .act-watched{grid-column:3} .actions .act-want{grid-column:4}
 .lfilters{justify-content:safe center}
+
+/* ================= Rehber: okunur cam pencere ================= */
+/* Arkadaki sayfa iyice bulanık ve koyu; pencere koyu cam: arkadaki kart yazıları rehber metnine karışmasın */
+.guide{background:rgba(5,5,12,.55);-webkit-backdrop-filter:blur(22px) saturate(140%);backdrop-filter:blur(22px) saturate(140%);
+  padding:20px;animation:fadein .3s var(--ease) both}
+.guide-card{background:linear-gradient(180deg,rgba(40,40,62,.82),rgba(20,20,34,.9));
+  -webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);
+  border:1px solid rgba(255,255,255,.22);border-radius:28px;padding:30px 22px 20px;text-align:center;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.3),0 24px 70px rgba(0,0,0,.6);overflow:hidden}
+.guide-card::before{content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:radial-gradient(80% 50% at 50% 0%,rgba(167,139,250,.28),transparent 70%)}
+.guide-card > *{position:relative}
+.guide-body{min-height:230px;display:flex;flex-direction:column;align-items:center}
+.guide-icon{width:76px;height:76px;display:grid;place-items:center;font-size:38px;margin:4px auto 16px;border-radius:24px;
+  background:linear-gradient(180deg,rgba(255,255,255,.18),rgba(255,255,255,.06));border:1px solid rgba(255,255,255,.25);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.35),0 8px 24px rgba(0,0,0,.35)}
+.guide-body h2{font-size:22px;margin:0 0 10px;letter-spacing:-.01em}
+.guide-body p{color:#c9c9d8;font-size:15px;max-width:330px;margin:0 auto 10px}
+.guide-moves{width:100%;text-align:left}
+.guide-moves li{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12)}
+.guide-acc{width:100%}
+.guide-skip{position:absolute;top:16px;right:18px;padding:6px 12px;border-radius:999px;background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.14);color:#d6d6e2;font-size:13px}
+.guide-dots{margin:14px 0 16px;gap:7px}
+.guide-dots i{width:7px;height:7px;background:rgba(255,255,255,.22);transition:width .25s var(--ease),background .25s}
+.guide-dots i.on{width:22px;border-radius:9px;background:var(--accent)}
+.guide-card .row-btns{gap:10px}
+.guide-card .row-btns .btn{padding:13px 16px;border-radius:14px}
+#guideBack{flex:0 0 auto;min-width:96px}
