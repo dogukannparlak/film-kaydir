@@ -13,14 +13,15 @@ Parçalarda ters tırnak (`` ` ``) ve `${` kullanma; şablon metnini bozar.
 
 | Dosya | İçerik |
 |---|---|
-| `html/ust.js` | Üst çubuk: marka, filtre ve ayar düğmeleri |
+| `html/simgeler.js` | Simge seti (SVG `<symbol>`), en başta bir kez gömülür; JS'te `ico('ad')` |
+| `html/ust.js` | Üst çubuk: logo + marka, arama, filtre ve ayar düğmeleri |
 | `html/kesfet.js` | Keşfet görünümü: özet satırı, deste kabı, eylem düğmeleri |
 | `html/listeler.js` | Listeler görünümü: sekmeler, arama, filtreler, sıralama, yedek düğmeleri |
-| `html/alt-gezinti.js` | Alt sekmeler ve TMDB atıf satırı |
+| `html/alt-gezinti.js` | Alt sekme çubuğu: yüzen cam kapsül + kayan vurgu (`.tab-ind`) |
 | `html/filtreler.js` | Filtreler alt sayfasının kabı (içeriği `js/filtreler.js` çizer) |
 | `html/arama.js` | Arama alt sayfası: arama kutusu ve sonuç listesi |
 | `html/bolum.js` | Bölüm seçici alt sayfası |
-| `html/ayarlar.js` | Ayarlar alt sayfası: anahtarlar, görülenler, kısayollar |
+| `html/ayarlar.js` | Ayarlar alt sayfası: hesap, anahtarlar, görülenler, yedek, Letterboxd, kısayollar, Hakkında (lisans, bağlantılar, atıflar) |
 | `html/rehber.js` | İlk açılış rehberinin kabı (adımları `js/rehber.js` çizer) |
 
 `index.html` içinde yalnız `.app` kabı, `#backdrop`, `#toasts` ve betik etiketleri kalır.
@@ -81,7 +82,7 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 | Anahtar | İçerik |
 |---|---|
 | `kd_apikey`, `kd_omdbkey` | API anahtarları |
-| `kd_items` | Liste öğeleri: `id, type, title, originalTitle, trailer, latestSeason/seasonAck/newSeason/nextSeason/tvCheckedAt (dizi), collection ({id, name} | null), poster, date, status, genres, rating, imdb, imdbRating, rt, director, scoreAt, addedAt`, İzlediklerim'de isteğe bağlı `progress` (`season` \| `dropped`, bkz. `PROGRESS`; başka listeye taşınınca silinir) |
+| `kd_items` | Liste öğeleri: `id, type, title, originalTitle, trailer, latestSeason/seasonAck/newSeason/nextSeason/tvCheckedAt (dizi), collection ({id, name} | null), poster, date, status, genres, rating, imdb, imdbRating, rt, director, scoreAt, addedAt`, İzlediklerim'de isteğe bağlı `progress` (`watching` \| `season` \| `dropped`; İzliyorum'da kaldığın yer `at: {s, e}` ve yayınlanmış bölümler `eps`, bkz. `PROGRESS`; başka listeye taşınınca silinir) |
 | `kd_seen` | Daha önce gösterilenler (tekrar gelmesin) |
 | `kd_filters`, `kd_listf` | Deste ve liste filtreleri |
 | `kd_providers` | Ülke başına platform listesi önbelleği: `{ TR: {at, list}, US: … }` (3 gün); çiplerde birleşimi gösterilir |
@@ -97,12 +98,27 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
   `S.proxyDown` olur ve anahtar kutusu çıkar. `tmdbReady()` ikisinden biri kullanılabilir mi söyler.
 
 - TMDB v3: `/configuration` (anahtar sınaması), `/discover/{movie,tv}`, `/{movie,tv}/{id}`
-  (`append_to_response=external_ids,credits`), `/watch/providers/movie`. Afişler `image.tmdb.org/t/p/`.
+  (`append_to_response=external_ids,credits,videos`), `/{movie,tv}/{id}/videos`, `/search/{movie,multi,collection}`,
+  `/collection/{id}`, `/watch/providers/movie`. Dizi sezonları `/tv/{id}` (`seasons`, `last_episode_to_air`,
+  `next_episode_to_air`). Afişler `image.tmdb.org/t/p/`.
 - OMDb: `?apikey=…&i=tt…` → `imdbRating`, `Ratings[]` (Rotten Tomatoes, Metacritic).
 - Yönetmen: filmde `credits.crew` içinde `job === 'Director'`; dizide `created_by` (yaratıcı).
 
+## Statik dosyalar ve yayın
+
+| Dosya | İş |
+|---|---|
+| `public/icons/logo.svg` | Logo (sinema bileti); `favicon.svg` aynısı |
+| `public/icons/*.png` | Ana ekran simgeleri (180/192/512), `logo-square.svg`'den headless tarayıcıyla üretilir |
+| `public/manifest.webmanifest` | Web uygulaması: ad, tam ekran açılış, simgeler |
+| `public/_headers` | Güvenlik başlıkları (CSP, X-Frame-Options, nosniff, Referrer-Policy) |
+| `public/gizlilik.html` | Gizlilik ve lisans metni |
+| `src/worker.js`, `wrangler.jsonc` | TMDB ara katmanı (yol izin listesi, IP başına hız sınırı) + statik site; GitHub'a push → Cloudflare yayınlar |
+| `LICENSE` | PolyForm Noncommercial 1.0.0 |
+
 ## Test
 
-Otomatik test yok. Yöntem: `fetch`'i sahte TMDB/OMDb yanıtlarıyla değiştiren bir betiği
-`js/sabitler.js`'den önce yükleyip headless Chromium'da (`--dump-dom`) kart başlığı, yönetmen,
-puan sırası ve konsol hatalarını okumak. Gerçek anahtarla son kontrol tarayıcıda elle yapılır.
+Otomatik test yok. Yöntem: `fetch`'i (ve hesap için Supabase istemcisini) sahte yanıtlarla değiştiren bir betiği
+`js/sabitler.js`'den önce yükleyip headless Brave/Chromium'u `--remote-debugging-port` ile açmak; Node'un yerleşik
+`WebSocket`'iyle CDP üzerinden `Runtime.evaluate` (durum, hatalar), `Input.dispatchTouchEvent` (sürükleme, kaydırma)
+ve `Page.captureScreenshot` (390×664 telefon görünümü) kullanmak. Gerçek veriyle son kontrol tarayıcıda elle yapılır.

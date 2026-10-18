@@ -12,6 +12,8 @@ const RANDOM_PAGE_CAP = 25;     // rastgele modda bir dilimde en fazla kaçınc�
 const STATUS = { want:'İstek listesi', watched:'İzlediklerim', passed:'Geçtiklerim' };
 // Bildirimlerde yönelme hâli: "… İstek listesine taşındı"
 const STATUS_TO = { want:'İstek listesine', watched:'İzlediklerim\'e', passed:'Geçtiklerim\'e' };
+// Hakkında bölümünde görünür; anlamlı bir sürüm çıkınca artır
+const APP_VERSION = '1.0.0';
 const DIR_STATUS = { right:'want', left:'passed', up:'watched' };
 // İzlediklerim içinde "yarım kaldı" işareti; öğe İzlediklerim'de kalır
 const PROGRESS = {

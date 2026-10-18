@@ -45,8 +45,16 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
       <p class="note" style="margin:0">→ istiyorum · ← geç · ↑ izledim · Backspace / Z geri al · Kartın üstüne dokun: özetin tamamı</p>
       <button class="linkish" id="btnGuide">Rehberi yeniden göster</button>
     </section>
-    <section>
-      <p class="note" style="margin:0">Veriler ve afişler <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a>'den gelir. Platform bilgisi TMDB'nin JustWatch kaynaklı, birçok ülkenin verisidir.<br>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+    <section class="about">
+      <div class="about-head"><img src="icons/logo.svg" alt="" width="44" height="44"><div><b>Kaydır</b><small id="appVersion">Film ve dizi keşfi</small></div></div>
+      <p class="note">Yapan: <b>Doğukan Parlak</b> · <a href="https://dogukanparlak.com" target="_blank" rel="noopener">dogukanparlak.com</a></p>
+      <div class="about-links">
+        <a class="btn btn-ico" href="https://github.com/dogukannparlak/film-kaydir" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-github"/></svg> GitHub</a>
+        <a class="btn btn-ico" href="https://dogukanparlak.com" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-globe"/></svg> Web sitesi</a>
+        <a class="btn btn-ico" href="gizlilik.html" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg> Gizlilik</a>
+      </div>
+      <p class="note"><b>Lisans:</b> <a href="https://polyformproject.org/licenses/noncommercial/1.0.0" target="_blank" rel="noopener">PolyForm Noncommercial 1.0.0</a>. Kişisel, eğitim ve ticari olmayan kullanım serbest; <b>ticari kullanım yasaktır</b>. © 2026 Doğukan Parlak.</p>
+      <p class="note about-credits">Film ve dizi verileri ile afişler <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a>'den, platform bilgisi <a href="https://www.justwatch.com" target="_blank" rel="noopener">JustWatch</a>'tan (TMDB üzerinden), IMDb / Rotten Tomatoes / Metacritic puanları <a href="https://www.omdbapi.com" target="_blank" rel="noopener">OMDb</a>'den, fragmanlar YouTube'dan gelir. Bu adlar ve logolar sahiplerine aittir; Kaydır bu hizmetlerle ya da Letterboxd ile bağlantılı değildir.<br>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
     </section>
   </div>
 </div>

@@ -1,5 +1,7 @@
 # Kaydır · Film ve Dizi
 
+**Canlı:** https://kaydir.dogukanparlak.com · **Yapan:** [Doğukan Parlak](https://dogukanparlak.com) · **Lisans:** [PolyForm Noncommercial 1.0.0](LICENSE) (ticari kullanım yasak)
+
 Tinder tarzı film/dizi keşfi: kartı sağa kaydır "istiyorum", sola "geç", yukarı "izledim".
 Veri TMDB'den, IMDb / Rotten Tomatoes / Metacritic puanları isteğe bağlı OMDb'den gelir.
 Sunucu, derleme ya da paket yok. Site dosyaları `public/` altında: `public/index.html` dosyasını tarayıcıda aç.
@@ -104,9 +106,33 @@ Kullanıcı anahtarları tarayıcının `localStorage`'ında durur; giriş yapı
   Her parti ~40 OMDb isteği harcar. Listelerdeki sıralama tamdır.
 - Yönetmen bilgisi yeni kaydırılan kartlarda gelir. Eski liste öğelerinde, listeyi IMDb/RT'ye göre
   sıralayınca puanı eksik olanlarla birlikte tamamlanır.
-- Veriler tarayıcıya bağlı: başka tarayıcı ya da cihazda görmek için JSON yedeğini taşı.
+- Hesapsız kullanımda veriler tarayıcıya bağlı: başka cihazda görmek için giriş yap ya da JSON yedeğini taşı.
+- Gerçek "her ülke" platform araması yok: TMDB ülke şart koşar, 14 ülkede aranır.
+- Seriler yalnız filmler için (TMDB collection); diziler kapsanmaz.
 
 ## Geliştirme
 
 Yapı (html/ parçaları, css/, js/ modülleri): [docs/mimari.md](docs/mimari.md).
 Testler elle ve sahte `fetch` ile yapılır (bkz. mimari belgesinde "Test").
+Tarayıcı testi: headless Chromium/Brave + CDP (Node'un yerleşik `WebSocket`'i), sahte `fetch` ile.
+
+## Lisans
+
+[PolyForm Noncommercial License 1.0.0](LICENSE) · © 2026 Doğukan Parlak ([dogukanparlak.com](https://dogukanparlak.com)).
+
+- **Serbest:** kişisel kullanım, öğrenme, araştırma, değiştirme ve ticari olmayan paylaşım (lisans metni ve
+  `Required Notice` satırı korunarak).
+- **Yasak:** ticari kullanım (satış, ücretli hizmet, reklam geliri amaçlı yayın vb.). Ticari kullanım için izin iste.
+
+## Atıflar
+
+- Film ve dizi verileri, afişler: [TMDB](https://www.themoviedb.org). *This product uses the TMDB API but is not
+  endorsed or certified by TMDB.*
+- Platform bilgisi: [JustWatch](https://www.justwatch.com) (TMDB üzerinden).
+- IMDb / Rotten Tomatoes / Metacritic puanları: [OMDb API](https://www.omdbapi.com). Adlar ve logolar sahiplerine aittir.
+- Fragmanlar: YouTube. Kaydır bu hizmetlerle ya da Letterboxd ile bağlantılı değildir.
+
+## İletişim
+
+Hata, öneri ya da hesap silme isteği: [dogukanparlak.com](https://dogukanparlak.com) üzerinden ya da GitHub'da issue aç.
+

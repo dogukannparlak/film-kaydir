@@ -535,3 +535,12 @@ nav.tabs svg.i{width:21px;height:21px}
 .guide-settings{margin:4px auto 2px}
 .guide-card{max-height:calc(100dvh - 32px);overflow-y:auto;overscroll-behavior:contain}
 .guide-body{min-height:0}
+
+/* Ayarlar › Hakkında */
+.about-head{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.about-head img{border-radius:12px;box-shadow:0 6px 18px rgba(124,58,237,.35)}
+.about-head b{display:block;font-size:17px} .about-head small{color:var(--muted);font-size:12.5px}
+.about-links{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.about-links .btn{flex:1 1 auto;padding:10px 12px;font-size:13.5px;text-decoration:none;color:var(--text)}
+.about .note a{color:#c4b5fd}
+.about-credits{font-size:12px;margin-top:8px}
