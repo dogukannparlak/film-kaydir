@@ -1,7 +1,8 @@
 # Güvenlik başlıkları (Cloudflare statik dosyalar). CSP: betikler yalnız bu site + jsDelivr (SRI'li Supabase);
-# bağlantılar TMDB, OMDb, Supabase; başka sitenin kare içine gömmesi yasak.
+# bağlantılar TMDB, OMDb, Supabase; Cloudflare Web Analytics betiği izinli. Cloudflare'in sayfaya eklediği satır içi
+# bot tespit betiği bilerek engelli ('unsafe-inline' CSP'yi etkisizleştirir). Başka sitenin kare içine gömmesi yasak.
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://image.tmdb.org; connect-src 'self' https://api.themoviedb.org https://www.omdbapi.com https://zungbtgtlrltowkvjqso.supabase.co wss://zungbtgtlrltowkvjqso.supabase.co; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://static.cloudflareinsights.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://image.tmdb.org; connect-src 'self' https://api.themoviedb.org https://www.omdbapi.com https://zungbtgtlrltowkvjqso.supabase.co wss://zungbtgtlrltowkvjqso.supabase.co https://cloudflareinsights.com; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
