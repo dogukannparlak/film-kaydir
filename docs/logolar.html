@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kaydır logo seçenekleri</title>
+<style>
+  :root{--bg:#0a0a0f;--text:#f3f3f7;--muted:#9b9bb0;--accent:#a78bfa}
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(60% 40% at 15% 5%,rgba(167,139,250,.25),transparent 60%),var(--bg);color:var(--text);
+    font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;padding:28px 16px 60px}
+  h1{margin:0 auto 6px;max-width:980px;font-size:24px}
+  .lead{max-width:980px;margin:0 auto 22px;color:var(--muted)}
+  .grid{max-width:980px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:16px}
+  .opt{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);border-radius:22px;padding:18px}
+  .opt h2{margin:0 0 2px;font-size:17px} .opt p{margin:0 0 14px;color:var(--muted);font-size:13.5px}
+  .row{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+  .row svg.icon{width:88px;height:88px;flex:none}
+  .small{display:flex;gap:10px;align-items:flex-end}
+  .small svg{width:40px;height:40px} .small svg.xs{width:24px;height:24px}
+  .word{display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:14px;background:#000}
+  .word.light{background:#f4f4f8;color:#111}
+  .word svg{width:30px;height:30px;flex:none}
+  .word b{font-size:22px;font-weight:850;letter-spacing:-.03em}
+  .tag{display:inline-block;font-size:12px;font-weight:800;padding:2px 9px;border-radius:999px;background:rgba(167,139,250,.2);color:#d9cfff;margin-bottom:8px}
+</style>
+</head>
+<body>
+<h1>Kaydır · logo seçenekleri</h1>
+<p class="lead">Her seçenek: büyük uygulama simgesi, küçük boyutlar (sekme simgesi 24 px'e kadar) ve yazıyla birlikte koyu/açık zeminde. Birini (ya da ikisini birleştirmemi) seç.</p>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gBg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2a1f4d"/><stop offset="1" stop-color="#0d0d18"/></linearGradient>
+    <linearGradient id="gAcc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#c4b5fd"/><stop offset="1" stop-color="#7c3aed"/></linearGradient>
+    <linearGradient id="gWarm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f472b6"/><stop offset="1" stop-color="#a78bfa"/></linearGradient>
+    <linearGradient id="gGlass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff" stop-opacity=".12"/></linearGradient>
+
+    <!-- 1 · Kayan kartlar: arkada kart, önde eğik kart + kaydırma oku -->
+    <symbol id="L1" viewBox="0 0 120 120">
+      <rect width="120" height="120" rx="28" fill="url(#gBg)"/>
+      <rect x="30" y="26" width="46" height="66" rx="10" fill="#fff" fill-opacity=".14" stroke="#fff" stroke-opacity=".25"/>
+      <g transform="rotate(14 66 62)"><rect x="43" y="28" width="46" height="66" rx="10" fill="url(#gAcc)"/>
+        <rect x="43" y="28" width="46" height="30" rx="10" fill="url(#gGlass)" opacity=".5"/></g>
+      <path d="M78 98h16m0 0-5-5m5 5-5 5" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </symbol>
+
+    <!-- 2 · Oynat-kart: kartın içinde oynat üçgeni, yanda hareket çizgileri -->
+    <symbol id="L2" viewBox="0 0 120 120">
+      <rect width="120" height="120" rx="28" fill="url(#gBg)"/>
+      <path d="M20 46h12M16 60h16M20 74h12" stroke="#a78bfa" stroke-width="4" stroke-linecap="round" opacity=".7"/>
+      <rect x="38" y="24" width="56" height="74" rx="12" fill="url(#gAcc)"/>
+      <path d="M58 46v28l22-14z" fill="#fff"/>
+    </symbol>
+
+    <!-- 3 · K monogram: iki kart, biri dik biri eğik, birlikte "K" -->
+    <symbol id="L3" viewBox="0 0 120 120">
+      <rect width="120" height="120" rx="28" fill="url(#gBg)"/>
+      <rect x="30" y="24" width="18" height="72" rx="6" fill="#fff"/>
+      <path d="M54 60 86 28" stroke="url(#gAcc)" stroke-width="17" stroke-linecap="round"/>
+      <path d="M58 60 86 92" stroke="url(#gWarm)" stroke-width="17" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- 4 · Üç yön: kart + üç yön oku (sağ yeşil, sol kırmızı, yukarı mavi) -->
+    <symbol id="L4" viewBox="0 0 120 120">
+      <rect width="120" height="120" rx="28" fill="url(#gBg)"/>
+      <rect x="40" y="36" width="40" height="56" rx="9" fill="#fff" fill-opacity=".92"/>
+      <rect x="46" y="42" width="28" height="22" rx="5" fill="#a78bfa" fill-opacity=".55"/>
+      <path d="M90 64h14m0 0-5-5m5 5-5 5" stroke="#22c55e" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <path d="M30 64H16m0 0 5-5m-5 5 5 5" stroke="#f43f5e" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      <path d="M60 26V12m0 0-5 5m5-5 5 5" stroke="#3b82f6" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+    </symbol>
+
+    <!-- 5 · Film şeridi kartı: delikli şerit biçiminde eğik kart -->
+    <symbol id="L5" viewBox="0 0 120 120">
+      <rect width="120" height="120" rx="28" fill="url(#gWarm)"/>
+      <g transform="rotate(-10 60 60)">
+        <rect x="32" y="22" width="56" height="76" rx="10" fill="#0d0d18"/>
+        <g fill="#fff" fill-opacity=".85">
+          <rect x="37" y="30" width="6" height="6" rx="1.5"/><rect x="37" y="44" width="6" height="6" rx="1.5"/><rect x="37" y="58" width="6" height="6" rx="1.5"/><rect x="37" y="72" width="6" height="6" rx="1.5"/><rect x="37" y="86" width="6" height="6" rx="1.5"/>
+          <rect x="77" y="30" width="6" height="6" rx="1.5"/><rect x="77" y="44" width="6" height="6" rx="1.5"/><rect x="77" y="58" width="6" height="6" rx="1.5"/><rect x="77" y="72" width="6" height="6" rx="1.5"/><rect x="77" y="86" width="6" height="6" rx="1.5"/>
+        </g>
+        <path d="M54 50v20l16-10z" fill="#fff"/>
+      </g>
+    </symbol>
+
+    <!-- 6 · Cam kalp-kart: cam görünümlü kart, ortada kalp (istiyorum) -->
+    <symbol id="L6" viewBox="0 0 120 120">
+      <rect width="120" height="120" rx="28" fill="url(#gBg)"/>
+      <circle cx="40" cy="36" r="26" fill="#7c3aed" opacity=".55"/><circle cx="86" cy="86" r="24" fill="#f472b6" opacity=".45"/>
+      <rect x="28" y="22" width="64" height="76" rx="14" fill="#fff" fill-opacity=".14" stroke="#fff" stroke-opacity=".45" stroke-width="1.5"/>
+      <rect x="28" y="22" width="64" height="30" rx="14" fill="url(#gGlass)" opacity=".35"/>
+      <path d="M60 80s-16-9.5-16-21a9 9 0 0 1 16-5.6A9 9 0 0 1 76 59c0 11.5-16 21-16 21z" fill="#fff"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="grid">
+  <div class="opt"><span class="tag">1</span><h2>Kayan kartlar</h2><p>Destedeki kart öne eğilip kayıyor; altta kaydırma oku. Uygulamanın ne yaptığını en net anlatan.</p>
+    <div class="row"><svg class="icon"><use href="#L1"/></svg><div class="small"><svg><use href="#L1"/></svg><svg class="xs"><use href="#L1"/></svg></div></div>
+    <div class="word"><svg><use href="#L1"/></svg><b>Kaydır</b></div><div class="word light" style="margin-top:8px"><svg><use href="#L1"/></svg><b>Kaydır</b></div></div>
+
+  <div class="opt"><span class="tag">2</span><h2>Oynat-kart</h2><p>Kartın içinde oynat üçgeni, solda hız çizgileri. "Film" ve "hareket" birlikte; küçük boyutta çok okunur.</p>
+    <div class="row"><svg class="icon"><use href="#L2"/></svg><div class="small"><svg><use href="#L2"/></svg><svg class="xs"><use href="#L2"/></svg></div></div>
+    <div class="word"><svg><use href="#L2"/></svg><b>Kaydır</b></div><div class="word light" style="margin-top:8px"><svg><use href="#L2"/></svg><b>Kaydır</b></div></div>
+
+  <div class="opt"><span class="tag">3</span><h2>K monogram</h2><p>Üç kart parçası birlikte "K" oluşturuyor. En sade ve marka gibi; anlamı daha az doğrudan.</p>
+    <div class="row"><svg class="icon"><use href="#L3"/></svg><div class="small"><svg><use href="#L3"/></svg><svg class="xs"><use href="#L3"/></svg></div></div>
+    <div class="word"><svg><use href="#L3"/></svg><b>Kaydır</b></div><div class="word light" style="margin-top:8px"><svg><use href="#L3"/></svg><b>Kaydır</b></div></div>
+
+  <div class="opt"><span class="tag">4</span><h2>Üç yön</h2><p>Kart ve üç kaydırma yönü, uygulamadaki renkleriyle: sağ yeşil istek, sol kırmızı geç, yukarı mavi izledim.</p>
+    <div class="row"><svg class="icon"><use href="#L4"/></svg><div class="small"><svg><use href="#L4"/></svg><svg class="xs"><use href="#L4"/></svg></div></div>
+    <div class="word"><svg><use href="#L4"/></svg><b>Kaydır</b></div><div class="word light" style="margin-top:8px"><svg><use href="#L4"/></svg><b>Kaydır</b></div></div>
+
+  <div class="opt"><span class="tag">5</span><h2>Film şeridi</h2><p>Delikli film şeridi biçiminde eğik kart, pembe-mor zemin. Sinema hissi en güçlü olan.</p>
+    <div class="row"><svg class="icon"><use href="#L5"/></svg><div class="small"><svg><use href="#L5"/></svg><svg class="xs"><use href="#L5"/></svg></div></div>
+    <div class="word"><svg><use href="#L5"/></svg><b>Kaydır</b></div><div class="word light" style="margin-top:8px"><svg><use href="#L5"/></svg><b>Kaydır</b></div></div>
+
+  <div class="opt"><span class="tag">6</span><h2>Cam kalp</h2><p>Arkada renkli ışıklar, önde cam kart ve kalp. Yeni cam tasarımla en uyumlu olan.</p>
+    <div class="row"><svg class="icon"><use href="#L6"/></svg><div class="small"><svg><use href="#L6"/></svg><svg class="xs"><use href="#L6"/></svg></div></div>
+    <div class="word"><svg><use href="#L6"/></svg><b>Kaydır</b></div><div class="word light" style="margin-top:8px"><svg><use href="#L6"/></svg><b>Kaydır</b></div></div>
+</div>
+</body>
+</html>
