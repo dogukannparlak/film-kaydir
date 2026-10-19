@@ -217,26 +217,32 @@ async function onSignedIn(user) {
   clearInterval(pullTimer);
   pullTimer = setInterval(() => document.visibilityState === 'visible' && syncNow(), SYNC_EVERY);
 }
-// Çıkış: önce her şeyi hesaba yaz. Anahtarlar hesapta şifreli duruyorsa bu cihazdan silinir (paylaşılan cihazda kalmasın,
-// girişte geri gelir); hesapta saklanmıyorsa silinmez, yoksa kaybolurdu. Listeler cihazda kalır.
-// Anahtar silmek stateChanged() çağırmaz: hesaptaki kopya silinmesin.
+// Çıkış (Doğukan, 2026-10-19: "çıkış yapınca cihazdaki veriler silinsin"): önce her şey hesaba yazılır, sonra bu
+// cihazdaki hesap verisi silinir: listeler, görülenler, filtreler, eşitleme izi, API anahtarları, kasa, OMDb önbelleği.
+// Kalanlar cihazın kendi ayarları: dil, rıza, rehber işareti, anonim kimlik (rızaya bağlı), seri/platform önbelleği.
+// Hesaba yazılamadıysa (çevrimdışı) ya da anahtarlar hesapta saklanmıyorsa silmeden önce sorulur: yoksa kaybolurdu.
 async function signOut() {
   accErr(t('Çıkış yapılıyor…'));
   await pushChanges();
   let pushed = true;
   try { await pushState(); } catch (e) { pushed = false; }
-  // Anahtarlar gerçekten hesapta (şifreli, güncel) mi: değilse cihazdan silinmez, yoksa kaybolurdu
-  const inCloud = pushed && S.keySync && !S.keysLocked && !!vaultFor(S.user.id) && sync.keysSig === keysSig();
-  if (!pushed && !confirm(t('Hesaba yedeklenemedi (çevrimdışı olabilirsin). Yine de çıkılsın mı?'))) { accErr(''); return; }
+  pushed = pushed && Object.entries(S.items).every(([k, v]) => sync.hashes[k] === sig(v)); // listelerin hepsi hesapta mı
+  const keysInCloud = S.keySync && !S.keysLocked && !!vaultFor(S.user.id) && sync.keysSig === keysSig();
+  if (!pushed && !confirm(t('Hesaba yedeklenemedi (çevrimdışı olabilirsin). Çıkarsan hesaba gitmemiş değişiklikler bu cihazdan silinir. Yine de çıkılsın mı?'))) { accErr(''); return; }
+  if ((S.apiKey || S.omdbKey) && !keysInCloud && !confirm(t('API anahtarların hesabında saklanmıyor; çıkınca bu cihazdan silinecek. Saklamak için önce Ayarlar\'da "API anahtarlarını hesabımda sakla"yı aç. Yine de çıkılsın mı?'))) { accErr(''); return; }
   await sb.auth.signOut();
-  // Sonraki girişte bulut durumu baştan benimsensin (yerel "kapalı" hâli bekleyen değişiklik sanılıp kopyayı silmesin)
-  setVault(null); setKeySync(false, false); S.keysLocked = false; sync.keysSig = null; saveSync();
-  if (!inCloud) { toast(t('Çıkış yapıldı: API anahtarların bu cihazda kaldı')); return; }
-  const hadKey = !!S.apiKey;
-  S.apiKey = ''; S.omdbKey = ''; S.proxyDown = false; store.del(K.key); store.del(K.omdb);
+  wipeLocalAccountData();
+  toast(t('Çıkış yapıldı: bu cihazdaki listelerin ve anahtarların silindi; giriş yapınca geri gelir'), null, null, 4500);
+}
+function wipeLocalAccountData() {
+  setVault(null); setKeySync(false, false); S.keysLocked = false;
+  sync = null; store.del(SYNC_KEY);
+  S.items = {}; S.seen = new Set(); S.filters = { ...DEFAULT_FILTERS }; S.listF = { type:'all', genre:'', period:'all', q:'', sort:'added', progress:'all' };
+  S.apiKey = ''; S.omdbKey = ''; S.omdbCache = {}; S.proxyDown = false; S.stateDirty = S.seenDirty = false; S.undo = [];
+  [K.items, K.seen, K.filters, K.listF, K.dirty, K.key, K.omdb, K.omdbCache].forEach(k => store.del(k));
   if ($('#setKey')) { $('#setKey').value = ''; $('#setOmdb').value = ''; }
-  if (hadKey) { resetEngine(); loadProviders(); }
-  toast(t('Çıkış yapıldı: API anahtarları bu cihazdan silindi'));
+  updateSummary(); updateCounts(); if (S.view === 'lists') renderList();
+  resetEngine(); loadProviders();
 }
 function onSignedOut() {
   S.user = null; clearInterval(pullTimer); renderAccount(); renderKeySync(); renderPrivacy(); checkAdmin();
@@ -252,7 +258,7 @@ function renderAccount() {
       <p class="acc-who">${ico('cloud')} <b>${esc(S.user.email || t('Hesap'))}</b></p>
       <p class="note" id="accSync" style="margin:4px 0 10px">${esc(S.syncMsg || '')}</p>
       <div class="row-btns"><button class="btn" id="accSyncNow">${t('Şimdi eşitle')}</button><button class="btn btn-danger" id="accOut">${t('Çıkış yap')}</button></div>
-      <p class="note">${t('Listelerin, görülenler ve filtreler bu hesapta saklanır; telefon ve bilgisayar aynı listeyi görür. API anahtarları yalnız aşağıdaki düğme açıksa, şifreli saklanır. Çıkış yapınca listeler bu cihazda kalır.')} <a href="${LANG === 'en' ? 'privacy.html' : 'gizlilik.html'}" target="_blank">${t('Gizlilik')}</a></p>`;
+      <p class="note">${t('Listelerin, görülenler ve filtreler bu hesapta saklanır; telefon ve bilgisayar aynı listeyi görür. API anahtarları yalnız aşağıdaki düğme açıksa, şifreli saklanır. Çıkış yapınca bu cihazdaki listelerin ve anahtarların silinir, giriş yapınca geri gelir.')} <a href="${LANG === 'en' ? 'privacy.html' : 'gizlilik.html'}" target="_blank">${t('Gizlilik')}</a></p>`;
     return;
   }
   const local = location.protocol === 'file:';

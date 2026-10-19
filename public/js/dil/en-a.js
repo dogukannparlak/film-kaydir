@@ -30,7 +30,7 @@ Object.assign(EN, {
   'Hesap': 'Account',
   'Şimdi eşitle': 'Sync now',
   'Çıkış yap': 'Sign out',
-  'Listelerin, görülenler ve filtreler bu hesapta saklanır; telefon ve bilgisayar aynı listeyi görür. API anahtarları yalnız aşağıdaki düğme açıksa, şifreli saklanır. Çıkış yapınca listeler bu cihazda kalır.': 'Your lists, seen titles and filters are stored in this account; your phone and computer see the same lists. API keys are stored (encrypted) only if the switch below is on. After you sign out, the lists stay on this device.',
+  'Listelerin, görülenler ve filtreler bu hesapta saklanır; telefon ve bilgisayar aynı listeyi görür. API anahtarları yalnız aşağıdaki düğme açıksa, şifreli saklanır. Çıkış yapınca bu cihazdaki listelerin ve anahtarların silinir, giriş yapınca geri gelir.': 'Your lists, seen titles and filters are stored in this account; your phone and computer see the same lists. API keys are stored (encrypted) only if the switch below is on. When you sign out, your lists and keys are removed from this device and come back when you sign in.',
   'Gizlilik': 'Privacy',
   'Giriş yaparsan listelerin cihazlar arasında eşitlenir. Hesapsız da kullanabilirsin.': 'If you sign in, your lists sync across devices. You can also use the site without an account.',
   '⚠️ Site dosyadan açık: Google ile giriş ve e-posta bağlantıları yalnız yayındaki adreste çalışır.': '⚠️ The site is opened from a file: Google sign-in and email links only work at the published address.',
@@ -184,4 +184,9 @@ Object.assign(EN, {
   'Verilerimi indir': 'Download my data',
   'Bu cihazın kayıtlarını sil': 'Delete this device\'s records',
   'Aydınlatma metni ve hakların': 'Privacy notice and your rights',
+});
+Object.assign(EN, {
+  'Hesaba yedeklenemedi (çevrimdışı olabilirsin). Çıkarsan hesaba gitmemiş değişiklikler bu cihazdan silinir. Yine de çıkılsın mı?': 'Could not back up to your account (you may be offline). If you sign out, changes not yet in your account will be removed from this device. Sign out anyway?',
+  'API anahtarların hesabında saklanmıyor; çıkınca bu cihazdan silinecek. Saklamak için önce Ayarlar\'da "API anahtarlarını hesabımda sakla"yı aç. Yine de çıkılsın mı?': 'Your API keys are not stored in your account and will be removed from this device when you sign out. To keep them, first turn on "Store my API keys in my account" in Settings. Sign out anyway?',
+  'Çıkış yapıldı: bu cihazdaki listelerin ve anahtarların silindi; giriş yapınca geri gelir': 'Signed out: your lists and keys were removed from this device; they come back when you sign in',
 });

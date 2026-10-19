@@ -81,8 +81,8 @@ Kullanıcı anahtarları tarayıcının `localStorage`'ında durur; giriş yapı
   anahtarlar gelir; oturum e-posta bağlantısıyla açıldıysa Ayarlar şifreyi bir kez sorar. Şifre sıfırlanırsa eski kopya
   açılamaz, anahtarlar yeniden girilir. Kapalıysa anahtarlar yalnız cihazda kalır, hesaptaki kopya silinir.
   Eski sürümün düz metin anahtarları ilk girişte cihaza alınır ve buluttan silinir.
-- Çıkış yapınca önce her şey hesaba yazılır; anahtarlar hesapta şifreli duruyorsa bu cihazdan silinir (girişte geri gelir),
-  durmuyorsa cihazda kalır. Listeler cihazda kalır.
+- Çıkış yapınca önce her şey hesaba yazılır, sonra bu cihazdaki hesap verisi silinir (listeler, görülenler, filtreler,
+  anahtarlar, eşitleme izi); giriş yapınca geri gelir. Hesaba yazılamadıysa ya da anahtarlar hesapta saklanmıyorsa önce sorulur.
 - İlk açılışta kısa bir rehber çıkar, sonunda giriş yap / kaydol / hesapsız devam et seçimi sorulur ("Geç" doğrudan bu seçime atlar); Ayarlar › Kısayollar › "Rehberi yeniden göster" ile tekrar açılır.
 - Önce yerel: değişiklik 1,5 sn sonra (sekme gizlenince hemen) buluta gider; düzenli eşitleme: açılışta, sekmeye dönünce,
   bağlantı gelince ve sekme açıkken 30 sn'de bir çekilir ve gönderilir.

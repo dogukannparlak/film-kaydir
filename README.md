@@ -63,8 +63,8 @@ Your keys stay in the browser's `localStorage`. If you sign in and turn on the s
   On a new device, signing in with your password brings the keys over; if the session came from an e-mail link,
   Settings asks for the password once. After a password reset the old copy cannot be opened and the keys must be entered again.
   When off, keys stay on the device only and the account copy is deleted.
-- Signing out first saves everything; keys stored in the account are removed from the device (they come back on sign-in),
-  keys that are not stored in the account stay on the device.
+- Signing out first saves everything, then removes the account's data from this device (lists, seen titles, filters, keys,
+  sync state); it comes back on sign-in. If the backup failed or keys are not stored in the account, the user is asked first.
 - Supabase project `kaydir` (eu-central-1). Row level security: every row is visible only to its owner.
 
 ## Analytics and admin
