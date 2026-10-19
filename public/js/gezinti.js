@@ -30,6 +30,7 @@ function openSettings() {
   resetSeenArmed = false;
   $('#btnResetSeen').textContent = t('Görülenleri sıfırla');
   $('#appVersion').textContent = t('Film ve dizi keşfi · sürüm {v}', { v:APP_VERSION });
+  renderPrivacy();
   openSheet('#sheetSettings');
 }
 // Ayarları aç ve Hesap bölümüne odaklan (rehber ve anahtar kutusundan); mode 'up' kayıt düğmesini öne çıkarır

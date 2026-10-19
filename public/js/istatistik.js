@@ -2,9 +2,10 @@
 /* ================= Ziyaret istatistiği ================= */
 // İki yol birden:
 // 1) Kendi sayaç (Supabase visits): açılışta visit_start, sekme görünürken 30 sn'de bir visit_ping → ziyaret + kalma süresi.
-//    Çerez yok. Ziyaretçi kimliği rastgele ve cihazda kalıcı (kd_visitor → geri dönen ziyaretçi sayılır; Doğukan'ın
-//    kararı 2026-10-19: rıza bandı ve Ayarlar düğmesi yok, varsayılan açık). localStorage kapalıysa kimlik o sayfalık kalır.
-// 2) Umami Cloud: UMAMI_ID doluysa betiği yüklenir (Umami çerezsizdir). Boşsa hiç yüklenmez.
+//    Çerez yok. İkisi de yalnız "İstatistik" rızasıyla çalışır (js/riza.js; KVKK/GDPR, Doğukan 2026-10-19).
+//    Ziyaretçi kimliği rastgele; rıza (istatistik ya da etkinlik) varsa cihazda kalıcı (kd_visitor → geri dönen ziyaretçi),
+//    yoksa yalnız bu sayfa açıkken bellekte (yalnız kimliksiz hata raporunda kullanılır).
+// 2) Umami Cloud: rızayla ve UMAMI_ID doluysa yüklenir (Umami çerezsizdir).
 // Dosyadan açıkken (file://) ikisi de çalışmaz.
 const UMAMI_ID = '08f74919-6681-4aa7-a12c-4a37ecfa130c'; // cloud.umami.is › Websites › Kaydır → "Website ID" (gizli değil)
 const VISITOR_KEY = 'kd_visitor';
@@ -13,13 +14,16 @@ const NEW_VISIT_AFTER = 30 * 60000; // sekme 30 dk'dan uzun gizli kaldıysa dön
 const V = { id:null, token:null, timer:null, hiddenAt:0 };
 const uuid = () => crypto.randomUUID ? crypto.randomUUID() : '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, c => (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
 
+let pageVisitor = null; // rızasız: cihaza yazılmayan, sayfa kapanınca kaybolan kimlik
 function visitorId() {
+  if (!allowed('stats') && !allowed('activity')) return { id:pageVisitor ||= uuid(), kept:false };
   let id = store.get(VISITOR_KEY, '');
   if (!id) { id = uuid(); store.set(VISITOR_KEY, id); }
   return { id, kept:!!store.get(VISITOR_KEY, '') };
 }
+function stopVisit() { clearInterval(V.timer); V.id = V.token = null; }
 async function startVisit() {
-  if (!sb || !location.protocol.startsWith('http')) return;
+  if (!sb || !location.protocol.startsWith('http') || !allowed('stats')) return;
   const who = visitorId();
   let ref = '';
   try { const r = document.referrer && new URL(document.referrer); if (r && r.host !== location.host) ref = r.host; } catch {}
@@ -38,7 +42,7 @@ function pingVisit(force = false) {
   sb.rpc('visit_ping', { p_id:V.id, p_token:V.token }).then(() => {}, () => {});
 }
 function loadUmami() {
-  if (!UMAMI_ID || !location.protocol.startsWith('http')) return;
+  if (!UMAMI_ID || !location.protocol.startsWith('http') || !allowed('stats') || $('script[data-website-id]')) return;
   const s = document.createElement('script');
   s.src = 'https://cloud.umami.is/script.js'; s.defer = true; s.dataset.websiteId = UMAMI_ID;
   s.dataset.domains = 'kaydir.dogukanparlak.com'; // yerel deneme (localhost) Umami'ye sayılmasın
@@ -49,6 +53,7 @@ function initStats() {
   // Hesap oturumu açılışta birkaç yüz ms içinde gelir; logged_in doğru gitsin diye kısa bekle
   setTimeout(startVisit, 1500);
   loadUmami();
+  setTimeout(showConsentBar, 2000); // seçim yapılana kadar sayaç, Umami ve etkinlik kaydı kapalı (js/riza.js)
   document.addEventListener('visibilitychange', () => {
     if (document.visibilityState === 'hidden') { V.hiddenAt = Date.now(); pingVisit(true); return; }
     if (V.hiddenAt && Date.now() - V.hiddenAt > NEW_VISIT_AFTER) startVisit(); else pingVisit();

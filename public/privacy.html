@@ -17,30 +17,55 @@
 <body>
 <main>
   <p class="muted" style="text-align:right;margin:0"><a href="gizlilik.html" hreflang="tr">Türkçe</a></p>
-  <h1>Privacy</h1>
-  <p class="muted">Kaydır · last updated October 19, 2026</p>
+  <h1>Privacy notice</h1>
+  <p class="muted">Kaydır · under GDPR Art. 13 and Turkey's KVKK (Law No. 6698) Art. 10 · last updated 19 October 2026</p>
 
-  <h2>What we collect</h2>
+  <h2>Controller</h2>
+  <p>Doğukan Parlak (individual) · <a href="https://dogukanparlak.com">dogukanparlak.com</a> · e-mail: <a href="mailto:dogukannparlak@gmail.com">dogukannparlak@gmail.com</a>. Kaydır is a non-commercial personal project.</p>
+
+  <h2>What we process, why, and on what legal basis</h2>
   <ul>
-    <li><b>Account:</b> your email address, if you sign in.</li>
-    <li><b>Your lists:</b> the movies and shows you add to your Want, Watched and Pass lists, your marks, your filters and the titles you have seen.</li>
-    <li><b>Your API keys:</b> your TMDB and OMDb keys stay only in your browser by default. If you turn on "Store my API keys in my account" in Settings, they are stored <b>encrypted</b> in your account: the encryption key is derived in your browser from your account password (PBKDF2 + AES-GCM), and neither the plain keys nor this encryption key are sent to the server. If you reset your password, the old copy can no longer be opened and you enter your keys again.</li>
-    <li><b>In-app activity:</b> what you do on the site (titles you swipe, searches, filters, pages you open, buttons, browser errors) is recorded to improve the site and fix bugs; without an account it is linked only to the anonymous ID, when signed in to your account. Passwords, e-mail fields and API key contents are never recorded. Deleted after 90 days.</li>
-    <li><b>Anonymous visit statistics:</b> how many people visit and how long they stay; the page path, the name of the site you came from, device type (phone/computer), browser language and whether you are signed in. No cookies are used and IP addresses are not written to the statistics. So that return visits can be counted, a random ID is stored in your browser (localStorage); it contains no personal information and does not identify you. Clearing your browser data removes it. In addition, cookie-free <a href="https://umami.is/privacy">Umami</a> and <a href="https://www.cloudflare.com/web-analytics/">Cloudflare Web Analytics</a> keep aggregate visit counts.</li>
+    <li><b>Data on your device (even without an account):</b> your lists, seen titles, filters, language and preferences stay only in your browser (localStorage) and are not sent to a server. Strictly necessary for the site to work; no cookies are used.</li>
+    <li><b>Account (optional):</b> your e-mail address, a hash of your password (Supabase Auth), your lists, seen titles and filters, to sync across devices. Legal basis: performance of the service / contract (GDPR Art. 6(1)(b), KVKK Art. 5/2-c).</li>
+    <li><b>Your API keys:</b> by default only in your browser. If you turn it on in Settings they are stored <b>encrypted</b> in your account (the key is derived from your password in your browser; the plain keys never reach the server).</li>
+    <li><b>Statistics (only with your consent):</b> visit count, time on site, page path, referring site name, device type, browser language; a random ID is stored in your browser to count return visits. Umami (cookie-free analytics) is loaded only with this consent too. Legal basis: consent (GDPR Art. 6(1)(a), KVKK Art. 5/1).</li>
+    <li><b>Activity log (only with your consent):</b> what you do on the site: titles you swipe, searches, filters, views you open, buttons you click. To improve the site and debug errors. Without an account it is linked only to the random ID; when signed in, to your account. Passwords, e-mail fields and API key contents are never recorded. Legal basis: consent.</li>
+    <li><b>Error reports:</b> if something breaks, the error message and location are sent with a temporary ID that is not stored on your device (with your account if signed in), to keep the site working. Legal basis: legitimate interest (GDPR Art. 6(1)(f), KVKK Art. 5/2-f).</li>
+    <li><b>Server and security logs:</b> the hosting (Cloudflare) and database (Supabase) providers briefly keep IP addresses and request data to prevent abuse (rate limiting) and for security. Legal basis: legitimate interest.</li>
   </ul>
-  <p>If you don't create an account, your lists never leave your device; the data stays only in your browser (localStorage). The only thing sent to a server is the anonymous statistics above.</p>
+  <p>You don't have to consent to statistics or the activity log; the site works the same without them. You can withdraw consent at any time in <b>Settings › Privacy and your data</b>; withdrawal does not affect processing before it.</p>
 
-  <h2>Where it is stored</h2>
-  <p>Account data is stored on Supabase (EU, Frankfurt). Only its owner can access each row; other users cannot see your data. On the admin page the site owner sees aggregate visit counts and each account's e-mail address, sign-up and last sign-in dates and number of list items; not the content of your lists or your API keys. Account deletion requests are handled there.</p>
+  <h2>Recipients and international transfers</h2>
+  <ul>
+    <li><b>Supabase</b> (database, accounts): data is stored in the EU (Frankfurt).</li>
+    <li><b>Cloudflare</b> (hosting, TMDB proxy, aggregate page counts via Web Analytics): US-based, servers worldwide.</li>
+    <li><b>Umami Cloud</b> (only with Statistics consent): cookie-free aggregate visit counts.</li>
+    <li><b>TMDB, OMDb, YouTube:</b> for posters, scores and trailers your browser requests these services directly (they see your IP address).</li>
+  </ul>
+  <p>Some of these services are outside your country; your consent to the optional processing also covers the transfers it requires. Data is never sold, used for advertising, or shared with anyone else.</p>
 
-  <h2>Who it is shared with</h2>
-  <p>It is never sold or shared with anyone. Your browser sends requests directly to TMDB for movie information and posters, to OMDb for ratings and to YouTube for trailers; these requests are made with your own key (or through the site's shared TMDB connection).</p>
+  <h2>Retention</h2>
+  <ul>
+    <li>Account data: until you delete your account.</li>
+    <li>Activity log and error reports: 90 days.</li>
+    <li>Visit statistics: 13 months.</li>
+    <li>Data on your device: until you delete it (clearing browser data is enough).</li>
+  </ul>
 
-  <h2>Deletion</h2>
-  <p>To delete your account and all of your data, write to <a href="mailto:dogukannparlak@gmail.com">dogukannparlak@gmail.com</a>. You can delete the data in your browser from Settings or by clearing your browser data.</p>
+  <h2>Your rights</h2>
+  <p>Under GDPR Art. 15–22 and KVKK Art. 11 you have the right to access, rectify and erase your data, to object, to withdraw consent and to data portability. Most of them you can use yourself, right away:</p>
+  <ul>
+    <li><b>Download my data:</b> Settings › Privacy and your data (account, lists, activity and visit records as JSON).</li>
+    <li><b>Delete my account and data:</b> same section; your account and all server-side records are deleted immediately.</li>
+    <li><b>Delete this device's records:</b> if you used the site without an account, deletes the visit and activity records of this device.</li>
+  </ul>
+  <p>For anything else write to <a href="mailto:dogukannparlak@gmail.com">dogukannparlak@gmail.com</a>; you'll get an answer within 30 days. You can also lodge a complaint with your local data protection authority (in Turkey: the KVKK Board, kvkk.gov.tr).</p>
+
+  <h2>What the site owner sees</h2>
+  <p>On the admin page the site owner sees aggregate visit counts, each account's e-mail address, sign-up and last sign-in dates, number of list items and, if you consented, your activity log. The owner cannot see your API keys or password.</p>
 
   <h2>License</h2>
-  <p>Kaydır is released under the <a href="https://polyformproject.org/licenses/noncommercial/1.0.0">PolyForm Noncommercial 1.0.0</a> license: personal and non-commercial use is free, commercial use is prohibited. © 2026 Doğukan Parlak · <a href="https://dogukanparlak.com">dogukanparlak.com</a></p>
+  <p>Kaydır is released under the <a href="https://polyformproject.org/licenses/noncommercial/1.0.0">PolyForm Noncommercial 1.0.0</a> license: personal and non-commercial use is allowed, commercial use is not. © 2026 Doğukan Parlak · <a href="https://dogukanparlak.com">dogukanparlak.com</a></p>
 
   <p class="muted" style="margin-top:32px">This product uses the TMDB API but is not endorsed or certified by TMDB. · <a href="./">Back to Kaydır</a></p>
 </main>

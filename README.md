@@ -69,11 +69,15 @@ Your keys stay in the browser's `localStorage`. If you sign in and turn on the s
 
 ## Analytics and admin
 
-- Own counter (`js/istatistik.js`, table `visits`): a visit starts on load and pings every 30 s while the tab is visible →
-  visits, visitors, time on site, device type, language, referrer. No cookies, no IP addresses.
-  A random anonymous ID is kept in `localStorage` so return visits can be counted (no banner, on by default).
+- **GDPR / KVKK:** statistics and the activity log are off until the visitor chooses (prior consent, `js/riza.js`).
+  The banner offers Accept / Reject / Choose with equal weight; Settings › Privacy and your data changes it any time.
+  Rights in-app: download my data, delete my account and data, delete this device's records. Without consent only
+  ID-less error reports are sent. Notice: `privacy.html` / `gizlilik.html`. Retention: activity 90 days, visits 13 months.
+  (Not reviewed by a lawyer.)
+- Own counter (`js/istatistik.js`, table `visits`, only with Statistics consent): visits, visitors, time on site, device type,
+  language, referrer. No cookies, no IP addresses; with consent an anonymous ID in `localStorage` counts return visits.
 - Umami Cloud (`UMAMI_ID` in `js/istatistik.js`, counts only on kaydir.dogukanparlak.com). Cloudflare Web Analytics is also on.
-- Activity log (`js/kayit.js`, table `events`): everything users do on the site (swipes, searches, filters, opened views, clicks,
+- Activity log (`js/kayit.js`, table `events`, only with Activity consent): everything users do on the site (swipes, searches, filters, opened views, clicks,
   browser errors), anonymous visitors included under their anonymous ID. Passwords, e-mail fields and API key contents are never logged; kept 90 days.
 - Admin page (`/admin.html`, also Settings › Admin): a standalone dashboard for accounts in the `admins` table.
   Tabs: Overview, Accounts (search, role, delete), Visitors (incl. anonymous), Activity (live feed with filters), Errors (grouped);

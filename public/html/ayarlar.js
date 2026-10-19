@@ -44,6 +44,16 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
       <div class="note lb-status" id="lbStatus" aria-live="polite"></div>
       <p class="note">letterboxd.com → Settings → Data → Export Your Data. İzlenenler İzlediklerim'e, izleme listesi İstek'e gider; Letterboxd puanın saklanır. Zip yerine <code>watched.csv</code> ve <code>watchlist.csv</code> da seçilebilir.</p>
     </section>
+    <section id="privSec">
+      <h3>Gizlilik ve verilerin</h3>
+      <div class="switch-row"><span><b>İstatistik</b><br><small class="note">Anonim ziyaret sayısı ve kalma süresi (Umami dahil)</small></span><button class="switch" id="cStats" role="switch" aria-checked="false" aria-label="İstatistik"></button></div>
+      <div class="switch-row" style="margin-top:10px"><span><b>Etkinlik kaydı</b><br><small class="note">Sitede yaptıkların; hata ayıklama ve iyileştirme için</small></span><button class="switch" id="cActivity" role="switch" aria-checked="false" aria-label="Etkinlik kaydı"></button></div>
+      <p class="note" id="consentAt"></p>
+      <p class="note">İkisi de isteğe bağlı; kapalıyken site aynı çalışır. Hata raporları kimliksiz gönderilir.</p>
+      <div class="row-btns"><button class="btn acc-only hidden" id="btnMyData">Verilerimi indir</button><button class="btn" id="btnForget">Bu cihazın kayıtlarını sil</button></div>
+      <div class="row-btns acc-only hidden"><button class="btn btn-danger" id="btnDelAcc">Hesabımı ve verilerimi sil</button></div>
+      <p class="note"><a href="gizlilik.html" data-privacy target="_blank">Aydınlatma metni ve hakların</a></p>
+    </section>
     <section id="adminSec" class="hidden">
       <h3>Yönetim</h3>
       <button class="btn btn-ico" id="btnAdmin"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg> Yönetim panelini aç</button>

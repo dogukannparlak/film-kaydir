@@ -91,6 +91,7 @@ function init() {
   renderDeck();
   if (tmdbReady()) loadProviders();
   initAccount();
+  initPrivacy();
   initStats();
   initAdmin();
   initSheetDrag();

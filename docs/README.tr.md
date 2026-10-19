@@ -91,11 +91,14 @@ Kullanıcı anahtarları tarayıcının `localStorage`'ında durur; giriş yapı
 
 ## İstatistik ve yönetim
 
-- Kendi sayaç (`js/istatistik.js`, tablo `visits`): açılışta ziyaret başlar, sekme görünürken 30 sn'de bir sinyal →
-  ziyaret, ziyaretçi, kalma süresi, cihaz türü, dil, nereden gelindiği. Çerez ve IP yok. Geri dönen ziyaretçiyi saymak için
-  `localStorage`'a rastgele anonim kimlik yazılır (bant yok, varsayılan açık).
+- **KVKK / GDPR:** istatistik ve etkinlik kaydı seçim yapılana kadar kapalı (önceden rıza, `js/riza.js`). Açılış bandında
+  Kabul / Reddet / Seç eşit ağırlıkta; Ayarlar › Gizlilik ve verilerin'den her an değişir. Haklar sitede: verilerimi indir,
+  hesabımı ve verilerimi sil, bu cihazın kayıtlarını sil. Rıza olmadan yalnız kimliksiz hata raporu gider. Aydınlatma metni:
+  `gizlilik.html` / `privacy.html`. Saklama: etkinlik 90 gün, ziyaret 13 ay. (Hukuki son kontrol yapılmadı.)
+- Kendi sayaç (`js/istatistik.js`, tablo `visits`, yalnız İstatistik rızasıyla): ziyaret, ziyaretçi, kalma süresi, cihaz türü,
+  dil, nereden gelindiği. Çerez ve IP yok; rızayla `localStorage`'a anonim kimlik yazılır, geri dönen ziyaretçi sayılır.
 - Umami Cloud (`js/istatistik.js` › `UMAMI_ID`; yalnız kaydir.dogukanparlak.com sayılır). Cloudflare Web Analytics de açık.
-- Etkinlik günlüğü (`js/kayit.js`, tablo `events`): kullanıcının sitede yaptığı her şey (kaydırma, arama, filtre, açılan sayfalar,
+- Etkinlik günlüğü (`js/kayit.js`, tablo `events`, yalnız Etkinlik kaydı rızasıyla): kullanıcının sitede yaptığı her şey (kaydırma, arama, filtre, açılan sayfalar,
   tıklamalar, tarayıcı hataları), girişsiz ziyaretçi de anonim kimlikle. Şifre, e-posta kutusu ve API anahtarı içeriği kaydedilmez; 90 gün saklanır.
 - Yönetim sayfası (`/admin.html`, Ayarlar › Yönetim de açar): yalnız `admins` tablosundaki hesaba açık, siteden bağımsız panel.
   Sekmeler: Genel, Hesaplar (arama, rol, silme), Ziyaretçiler (girişsizler dahil), Etkinlik (canlı akış, tür/metin filtresi),

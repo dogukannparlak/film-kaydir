@@ -1,7 +1,8 @@
 'use strict';
 /* ================= Etkinlik günlüğü ================= */
-// Doğukan'ın kararı (2026-10-19): kullanıcının sitede yaptığı her şey kaydedilir, girişsiz ziyaretçi de (anonim
-// kd_visitor kimliğiyle, e-postasız). Olaylar bellekte toplanır, 5 sn'de bir ya da sekme gizlenince toplu gider
+// Kullanıcının sitede yaptığı her şey kaydedilir (Doğukan, 2026-10-19), ama yalnız "Etkinlik kaydı" rızasıyla (js/riza.js,
+// KVKK/GDPR); girişsiz ziyaretçi anonim kd_visitor kimliğiyle, e-postasız. Rıza yoksa yalnız hata raporu gider, cihaza
+// yazılmayan sayfalık kimlikle (meşru menfaat). Olaylar bellekte toplanır, 5 sn'de bir ya da sekme gizlenince toplu gider
 // (Supabase log_events; hesap kimliği sunucuda auth.uid()'den eklenir). Yönetim sayfasında Etkinlik / Hatalar sekmeleri.
 // Asla kaydedilmez: şifre, e-posta kutusu, API anahtarı içerikleri (yalnız düğme metni ve olay verisi gider).
 // Yükleme sırası: bütün modüllerden sonra, baslat.js'ten önce (sarılan işlevler init() olayları bağlamadan değişsin).
@@ -12,6 +13,7 @@ const itemInfo = k => { const it = k && (S.items[k] || S.queue.find(q => q.key =
 
 function logEv(kind, data) {
   if (!location.protocol.startsWith('http')) return;
+  if (kind !== 'error' && !allowed('activity')) return;
   LOG.buf.push({ kind, data:data || null, at:new Date().toISOString() });
   if (LOG.buf.length >= LOG_MAX) flushLog();
   else if (!LOG.timer) LOG.timer = setTimeout(flushLog, LOG_FLUSH);

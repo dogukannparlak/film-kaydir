@@ -207,7 +207,7 @@ function setSyncStatus(msg) {
 async function onSignedIn(user) {
   const fresh = !S.user || S.user.id !== user.id;
   S.user = user;
-  renderAccount(); renderKeySync();
+  renderAccount(); renderKeySync(); renderPrivacy();
   if (!fresh) return;
   checkAdmin();
   // Bu cihazda bu hesapla ilk kez mi? (başka hesabın eşitleme izi varsa sıfırla)
@@ -239,7 +239,7 @@ async function signOut() {
   toast(t('Çıkış yapıldı: API anahtarları bu cihazdan silindi'));
 }
 function onSignedOut() {
-  S.user = null; clearInterval(pullTimer); renderAccount(); renderKeySync(); checkAdmin();
+  S.user = null; clearInterval(pullTimer); renderAccount(); renderKeySync(); renderPrivacy(); checkAdmin();
 }
 
 /* ---- Giriş arayüzü (Ayarlar › Hesap) ---- */
@@ -265,7 +265,7 @@ function renderAccount() {
     <input class="field" id="accPass" type="password" placeholder="${t('Şifre (en az 8 karakter)')}" autocomplete="current-password" style="margin-top:8px">
     <div class="row-btns"><button class="btn btn-primary" id="accIn">${t('Giriş yap')}</button><button class="btn" id="accUp">${t('Kayıt ol')}</button></div>
     <button class="linkish" id="accForgot">${t('Şifremi unuttum')}</button>
-    <p class="note">${t('Giriş yaparak {link} kabul etmiş olursun.', { link: `<a href="${LANG === 'en' ? 'privacy.html' : 'gizlilik.html'}" target="_blank">${t('gizlilik metnini')}</a>` })}</p>
+    <p class="note">${t('Hesap verilerinin nasıl işlendiği {link} yazıyor.', { link: `<a href="${LANG === 'en' ? 'privacy.html' : 'gizlilik.html'}" target="_blank">${t('aydınlatma metninde')}</a>` })}</p>
     <div class="err" id="accErr"></div>`;
 }
 const accErr = m => { const e = $('#accErr'); if (e) e.textContent = m; };
@@ -308,7 +308,7 @@ async function onAccountClick(e) {
     // Ayarlar'da yeni şifreyi bir kez girince kendi anahtarlarını da ekler)
     setVault(await deriveVault(S.user.id, np)); S.keysLocked = false;
     if (S.keySync) { sync.keysSig = ''; S.stateDirty = true; saveDirty(); syncSoon(); }
-    toast(t('Şifren değiştirildi')); renderAccount(); renderKeySync();
+    toast(t('Şifren değiştirildi')); renderAccount(); renderKeySync(); renderPrivacy();
   }
 }
 function initAccount() {

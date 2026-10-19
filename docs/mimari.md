@@ -65,6 +65,7 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 | `js/letterboxd.js` | Letterboxd zip/CSV okuma (tarayıcıda `DecompressionStream` ile açar), TMDB eşleştirme, listelere yazma | `importLetterboxd`, `unzipFiles`, `parseCSV`, `matchTMDB` |
 | `js/kasa.js` | API anahtarlarını hesapta şifreli saklama: hesap şifresinden PBKDF2-SHA256 (310 000 tur) ile AES-GCM anahtarı türetme, şifreleme/çözme; türetilen anahtar cihazda `kd_vault` | `deriveVault`, `setVault`, `vaultFor`, `sealKeys`, `openKeys` |
 | `js/hesap.js` | Supabase hesap + eşitleme: giriş (şifre, sıfırlama; Google `GOOGLE_AUTH` ile kapalı), değişen öğeleri gönderme, `updated_at > since` ile çekme, ilk girişte birleştirme; API anahtarı düğmesi (`keys_enc`, kilitli cihazda şifre sorma, eski düz metin anahtarları taşıma) | `syncSoon`, `pushChanges`, `pullChanges`, `syncNow`, `initAccount`, `applyCloudKeys`, `renderKeySync` |
+| `js/riza.js` | KVKK/GDPR rızası: `stats` (sayaç + Umami) ve `activity` (etkinlik kaydı) seçim yapılana kadar kapalı; açılış bandı (Kabul / Reddet / Seç), Ayarlar › Gizlilik ve verilerin (düğmeler, verilerimi indir, bu cihazın kayıtlarını sil, hesabımı sil) | `allowed`, `setConsent`, `showConsentBar`, `renderPrivacy`, `initPrivacy` |
 | `js/istatistik.js` | Ziyaret sayacı (`visit_start` + 30 sn'de `visit_ping`), kalıcı anonim kimlik (`kd_visitor`), Umami (`UMAMI_ID` doluysa) | `initStats`, `setConsent`, `startVisit` |
 | `js/admin.js` | Ayarlar › Yönetim düğmesi: `is_admin()` ise görünür, `admin.html`'i açar | `checkAdmin`, `initAdmin` |
 | `js/kayit.js` | Etkinlik günlüğü: işlevleri sarar (`act`, `undo`, `runSearch`, `applyFilters`, `setView`, …) + bütün tıklamalar + tarayıcı hataları; 5 sn'de bir `log_events`'e toplu gider. Şifre/e-posta/anahtar içeriği gitmez. `baslat.js`'ten hemen önce yüklenir | `logEv`, `flushLog`, `wrapLog` |
@@ -91,7 +92,8 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 | `kd_keysync` | API anahtarları hesapta (şifreli) saklansın mı |
 | `kd_vault` | Hesap şifresinden türetilen AES anahtarı + tuz (`{user, salt, k}`); çıkışta silinir |
 | `kd_lang` | Arayüz dili (`tr` / `en`) |
-| `kd_visitor` | Kalıcı anonim ziyaretçi kimliği (geri dönen ziyaretçi sayımı) |
+| `kd_consent` | Rıza: `{v:1, stats, activity, at}`; yoksa bant çıkar, ikisi de kapalı |
+| `kd_visitor` | Kalıcı anonim ziyaretçi kimliği; yalnız rıza varsa yazılır |
 | `kd_items` | Liste öğeleri: `id, type, title, originalTitle, trailer, latestSeason/seasonAck/newSeason/nextSeason/tvCheckedAt (dizi), collection ({id, name} | null), poster, date, status, genres, rating, imdb, imdbRating, rt, director, scoreAt, addedAt`, İzlediklerim'de isteğe bağlı `progress` (`watching` \| `season` \| `dropped`; İzliyorum'da kaldığın yer `at: {s, e}` ve yayınlanmış bölümler `eps`, bkz. `PROGRESS`; başka listeye taşınınca silinir) |
 | `kd_seen` | Daha önce gösterilenler (tekrar gelmesin) |
 | `kd_filters`, `kd_listf` | Deste ve liste filtreleri |
@@ -109,6 +111,8 @@ Göçler: `supabase/migrations/` (önceki dördü panelden/MCP ile uygulandı, a
   şifreli (`{v, salt, iv, ct}`); eski düz metin sütunlar `tmdb_key`, `omdb_key` istemci tarafından hep boşaltılır.
 - `visits` + `visit_start` / `visit_ping`: anonim ziyaret sayacı. Tabloya doğrudan erişim yok, yalnız bu iki
   `security definer` fonksiyon; ziyaretçi başına günde en çok 200 ziyaret.
+- KVKK/GDPR hakları: `my_data()` (giriş yapanın bütün verisi), `delete_my_account()`, `forget_visitor(id)` (cihaz kayıtları).
+  Saklama: `events` 90 gün, `visits` 13 ay (ara sıra silinir).
 - `events` + `log_events(visitor, olaylar, yol)`: etkinlik günlüğü (girişsiz ziyaretçi dahil, hesap `auth.uid()`'den), 90 gün; ziyaretçi
   başına saatte en çok 1000 olay. Okuma yalnız admin: `admin_events`, `admin_visitors`, `admin_errors`, `admin_event_kinds`.
 - `admins` + `is_admin()`, `admin_stats(p_days)`, `admin_users()`, `admin_delete_user(id)`, `admin_set_role(id, rol)`, `admin_db()`: yönetim sayfası

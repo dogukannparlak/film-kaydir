@@ -17,27 +17,52 @@
 <body>
 <main>
   <p class="muted" style="text-align:right;margin:0"><a href="privacy.html" hreflang="en">English</a></p>
-  <h1>Gizlilik</h1>
-  <p class="muted">Kaydır · son güncelleme 19 Ekim 2026</p>
+  <h1>Gizlilik ve aydınlatma metni</h1>
+  <p class="muted">Kaydır · KVKK (6698 sayılı Kanun) md. 10 ve GDPR md. 13 kapsamında · son güncelleme 19 Ekim 2026</p>
 
-  <h2>Ne topluyoruz</h2>
+  <h2>Veri sorumlusu</h2>
+  <p>Doğukan Parlak (gerçek kişi) · <a href="https://dogukanparlak.com">dogukanparlak.com</a> · e-posta: <a href="mailto:dogukannparlak@gmail.com">dogukannparlak@gmail.com</a>. Kaydır ticari olmayan kişisel bir projedir.</p>
+
+  <h2>Hangi veriler, neden, hangi hukuki sebeple</h2>
   <ul>
-    <li><b>Hesap:</b> giriş yaparsan e-posta adresin.</li>
-    <li><b>Listelerin:</b> İstek, İzledim, Geç listelerine eklediğin film/diziler, işaretlerin, filtrelerin ve görülen yapımlar.</li>
-    <li><b>API anahtarların:</b> TMDB ve OMDb anahtarların varsayılan olarak yalnız tarayıcında durur. Ayarlar'da "API anahtarlarını hesabımda sakla"yı açarsan hesabında <b>şifreli</b> saklanır: şifreleme anahtarı hesap şifrenden tarayıcında türetilir (PBKDF2 + AES-GCM), anahtarların açık hâli ve bu şifreleme anahtarı sunucuya gitmez. Şifreni sıfırlarsan eski kopya açılamaz, anahtarları yeniden girersin.</li>
-    <li><b>Site içi etkinlik:</b> sitede yaptıkların (kaydırdığın yapımlar, aramalar, filtreler, açtığın sayfalar, düğmeler, tarayıcı hataları) iyileştirme ve hata ayıklama için kaydedilir; giriş yapmadıysan yalnız anonim kimlikle, yaptıysan hesabınla eşleşir. Şifre, e-posta kutusu ve API anahtarı içerikleri kaydedilmez. 90 gün sonra silinir.</li>
-    <li><b>Anonim ziyaret istatistiği:</b> kaç kişinin geldiği ve ne kadar kaldığı; sayfa yolu, geldiğin sitenin adı, cihaz türü (telefon/bilgisayar), tarayıcı dili ve giriş yapıp yapmadığın. Çerez kullanılmaz, IP adresi istatistiğe yazılmaz. Tekrar gelişin sayılabilsin diye tarayıcına (localStorage) rastgele bir kimlik yazılır; kişisel bilgi içermez, seni tanımlamaz. Silmek için tarayıcı verilerini temizlemen yeterli. Ayrıca çerezsiz <a href="https://umami.is/privacy">Umami</a> ve <a href="https://www.cloudflare.com/web-analytics/">Cloudflare Web Analytics</a> toplu ziyaret sayıları tutar.</li>
+    <li><b>Cihazındaki veriler (hesapsız da):</b> listelerin, görülenler, filtreler, dil ve tercihlerin yalnız tarayıcında (localStorage) durur, sunucuya gitmez. Sitenin çalışması için zorunludur; çerez kullanılmaz.</li>
+    <li><b>Hesap (isteğe bağlı):</b> e-posta adresin, şifrenin özeti (Supabase Auth), listelerin, görülenler ve filtreler; cihazlar arasında eşitleme için. Hukuki sebep: hizmetin sunulması / sözleşmenin ifası (KVKK md. 5/2-c, GDPR md. 6/1-b).</li>
+    <li><b>API anahtarların:</b> varsayılan olarak yalnız tarayıcında durur. Ayarlar'da açarsan hesabında <b>şifreli</b> saklanır (anahtar hesap şifrenden tarayıcında türetilir, açık hâli sunucuya gitmez).</li>
+    <li><b>İstatistik (yalnız rızanla):</b> ziyaret sayısı, kalma süresi, sayfa yolu, geldiğin sitenin adı, cihaz türü, tarayıcı dili; tekrar gelişini saymak için tarayıcına rastgele bir kimlik yazılır. Umami (çerezsiz analitik) de yalnız bu rızayla yüklenir. Hukuki sebep: açık rıza (KVKK md. 5/1, GDPR md. 6/1-a).</li>
+    <li><b>Etkinlik kaydı (yalnız rızanla):</b> sitede yaptıkların: kaydırdığın yapımlar, aramalar, filtreler, açtığın bölümler, tıkladığın düğmeler. Siteyi iyileştirmek ve hataları ayıklamak için. Girişsizsen yalnız rastgele kimlikle, girişliysen hesabınla eşleşir. Şifre, e-posta kutusu ve API anahtarı içerikleri hiç kaydedilmez. Hukuki sebep: açık rıza.</li>
+    <li><b>Hata raporları:</b> sitede bir hata olursa hata mesajı ve yeri, cihazına yazılmayan geçici bir kimlikle gönderilir (girişliysen hesabınla). Sitenin çalışır kalması için. Hukuki sebep: meşru menfaat (KVKK md. 5/2-f, GDPR md. 6/1-f).</li>
+    <li><b>Sunucu ve güvenlik kayıtları:</b> barındırma (Cloudflare) ve veritabanı (Supabase) sağlayıcıları IP adresini ve istek bilgisini kötüye kullanımı önlemek (hız sınırı) ve güvenlik için kısa süre tutar. Hukuki sebep: meşru menfaat.</li>
   </ul>
-  <p>Hesap açmazsan listelerin sunucuya gitmez; veriler yalnız tarayıcında (localStorage) durur. Sunucuya giden tek şey yukarıdaki anonim istatistiktir.</p>
+  <p>İstatistik ve etkinlik kaydı için rıza vermek zorunda değilsin; vermezsen site aynı şekilde çalışır. Rızanı <b>Ayarlar › Gizlilik ve verilerin</b> bölümünden her an geri alabilirsin; geri alma, o ana kadarki işlemenin hukuka uygunluğunu etkilemez.</p>
 
-  <h2>Nerede saklanıyor</h2>
-  <p>Hesap verileri Supabase'de (AB, Frankfurt) saklanır. Her satıra yalnız sahibi erişebilir; başka kullanıcılar senin verini göremez. Site sahibi yönetim sayfasında toplu ziyaret sayılarını ve hesapların e-posta adresini, kayıt ve son giriş tarihini, liste öğesi sayısını görür; listelerinin içeriğini ve API anahtarlarını görmez. Hesap silme isteğini bu sayfadan yerine getirir.</p>
+  <h2>Kimlere aktarılıyor (yurt içi / yurt dışı)</h2>
+  <ul>
+    <li><b>Supabase</b> (veritabanı, hesap): veriler AB'de (Frankfurt) saklanır.</li>
+    <li><b>Cloudflare</b> (barındırma, TMDB ara katmanı, toplu sayfa sayımı Web Analytics): ABD merkezli, dünya çapında sunucular.</li>
+    <li><b>Umami Cloud</b> (yalnız İstatistik rızasıyla): çerezsiz, toplu ziyaret sayımı.</li>
+    <li><b>TMDB, OMDb, YouTube:</b> afiş, puan ve fragman için tarayıcın bu hizmetlere doğrudan istek atar (IP adresini görürler).</li>
+  </ul>
+  <p>Bu hizmetlerin bir kısmı Türkiye dışındadır; isteğe bağlı işlemeler için verdiğin açık rıza, bu işlemlerin gerektirdiği yurt dışı aktarımı da kapsar. Veriler satılmaz, reklam için kullanılmaz, başka kimseyle paylaşılmaz.</p>
 
-  <h2>Kimlerle paylaşılıyor</h2>
-  <p>Hiç kimseyle satılmaz ya da paylaşılmaz. Film bilgileri ve afişler için tarayıcın doğrudan TMDB'ye, puanlar için OMDb'ye, fragmanlar için YouTube'a istek atar; bu istekler senin anahtarınla (ya da sitenin ortak TMDB bağlantısıyla) yapılır.</p>
+  <h2>Ne kadar saklanıyor</h2>
+  <ul>
+    <li>Hesap verileri: hesabını silene kadar.</li>
+    <li>Etkinlik kaydı ve hata raporları: 90 gün.</li>
+    <li>Ziyaret istatistiği: 13 ay.</li>
+    <li>Cihazındaki veriler: sen silene kadar (tarayıcı verilerini temizlemek yeter).</li>
+  </ul>
 
-  <h2>Silme</h2>
-  <p>Hesabını ve bütün verilerini silmek için <a href="mailto:dogukannparlak@gmail.com">dogukannparlak@gmail.com</a> adresine yaz. Tarayıcıdaki veriyi Ayarlar'dan ya da tarayıcı verilerini temizleyerek silebilirsin.</p>
+  <h2>Hakların</h2>
+  <p>KVKK md. 11 ve GDPR md. 15–22 kapsamında verilerinin işlenip işlenmediğini öğrenme, bilgi ve kopya isteme, düzeltme, silme, işlemeye itiraz etme, rızayı geri alma ve veri taşınabilirliği hakların var. Çoğunu kendin, beklemeden kullanabilirsin:</p>
+  <ul>
+    <li><b>Verilerimi indir:</b> Ayarlar › Gizlilik ve verilerin (hesabın, listelerin, etkinlik ve ziyaret kayıtların JSON olarak).</li>
+    <li><b>Hesabımı ve verilerimi sil:</b> aynı bölümde; hesabın ve sunucudaki bütün kayıtların hemen silinir.</li>
+    <li><b>Bu cihazın kayıtlarını sil:</b> girişsiz kullandıysan, bu cihaza ait ziyaret ve etkinlik kayıtlarını siler.</li>
+  </ul>
+  <p>Diğer istekler için <a href="mailto:dogukannparlak@gmail.com">dogukannparlak@gmail.com</a> adresine yaz; en geç 30 gün içinde yanıtlanır. Yanıttan memnun kalmazsan Kişisel Verileri Koruma Kurulu'na (kvkk.gov.tr) ya da AB'de yaşıyorsan bulunduğun ülkenin veri koruma otoritesine şikâyette bulunabilirsin.</p>
+
+  <h2>Site sahibinin gördükleri</h2>
+  <p>Site sahibi yönetim sayfasında toplu ziyaret sayılarını, hesapların e-posta adresini, kayıt ve son giriş tarihini, liste öğesi sayısını ve rıza verdiysen etkinlik kaydını görür. API anahtarlarını ve şifreni göremez.</p>
 
   <h2>Lisans</h2>
   <p>Kaydır, <a href="https://polyformproject.org/licenses/noncommercial/1.0.0">PolyForm Noncommercial 1.0.0</a> lisansıyla yayımlanır: kişisel ve ticari olmayan kullanım serbest, ticari kullanım yasaktır. © 2026 Doğukan Parlak · <a href="https://dogukanparlak.com">dogukanparlak.com</a></p>
