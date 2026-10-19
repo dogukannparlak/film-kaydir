@@ -84,7 +84,12 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
    özeti ve puanları tamamlar.
 5. Kaydırma → `act` → `setItem`: öğe `S.items`'a yazılır (localStorage `kd_items`).
 
-## Saklanan veri (localStorage)
+## Saklanan veri (localStorage / sessionStorage)
+
+Misafir (girişsiz) modda `GUEST_KEYS` (öğeler, görülenler, filtreler, liste filtresi, kirli işaret, API anahtarları, OMDb önbelleği)
+`sessionStorage`'dadır: sekme kapanınca silinir. Girişte bellekteki durum `localStorage`'a yazılır (`setAccountMode`), çıkışta
+silinir ve misafir moduna dönülür. Mod açılışta Supabase oturum anahtarının varlığından anlaşılır; `body.guest` sınıfı Ayarlar'da
+`.acc-only` / `.guest-only` bölümlerini gösterir/gizler. Öteki anahtarlar hep `localStorage`.
 
 | Anahtar | İçerik |
 |---|---|

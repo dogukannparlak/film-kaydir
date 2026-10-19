@@ -25,7 +25,7 @@
 
   <h2>What we process, why, and on what legal basis</h2>
   <ul>
-    <li><b>Data on your device (even without an account):</b> your lists, seen titles, filters, language and preferences stay only in your browser (localStorage) and are not sent to a server. Strictly necessary for the site to work; no cookies are used.</li>
+    <li><b>Data on your device:</b> without an account your lists, seen titles, filters and keys live only in that tab (sessionStorage), are never sent to a server and are deleted when you close the tab. When signed in they are also kept in your browser (localStorage) and removed from the device when you sign out. Device settings such as language and privacy choice stay in your browser. Strictly necessary for the site to work; no cookies are used.</li>
     <li><b>Account (optional):</b> your e-mail address, a hash of your password (Supabase Auth), your lists, seen titles and filters, to sync across devices. Legal basis: performance of the service / contract (GDPR Art. 6(1)(b), KVKK Art. 5/2-c).</li>
     <li><b>Your API keys:</b> by default only in your browser. If you turn it on in Settings they are stored <b>encrypted</b> in your account (the key is derived from your password in your browser; the plain keys never reach the server).</li>
     <li><b>Statistics (only with your consent):</b> visit count, time on site, page path, referring site name, device type, browser language; a random ID is stored in your browser to count return visits. Umami (cookie-free analytics) is loaded only with this consent too. Legal basis: consent (GDPR Art. 6(1)(a), KVKK Art. 5/1).</li>
@@ -49,7 +49,7 @@
     <li>Account data: until you delete your account.</li>
     <li>Activity log and error reports: 90 days.</li>
     <li>Visit statistics: 13 months.</li>
-    <li>Data on your device: until you delete it (clearing browser data is enough).</li>
+    <li>Data without an account: until you close the tab. Device copy while signed in: until you sign out.</li>
   </ul>
 
   <h2>Your rights</h2>

@@ -49,7 +49,7 @@ Object.assign(EN, {
   'Hesap açarsan': 'If you create an account',
   'listelerin her cihazda aynı olur, düzenli eşitlenir. İstersen API anahtarlarını da şifreli saklarsın; telefonda ya da bilgisayarda yeniden girmen gerekmez.': 'your lists stay the same on every device and sync regularly. You can also store your API keys encrypted, so you won\'t need to re-enter them on your phone or computer.',
   'Hesapsız': 'Without an account',
-  'devam edersen her şey yalnız bu tarayıcıda kalır. İstediğin zaman Ayarlar › Hesap\'tan giriş yapabilirsin.': 'everything stays in this browser only. You can sign in any time from Settings › Account.',
+  'devam edersen her şey yalnız bu sekmede kalır, sekmeyi kapatınca silinir. İstediğin zaman Ayarlar › Hesap\'tan kayıt olabilirsin.': 'everything stays only in this tab and is deleted when you close it. You can sign up any time in Settings › Account.',
   'Kaydol': 'Sign up',
   'Giriş yap': 'Sign in',
   'Başla': 'Get started',

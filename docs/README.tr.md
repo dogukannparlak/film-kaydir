@@ -73,6 +73,10 @@ Kullanıcı anahtarları tarayıcının `localStorage`'ında durur; giriş yapı
 
 ## Hesap ve eşitleme (Supabase)
 
+- Hesapsız (misafir) kullanım: listeler, görülenler, filtreler ve anahtarlar yalnız o sekmede durur (sessionStorage), yenilemede kalır,
+  sekme kapanınca silinir; kalıcı olması için kayıt olunur (ilk kaydırmada hatırlatma). Misafir Ayarlar'ı sadedir: anahtarlar,
+  yedek, Letterboxd ve görülenler yerine "Hesapla açılanlar" kartı görünür.
+- Sürüm: 0.1 beta.
 - Ayarlar › Hesap: e-posta + şifre. Google ile giriş şimdilik kapalı (`js/hesap.js` › `GOOGLE_AUTH`). Hesapsız da çalışır (veri yalnız tarayıcıda).
 - Giriş yapınca listeler, görülenler ve filtreler hesaba yazılır; cihazlar aynı listeyi görür.
 - API anahtarları (Ayarlar › "API anahtarlarını hesabımda sakla", varsayılan kapalı): açıksa anahtarlar hesapta **şifreli**

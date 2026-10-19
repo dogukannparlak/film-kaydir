@@ -13,7 +13,8 @@ const STATUS = { want:t('İstek listesi'), watched:t('İzlediklerim'), passed:t(
 // Bildirimlerde yönelme hâli: "… İstek listesine taşındı"
 const STATUS_TO = { want:t('İstek listesine'), watched:t('İzlediklerim\'e'), passed:t('Geçtiklerim\'e') };
 // Hakkında bölümünde görünür; anlamlı bir sürüm çıkınca artır
-const APP_VERSION = '1.0.0';
+const APP_VERSION = '0.1'; // beta
+const APP_STAGE = 'beta';
 const DIR_STATUS = { right:'want', left:'passed', up:'watched' };
 // İzlediklerim içinde "yarım kaldı" işareti; öğe İzlediklerim'de kalır
 const PROGRESS = {

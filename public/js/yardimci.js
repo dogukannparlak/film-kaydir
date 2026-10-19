@@ -8,11 +8,37 @@ const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
 const yearOf = d => (d || '').slice(0, 4);
 const keySel = k => `.card[data-key="${CSS.escape(k)}"]`;
 function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+// Misafir modu (Doğukan, 2026-10-19): giriş yapmamış kullanıcının listeleri, görülenleri, filtreleri ve anahtarları
+// sessionStorage'da durur: sekme kapanınca silinir (yenilemede kalır), kalıcı olsun isteyen kayıt olur. Girişliyken
+// localStorage. Cihazın kendi ayarları (dil, rıza, rehber, anonim kimlik, önbellekler) her zaman localStorage.
+// Mod açılışta Supabase oturum anahtarının varlığından anlaşılır; giriş/çıkışta setAccountMode ile değişir.
+const GUEST_KEYS = new Set([K.items, K.seen, K.filters, K.listF, K.dirty, K.key, K.omdb, K.omdbCache]);
+let accountMode = (() => { try { return Object.keys(localStorage).some(k => /^sb-.+-(auth-token|session)$/.test(k)); } catch { return false; } })();
+const area = k => !accountMode && GUEST_KEYS.has(k) ? sessionStorage : localStorage;
 const store = {
-  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { toast(t('Kaydedilemedi: tarayıcı depolaması dolu ya da kapalı.')); } },
-  del(k) { try { localStorage.removeItem(k); } catch {} },
+  get(k, d) { try { const v = area(k).getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { area(k).setItem(k, JSON.stringify(v)); } catch { toast(t('Kaydedilemedi: tarayıcı depolaması dolu ya da kapalı.')); } },
+  del(k) { try { area(k).removeItem(k); } catch {} },
 };
+// Eski sürümde misafir verisi localStorage'daydı: bu sekmeye (sessionStorage) taşı. guestMoved: bilgilendirme için.
+let guestMoved = false;
+function moveToSession() {
+  try {
+    for (const k of GUEST_KEYS) { const v = localStorage.getItem(k); if (v != null) { if (sessionStorage.getItem(k) == null) sessionStorage.setItem(k, v); localStorage.removeItem(k); guestMoved ||= k === K.items && v !== '{}'; } }
+  } catch {}
+}
+if (!accountMode) moveToSession();
+document.body.classList.toggle('guest', !accountMode);
+// Giriş: bellekteki durum kalıcı depoya yazılır, sekmelik kopya silinir. Çıkış: yalnız mod değişir (veri zaten silinir).
+function setAccountMode(on, values) {
+  if (on === accountMode) return;
+  accountMode = on;
+  document.body.classList.toggle('guest', !on);
+  if (!on) { moveToSession(); return; } // oturum kendiliğinden düştüyse (süresi bitti) cihazdaki kopya bu sekmeye geçer
+  if (!values) return;
+  for (const [k, v] of Object.entries(values)) store.set(k, v);
+  try { GUEST_KEYS.forEach(k => sessionStorage.removeItem(k)); } catch {}
+}
 function toast(msg, action, fn, ms = 2800) {
   const t = document.createElement('div');
   t.className = 'toast';

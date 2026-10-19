@@ -24,6 +24,7 @@ function act(dir, from) {
   btn.classList.add('pop'); setTimeout(() => btn.classList.remove('pop'), 160);
   vibrate();
   renderDeck(); updateCounts();
+  if (!S.user) guestNudge();
 }
 function undo() {
   const u = S.undo.pop();

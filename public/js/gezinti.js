@@ -29,7 +29,7 @@ function openSettings() {
   $('#seenCount').textContent = t('{n} içerik', { n:S.seen.size.toLocaleString(LOCALE) });
   resetSeenArmed = false;
   $('#btnResetSeen').textContent = t('Görülenleri sıfırla');
-  $('#appVersion').textContent = t('Film ve dizi keşfi · sürüm {v}', { v:APP_VERSION });
+  $('#appVersion').textContent = t('Film ve dizi keşfi · sürüm {v}', { v:APP_VERSION + ' ' + APP_STAGE });
   renderPrivacy();
   openSheet('#sheetSettings');
 }

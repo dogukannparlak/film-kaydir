@@ -32,7 +32,7 @@ Object.assign(EN, {
   'Çıkış yap': 'Sign out',
   'Listelerin, görülenler ve filtreler bu hesapta saklanır; telefon ve bilgisayar aynı listeyi görür. API anahtarları yalnız aşağıdaki düğme açıksa, şifreli saklanır. Çıkış yapınca bu cihazdaki listelerin ve anahtarların silinir, giriş yapınca geri gelir.': 'Your lists, seen titles and filters are stored in this account; your phone and computer see the same lists. API keys are stored (encrypted) only if the switch below is on. When you sign out, your lists and keys are removed from this device and come back when you sign in.',
   'Gizlilik': 'Privacy',
-  'Giriş yaparsan listelerin cihazlar arasında eşitlenir. Hesapsız da kullanabilirsin.': 'If you sign in, your lists sync across devices. You can also use the site without an account.',
+
   '⚠️ Site dosyadan açık: Google ile giriş ve e-posta bağlantıları yalnız yayındaki adreste çalışır.': '⚠️ The site is opened from a file: Google sign-in and email links only work at the published address.',
   '⚠️ Site dosyadan açık: e-posta bağlantıları yalnız yayındaki adreste çalışır.': '⚠️ The site is opened from a file: email links only work at the published address.',
   'Google ile devam et': 'Continue with Google',
@@ -189,4 +189,15 @@ Object.assign(EN, {
   'Hesaba yedeklenemedi (çevrimdışı olabilirsin). Çıkarsan hesaba gitmemiş değişiklikler bu cihazdan silinir. Yine de çıkılsın mı?': 'Could not back up to your account (you may be offline). If you sign out, changes not yet in your account will be removed from this device. Sign out anyway?',
   'API anahtarların hesabında saklanmıyor; çıkınca bu cihazdan silinecek. Saklamak için önce Ayarlar\'da "API anahtarlarını hesabımda sakla"yı aç. Yine de çıkılsın mı?': 'Your API keys are not stored in your account and will be removed from this device when you sign out. To keep them, first turn on "Store my API keys in my account" in Settings. Sign out anyway?',
   'Çıkış yapıldı: bu cihazdaki listelerin ve anahtarların silindi; giriş yapınca geri gelir': 'Signed out: your lists and keys were removed from this device; they come back when you sign in',
+});
+// Misafir modu (sekmelik veri) ve beta
+Object.assign(EN, {
+  'Hesapsız kullanıyorsun: listelerin yalnız bu sekmede durur, sekmeyi kapatınca silinir. Kayıt olursan kalıcı olur ve cihazlar arasında eşitlenir.': 'You\'re using Kaydır without an account: your lists live only in this tab and are deleted when you close it. Sign up to keep them and sync across devices.',
+  'Hesapsızsın: sekmeyi kapatınca listelerin silinir': 'No account: your lists are deleted when you close this tab',
+  'Hesapsız listelerin artık yalnız bu sekmede tutuluyor; kalıcı olması için kayıt ol': 'Lists without an account are now kept only in this tab; sign up to keep them',
+  'Hesapla açılanlar': 'With an account',
+  'Listelerin kalıcı olur, telefon ve bilgisayarda aynı görünür': 'Your lists are kept and look the same on phone and computer',
+  'Kendi TMDB ve OMDb anahtarın (IMDb, Rotten Tomatoes puanları)': 'Your own TMDB and OMDb keys (IMDb, Rotten Tomatoes scores)',
+  'Letterboxd\'dan içe aktarma, yedek, görülenleri yönetme': 'Letterboxd import, backups, managing seen titles',
+  'Ücretsiz kayıt ol': 'Sign up for free',
 });

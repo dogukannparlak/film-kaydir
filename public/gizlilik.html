@@ -25,7 +25,7 @@
 
   <h2>Hangi veriler, neden, hangi hukuki sebeple</h2>
   <ul>
-    <li><b>Cihazındaki veriler (hesapsız da):</b> listelerin, görülenler, filtreler, dil ve tercihlerin yalnız tarayıcında (localStorage) durur, sunucuya gitmez. Sitenin çalışması için zorunludur; çerez kullanılmaz.</li>
+    <li><b>Cihazındaki veriler:</b> hesapsız kullanırken listelerin, görülenler, filtreler ve anahtarların yalnız o sekmede (sessionStorage) durur, sunucuya gitmez ve sekmeyi kapatınca silinir. Girişliyken tarayıcında (localStorage) da durur; çıkış yapınca bu cihazdan silinir. Dil, gizlilik tercihi gibi cihaz ayarları tarayıcında kalır. Sitenin çalışması için zorunludur; çerez kullanılmaz.</li>
     <li><b>Hesap (isteğe bağlı):</b> e-posta adresin, şifrenin özeti (Supabase Auth), listelerin, görülenler ve filtreler; cihazlar arasında eşitleme için. Hukuki sebep: hizmetin sunulması / sözleşmenin ifası (KVKK md. 5/2-c, GDPR md. 6/1-b).</li>
     <li><b>API anahtarların:</b> varsayılan olarak yalnız tarayıcında durur. Ayarlar'da açarsan hesabında <b>şifreli</b> saklanır (anahtar hesap şifrenden tarayıcında türetilir, açık hâli sunucuya gitmez).</li>
     <li><b>İstatistik (yalnız rızanla):</b> ziyaret sayısı, kalma süresi, sayfa yolu, geldiğin sitenin adı, cihaz türü, tarayıcı dili; tekrar gelişini saymak için tarayıcına rastgele bir kimlik yazılır. Umami (çerezsiz analitik) de yalnız bu rızayla yüklenir. Hukuki sebep: açık rıza (KVKK md. 5/1, GDPR md. 6/1-a).</li>
@@ -49,7 +49,7 @@
     <li>Hesap verileri: hesabını silene kadar.</li>
     <li>Etkinlik kaydı ve hata raporları: 90 gün.</li>
     <li>Ziyaret istatistiği: 13 ay.</li>
-    <li>Cihazındaki veriler: sen silene kadar (tarayıcı verilerini temizlemek yeter).</li>
+    <li>Hesapsız veriler: sekmeyi kapatana kadar. Girişliyken cihazdaki kopya: çıkış yapana kadar.</li>
   </ul>
 
   <h2>Hakların</h2>

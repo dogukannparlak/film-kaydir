@@ -9,14 +9,19 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
       <h3>Hesap</h3>
       <div id="accBox"></div>
     </section>
-    <section>
+    <section class="guest-only guest-card">
+      <h3>Hesapla açılanlar</h3>
+      <ul class="note guest-list"><li>Listelerin kalıcı olur, telefon ve bilgisayarda aynı görünür</li><li>Kendi TMDB ve OMDb anahtarın (IMDb, Rotten Tomatoes puanları)</li><li>Letterboxd'dan içe aktarma, yedek, görülenleri yönetme</li></ul>
+      <div class="row-btns"><button class="btn btn-primary" data-acc="up">Ücretsiz kayıt ol</button><button class="btn" data-acc="in">Giriş yap</button></div>
+    </section>
+    <section class="acc-only">
       <h3>TMDB API anahtarı <small>isteğe bağlı</small></h3>
       <input class="field" id="setKey" type="password" placeholder="API anahtarı ya da okuma erişim jetonu" autocomplete="off">
       <div class="row-btns"><button class="btn btn-primary" id="btnSaveKey2">Kaydet</button><button class="btn btn-danger" id="btnDelKey">Anahtarı sil</button></div>
       <div class="err" id="setKeyErr"></div>
       <p class="note">Gerekmez: site TMDB'ye kendi ortak bağlantısıyla bağlanır. Kendi anahtarını girersen istekler doğrudan onunla gider; bu tarayıcıda saklanır; giriş yaptıysan ve aşağıdaki düğme açıksa hesabında şifreli yedeklenir.</p>
     </section>
-    <section>
+    <section class="acc-only">
       <h3>OMDb anahtarı <small>isteğe bağlı · IMDb, RT, Metacritic puanı</small></h3>
       <input class="field" id="setOmdb" type="password" placeholder="OMDb API anahtarı" autocomplete="off">
       <div class="row-btns"><button class="btn btn-primary" id="btnSaveOmdb">Kaydet</button><button class="btn btn-danger" id="btnDelOmdb">Sil</button></div>
@@ -27,17 +32,17 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
       <div class="switch-row"><h3>API anahtarlarını hesabımda sakla <small>şifreli</small></h3><button class="switch" id="keySync" role="switch" aria-checked="false" aria-label="API anahtarlarını hesabımda sakla"></button></div>
       <div id="keySyncBox"></div>
     </section>
-    <section>
+    <section class="acc-only">
       <h3>Görülenler <small id="seenCount"></small></h3>
       <p class="note" style="margin:0 0 10px">Kaydırdığın içerik bir daha çıkmaz. Listeden sildiklerin de görüldü sayılır. Sıfırlarsan listelerde olmayanlar yeniden çıkabilir.</p>
       <button class="btn btn-danger" id="btnResetSeen">Görülenleri sıfırla</button>
     </section>
-    <section>
+    <section class="acc-only">
       <h3>Yedek <small>listeler + görülenler · JSON</small></h3>
       <div class="row-btns"><button class="btn btn-ico" id="btnExport"><svg class="i" aria-hidden="true"><use href="#i-export"/></svg> Dışa aktar</button><button class="btn btn-ico" id="btnImport"><svg class="i" aria-hidden="true"><use href="#i-import"/></svg> İçe aktar</button></div>
       <input type="file" id="fileImport" accept="application/json,.json" class="hidden">
     </section>
-    <section>
+    <section class="acc-only">
       <h3>Letterboxd'dan içe aktar <small>yalnız filmler</small></h3>
       <button class="btn btn-ico" id="btnLetterboxd"><svg class="i" aria-hidden="true"><use href="#i-import"/></svg> Letterboxd zip'ini seç</button>
       <input type="file" id="fileLetterboxd" accept=".zip,.csv,application/zip,text/csv" multiple class="hidden">
@@ -68,7 +73,7 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
       <button class="linkish" id="btnGuide">Rehberi yeniden göster</button>
     </section>
     <section class="about">
-      <div class="about-head"><img src="icons/logo.svg" alt="" width="44" height="44"><div><b>Kaydır</b><small id="appVersion">Film ve dizi keşfi</small></div></div>
+      <div class="about-head"><img src="icons/logo.svg" alt="" width="44" height="44"><div><b>Kaydır <span class="beta">beta</span></b><small id="appVersion">Film ve dizi keşfi</small></div></div>
       <p class="note">Yapan: <b>Doğukan Parlak</b> · <a href="https://dogukanparlak.com" target="_blank" rel="noopener">dogukanparlak.com</a></p>
       <div class="about-links">
         <a class="btn btn-ico" href="https://github.com/dogukannparlak/film-kaydir" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-github"/></svg> GitHub</a>

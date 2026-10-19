@@ -2,7 +2,7 @@
 // Üst çubuk: marka, filtre ve ayar düğmeleri. Betik etiketinin yerine (önüne) yazılır; file:// ile de çalışır.
 document.currentScript.insertAdjacentHTML('beforebegin', `
   <header>
-    <div class="brand"><img class="brand-logo" src="icons/logo.svg" alt="" width="28" height="28"><span>Kaydır</span></div>
+    <div class="brand"><img class="brand-logo" src="icons/logo.svg" alt="" width="28" height="28"><span>Kaydır</span><span class="beta">beta</span></div>
     <button class="icon-btn" id="btnSearch" aria-label="Ara (/)" title="Ara (/)">
       <svg class="i" aria-hidden="true"><use href="#i-search"/></svg>
     </button>

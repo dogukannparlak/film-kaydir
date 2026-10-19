@@ -30,7 +30,7 @@ function closeGuide() {
 function accountStepHTML() {
   if (S.user) return `<p>${t('Hesabınla giriş yaptın: listelerin bu hesapta yedekleniyor, cihazlar arasında düzenli eşitleniyor. API anahtarlarını da Ayarlar\'dan şifreli saklayabilirsin.')}</p>`;
   return `<p><b>${t('Hesap açarsan')}</b> ${t('listelerin her cihazda aynı olur, düzenli eşitlenir. İstersen API anahtarlarını da şifreli saklarsın; telefonda ya da bilgisayarda yeniden girmen gerekmez.')}</p>
-    <p><b>${t('Hesapsız')}</b> ${t('devam edersen her şey yalnız bu tarayıcıda kalır. İstediğin zaman Ayarlar › Hesap\'tan giriş yapabilirsin.')}</p>
+    <p><b>${t('Hesapsız')}</b> ${t('devam edersen her şey yalnız bu sekmede kalır, sekmeyi kapatınca silinir. İstediğin zaman Ayarlar › Hesap\'tan kayıt olabilirsin.')}</p>
     <div class="guide-acc"><button class="btn btn-primary" data-acc="up">${t('Kaydol')}</button><button class="btn" data-acc="in">${t('Giriş yap')}</button></div>`;
 }
 function renderGuide() {

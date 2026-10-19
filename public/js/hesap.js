@@ -207,6 +207,9 @@ function setSyncStatus(msg) {
 async function onSignedIn(user) {
   const fresh = !S.user || S.user.id !== user.id;
   S.user = user;
+  // Misafir verisi (sekmelik) artık kalıcı depoya: ilk girişte hesaba da birleştirilir
+  if (!accountMode) setAccountMode(true, Object.fromEntries([[K.items, S.items], [K.seen, [...S.seen]], [K.filters, S.filters], [K.listF, S.listF],
+    [K.key, S.apiKey], [K.omdb, S.omdbKey], [K.omdbCache, S.omdbCache], [K.dirty, { state:S.stateDirty, seen:S.seenDirty }]].filter(([, v]) => v !== '' && v != null)));
   renderAccount(); renderKeySync(); renderPrivacy();
   if (!fresh) return;
   checkAdmin();
@@ -243,8 +246,10 @@ function wipeLocalAccountData() {
   if ($('#setKey')) { $('#setKey').value = ''; $('#setOmdb').value = ''; }
   updateSummary(); updateCounts(); if (S.view === 'lists') renderList();
   resetEngine(); loadProviders();
+  setAccountMode(false); // silme kalıcı depoda yapıldı; bundan sonrası misafir (sekmelik)
 }
 function onSignedOut() {
+  if (accountMode) setAccountMode(false);
   S.user = null; clearInterval(pullTimer); renderAccount(); renderKeySync(); renderPrivacy(); checkAdmin();
 }
 
@@ -263,7 +268,7 @@ function renderAccount() {
   }
   const local = location.protocol === 'file:';
   box.innerHTML = `
-    <p class="note" style="margin:0 0 10px">${t('Giriş yaparsan listelerin cihazlar arasında eşitlenir. Hesapsız da kullanabilirsin.')}</p>
+    <p class="note" style="margin:0 0 10px">${t('Hesapsız kullanıyorsun: listelerin yalnız bu sekmede durur, sekmeyi kapatınca silinir. Kayıt olursan kalıcı olur ve cihazlar arasında eşitlenir.')}</p>
     ${local ? `<p class="note" style="margin:0 0 10px">${GOOGLE_AUTH ? t('⚠️ Site dosyadan açık: Google ile giriş ve e-posta bağlantıları yalnız yayındaki adreste çalışır.') : t('⚠️ Site dosyadan açık: e-posta bağlantıları yalnız yayındaki adreste çalışır.')}</p>` : ''}
     ${GOOGLE_AUTH ? `<button class="btn btn-google" id="accGoogle" ${local ? 'disabled' : ''}><span>G</span> ${t('Google ile devam et')}</button>
     <div class="acc-or">${t('ya da e-posta')}</div>` : ''}
@@ -317,7 +322,15 @@ async function onAccountClick(e) {
     toast(t('Şifren değiştirildi')); renderAccount(); renderKeySync(); renderPrivacy();
   }
 }
+// Misafire hatırlatma: oturumda ilk kaydırmada bir kez (ve eski sürümden taşınan veri varsa açılışta)
+function guestNudge() {
+  if (S.user) return;
+  try { if (sessionStorage.getItem('kd_nudged')) return; sessionStorage.setItem('kd_nudged', '1'); } catch { return; }
+  toast(t('Hesapsızsın: sekmeyi kapatınca listelerin silinir'), t('Kayıt ol'), () => openAccount('up'), 6000);
+}
 function initAccount() {
+  if (guestMoved) setTimeout(() => toast(t('Hesapsız listelerin artık yalnız bu sekmede tutuluyor; kalıcı olması için kayıt ol'), t('Kayıt ol'), () => openAccount('up'), 8000), 1500);
+  $('#sheetSettings').addEventListener('click', e => { const b = e.target.closest('.guest-card [data-acc]'); if (b) openAccount(b.dataset.acc); });
   if (LANG === 'en') $$('#sheetSettings a[href="gizlilik.html"]').forEach(a => a.href = 'privacy.html');
   renderAccount();
   if (!sb) return;
@@ -333,6 +346,7 @@ function initAccount() {
       }
       if (session?.user) onSignedIn(session.user);
       else if (event === 'SIGNED_OUT') onSignedOut();
+      else if (event === 'INITIAL_SESSION' && accountMode) setAccountMode(false); // oturumun süresi dolmuş
     }, 0);
   });
   // Sekmeye dönünce çek; sekme gizlenince / sayfa kapanırken bekleyen değişiklikleri hemen gönder

@@ -579,3 +579,10 @@ nav.tabs svg.i{width:21px;height:21px}
 .consent-pick{display:flex;flex-direction:column;gap:8px;margin-top:10px;font-size:13px}
 .consent-pick label{display:flex;gap:8px;align-items:flex-start}
 .consent-pick input{margin-top:3px;accent-color:var(--accent)}
+
+/* Misafir (girişsiz) / hesap görünümü: body.guest js/yardimci.js'te; Ayarlar'da bölümler buna göre */
+body.guest .acc-only{display:none!important}
+body:not(.guest) .guest-only{display:none!important}
+.guest-card{border:1px solid rgba(167,139,250,.35);background:linear-gradient(135deg,rgba(139,92,246,.14),rgba(255,255,255,.03))}
+.guest-list{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:4px}
+.beta{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:999px;font-size:11px;font-weight:700;letter-spacing:.02em;background:rgba(167,139,250,.22);color:#ddd6fe;vertical-align:middle}
