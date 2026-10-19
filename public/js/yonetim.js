@@ -15,6 +15,9 @@ const secs = s => { s = Math.round(s || 0); return s < 60 ? `${s} sn` : s < 3600
 const bytes = b => b > 1e9 ? (b / 1e9).toFixed(2) + ' GB' : b > 1e6 ? (b / 1e6).toFixed(1) + ' MB' : Math.round(b / 1e3) + ' KB';
 const date = d => d ? new Date(d).toLocaleDateString('tr-TR', { day:'numeric', month:'short', year:'2-digit' }) : '—';
 const ago = d => { if (!d) return '—'; const m = (Date.now() - new Date(d)) / 60000; return m < 60 ? Math.round(m) + ' dk önce' : m < 1440 ? Math.round(m / 60) + ' sa önce' : Math.round(m / 1440) + ' gün önce'; };
+// Umami ücretsiz planda API yok (Pro gerekir, 2026-10-19): paylaşım bağlantısı panelin içine gömülür.
+// cloud.umami.is › Websites › Kaydır › Edit › Share URL › Enable share URL › bağlantıyı buraya yapıştır.
+const UMAMI_SHARE = '';
 const COLORS = { own:'#8b5cf6', umami:'#22d3ee', cf:'#f59e0b', err:'#ef4444' };
 const PANELS = [
   ['Canlı site', 'https://kaydir.dogukanparlak.com'],
@@ -31,7 +34,7 @@ const SETUP = {
   cloudflare: `<b>Cloudflare bağlı değil.</b> Workers &amp; Pages › kaydir › Settings › Variables and secrets'e ekle:
     <ol><li><code>CF_API_TOKEN</code> (Secret): My Profile › API Tokens › Create Token › Custom › izin <i>Account · Account Analytics · Read</i></li>
     <li><code>CF_ACCOUNT_ID</code> (Text): Workers &amp; Pages sayfasının sağındaki Account ID</li></ol>`,
-  umami: `<b>Umami bağlı değil.</b> cloud.umami.is › Settings › API keys › Create key; anahtarı Cloudflare'de <code>UMAMI_API_KEY</code> (Secret) olarak ekle.`,
+  umami: `<b>Umami paylaşım bağlantısı yok.</b> cloud.umami.is › Websites › Kaydır › Edit › <i>Share URL</i> › Enable; bağlantıyı <code>js/yonetim.js</code> › <code>UMAMI_SHARE</code>'e yaz. (Umami API'si ücretli planda; gerekmiyor.)`,
 };
 const st = { days:30, token:null, me:null, charts:{}, armed:null, tab:'genel', users:[], loaded:{} };
 const ROLES = { user:'Kullanıcı', admin:'Admin' }; // public.admin_set_role ile aynı
@@ -75,6 +78,7 @@ async function load() {
   const D = { own:v(own), users:v(users), db:v(db), cf:v(cf), um:v(um) };
   renderSources(own, cf, um);
   st.users = D.users || []; st.usersErr = users;
+  if (UMAMI_SHARE && !$('#umamiFrame').src) { $('#umamiFrame').src = UMAMI_SHARE; $('#umamiCard').classList.remove('hidden'); }
   renderKpis(D); renderCharts(D); renderTops(D); renderUsers(); renderDb(D.db);
   st.loaded = {}; showTab(st.tab); loadErrorBadge();
   $('#refresh').textContent = 'Yenile';
@@ -89,7 +93,8 @@ function renderSources(own, cf, um) {
     const warn = d?.graphqlErrors?.length ? `<div class="setup"><b>${name} sorgu uyarısı:</b> ${esc(d.graphqlErrors.join(' · '))}</div>` : '';
     return [`<span class="src ok"><i></i>${name}</span>`, warn];
   };
-  const parts = [chip('Kendi sayaç (Supabase)', own, ''), chip('Cloudflare', cf, SETUP.cloudflare), chip('Umami', um, SETUP.umami)];
+  const umR = um.status === 'fulfilled' && um.value?.connected === false && UMAMI_SHARE ? { status:'fulfilled', value:{ connected:true } } : um;
+  const parts = [chip('Kendi sayaç (Supabase)', own, ''), chip('Cloudflare', cf, SETUP.cloudflare), chip(UMAMI_SHARE ? 'Umami (paylaşım)' : 'Umami', umR, SETUP.umami)];
   $('#sources').innerHTML = parts.map(p => p[0]).join('') + parts.map(p => p[1]).join('');
 }
 

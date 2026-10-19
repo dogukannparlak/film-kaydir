@@ -112,3 +112,5 @@ tr.click{cursor:pointer} tr.click:hover td{background:rgba(255,255,255,.03)}
 .it img,.it .noimg{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:8px;background:var(--line)}
 .it b{font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .it small{color:var(--muted);font-size:11.5px}
+
+#umamiFrame{width:100%;height:1100px;border:0;border-radius:10px;background:#fff}
