@@ -243,6 +243,7 @@ function wipeLocalAccountData() {
   S.items = {}; S.seen = new Set(); S.filters = { ...DEFAULT_FILTERS }; S.listF = { type:'all', genre:'', period:'all', q:'', sort:'added', progress:'all' };
   S.apiKey = ''; S.omdbKey = ''; S.omdbCache = {}; S.proxyDown = false; S.stateDirty = S.seenDirty = false; S.undo = [];
   [K.items, K.seen, K.filters, K.listF, K.dirty, K.key, K.omdb, K.omdbCache].forEach(k => store.del(k));
+  store.del(VISITOR_KEY); // aynı tarayıcıyı paylaşan hesaplar aynı ziyaretçi kimliğini taşımasın (rıza varsa yenisi üretilir)
   if ($('#setKey')) { $('#setKey').value = ''; $('#setOmdb').value = ''; }
   updateSummary(); updateCounts(); if (S.view === 'lists') renderList();
   resetEngine(); loadProviders();

@@ -22,7 +22,8 @@ function flushLog() {
   clearTimeout(LOG.timer); LOG.timer = null;
   if (!LOG.buf.length || !sb) return;
   const batch = LOG.buf.splice(0, LOG_MAX);
-  sb.rpc('log_events', { p_visitor:visitorId().id, p_events:batch, p_path:location.pathname }).then(() => {}, () => {});
+  // Rıza yoksa yalnız hata gider ve hesapla eşleşmez (p_with_user:false): aydınlatma metnindeki "kimliksiz hata raporu"
+  sb.rpc('log_events', { p_visitor:visitorId().id, p_events:batch, p_path:location.pathname, p_with_user:allowed('activity') }).then(() => {}, () => {});
   if (LOG.buf.length) LOG.timer = setTimeout(flushLog, LOG_FLUSH);
 }
 

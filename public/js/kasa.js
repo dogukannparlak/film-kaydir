@@ -1,7 +1,8 @@
 'use strict';
 /* ================= Anahtar kasası (API anahtarlarını hesapta şifreli saklama) ================= */
 // Ayarlar › "API anahtarlarını hesabımda sakla" açıksa anahtarlar buluta yalnız şifreli gider (user_state.keys_enc).
-// Şifreleme anahtarı hesap şifresinden tarayıcıda türetilir (PBKDF2-SHA256 → AES-GCM); şifre ve türetilen anahtar sunucuya hiç gitmez.
+// Şifreleme anahtarı hesap şifresinden tarayıcıda türetilir (PBKDF2-SHA256 → AES-GCM); türetilen anahtar ve anahtarların açık
+// hâli sunucuya gitmez. (Şifrenin kendisi girişte Supabase Auth'a gider: veritabanı sızıntısına karşı korur, Supabase işletmecisine karşı değil.)
 // Türetilen anahtar bu cihazda saklanır (kd_vault), böylece her açılışta şifre sorulmaz; çıkışta silinir.
 // Kapalıysa anahtarlar yalnız bu cihazda kalır. Şifre sıfırlanırsa eski kopya açılamaz: anahtarlar yeniden girilir.
 const VAULT_KEY = 'kd_vault';   // { user, salt, k } — k: türetilen AES anahtarı (base64)

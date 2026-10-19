@@ -233,30 +233,34 @@ const KIND = { swipe:'Kaydırdı', undo:'Geri aldı', view:'Sekme', open:'Açtı
   episode:'Bölüm', import:'İçe aktardı', export:'Dışa aktardı', lang:'Dil', keysync:'Anahtar düğmesi', signin:'Giriş', signout:'Çıkış',
   guide:'Rehber', click:'Tıkladı', error:'Hata', page:'Sayfa açtı' };
 const DIR = { right:'→ İstek', left:'← Geç', up:'↑ İzledim' };
+// Olay verisi kullanıcı tarafından yazılır (log_events herkese açık): her alan esc() ya da sayıya çevrilir,
+// beklenmeyen tür (dizi yerine metin vb.) satırı bozmasın diye evRows çağrıyı try ile sarar.
+const num = v => Number.isFinite(+v) ? +v : 0;
+const arr = v => Array.isArray(v) ? v.map(String) : [];
 function evText(e) {
-  const d = e.data || {};
+  const d = e.data && typeof e.data === 'object' ? e.data : {};
   switch (e.kind) {
-    case 'swipe': return `${DIR[d.dir] || d.dir} · <b>${esc(d.title || d.key)}</b> <small>${esc(d.how || '')}</small>`;
+    case 'swipe': return `${esc(DIR[d.dir] || d.dir)} · <b>${esc(d.title || d.key)}</b> <small>${esc(d.how || '')}</small>`;
     case 'undo': return `<b>${esc(d.title || d.key)}</b>`;
     case 'search': return `“${esc(d.q)}”`;
     case 'view': return esc(d.v);
     case 'open': return esc(d.sheet) + (d.title ? ` · <b>${esc(d.title)}</b>` : '');
-    case 'episode': return `<b>${esc(d.title || d.key)}</b> ${d.next ? '+1 bölüm' : d.at ? `S${d.at.s} B${d.at.e}` : ''}`;
-    case 'error': return `<b>${esc(d.msg)}</b> <small>${esc(d.src || '')}${d.line ? ':' + d.line : ''}</small>`;
-    case 'click': return `${esc(d.text || d.id || '')}${d.title ? ` · <b>${esc(d.title)}</b>` : ''} <small>${esc(Object.entries(d).filter(([k]) => !['text', 'title', 'key', 'id'].includes(k)).map(([k, v]) => k + '=' + v).join(' '))}</small>`;
-    case 'page': return `<small>${esc(d.lang)} · ${d.w}×${d.h} · ${fmt(d.items)} öğe${d.ref ? ' · ' + esc(d.ref) : ''}</small>`;
+    case 'episode': return `<b>${esc(d.title || d.key)}</b> ${d.next ? '+1 bölüm' : d.at ? `S${num(d.at.s)} B${num(d.at.e)}` : ''}`;
+    case 'error': return `<b>${esc(d.msg)}</b> <small>${esc(d.src || '')}${d.line ? ':' + num(d.line) : ''}</small>`;
+    case 'click': return `${esc(d.text || d.id || '')}${d.title ? ` · <b>${esc(d.title)}</b>` : ''} <small>${esc(Object.entries(d).filter(([k]) => !['text', 'title', 'key', 'id'].includes(k)).map(([k, v]) => k + '=' + (typeof v === 'object' ? JSON.stringify(v) : v)).join(' ').slice(0, 200))}</small>`;
+    case 'page': return `<small>${esc(d.lang)} · ${num(d.w)}×${num(d.h)} · ${fmt(d.items)} öğe${d.ref ? ' · ' + esc(d.ref) : ''}</small>`;
     case 'signin': return esc(d.email || '');
-    case 'filters': return esc([d.type, d.sort, d.genres?.length ? d.genres.join('/') : '', d.periods?.length ? d.periods.join('/') : '', d.regions?.length ? d.regions.join('/') : '',
-      d.minRating ? '★' + d.minRating + '+' : '', d.providers?.length ? d.providers.length + ' platform' : ''].filter(Boolean).join(' · '));
+    case 'filters': return esc([d.type, d.sort, arr(d.genres).join('/'), arr(d.periods).join('/'), arr(d.regions).join('/'),
+      d.minRating ? '★' + num(d.minRating) + '+' : '', arr(d.providers).length ? arr(d.providers).length + ' platform' : ''].filter(Boolean).join(' · '));
     default: return `<small>${esc(JSON.stringify(d).slice(0, 220))}</small>`;
   }
 }
 function evRows(list, withWho = true) {
   if (!list.length) return '<p class="empty">Kayıt yok.</p>';
-  return list.map(e => `<div class="ev"><time title="${esc(new Date(e.at).toLocaleString('tr-TR'))}">${new Date(e.at).toLocaleString('tr-TR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })}</time>
+  return list.map(e => `<div class="ev"><time title="${esc(new Date(e.at).toLocaleString('tr-TR'))}">${esc(new Date(e.at).toLocaleString('tr-TR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' }))}</time>
     <span class="k k-${esc(e.kind)}">${esc(KIND[e.kind] || e.kind)}</span>
     ${withWho ? `<span class="who" data-v="${esc(e.visitor)}" data-u="${esc(e.user_id || '')}" title="${esc(e.visitor)}">${e.email ? esc(e.email) : 'anonim · ' + esc(String(e.visitor).slice(0, 8))}</span>` : '<span></span>'}
-    <span class="d">${evText(e)}</span></div>`).join('');
+    <span class="d">${(() => { try { return evText(e); } catch { return `<small>${esc(JSON.stringify(e.data).slice(0, 220))}</small>`; } })()}</span></div>`).join('');
 }
 document.addEventListener('click', e => {
   const w = e.target.closest('.who[data-v]');
@@ -311,7 +315,7 @@ async function loadErrors() {
     const rows = await rpc('admin_errors', { p_days:7 });
     $('#errors').innerHTML = rows.length ? rows.map(r => `<div class="err-row"><b>${esc(r.message)}</b>
       <div class="muted">${fmt(r.count)} kez · ${fmt(r.visitors)} ziyaretçi · ${fmt(r.users)} hesap · ilk ${ago(r.first_at)}, son ${ago(r.last_at)}
-      · ${esc(r.sample?.src || '')}${r.sample?.line ? ':' + r.sample.line : ''} ${esc(r.sample?.path || '')}</div>
+      · ${esc(r.sample?.src || '')}${r.sample?.line ? ':' + num(r.sample.line) : ''} ${esc(r.sample?.path || '')}</div>
       ${r.sample?.stack ? `<pre>${esc(r.sample.stack)}</pre>` : ''}</div>`).join('') : '<p class="empty">Son 7 günde hata yok.</p>';
   } catch (err) { $('#errors').innerHTML = `<p class="err">${esc(err.message)}</p>`; }
 }

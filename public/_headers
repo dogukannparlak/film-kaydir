@@ -1,8 +1,9 @@
-# Güvenlik başlıkları (Cloudflare statik dosyalar). CSP: betikler yalnız bu site + jsDelivr (SRI'li Supabase);
+# Güvenlik başlıkları (Cloudflare statik dosyalar). jsDelivr'de yalnız iki tam sürüm yolu izinli (Supabase, Chart.js; ikisi de SRI'li):
+# jsDelivr'in tamamı izinli olsaydı bir HTML enjeksiyonu oradaki herhangi bir paketi çalıştırabilirdi. CSP: betikler yalnız bu site + jsDelivr (SRI'li Supabase);
 # bağlantılar TMDB, OMDb, Supabase; Cloudflare Web Analytics ve Umami Cloud betikleri izinli; yönetim sayfası Umami paylaşım panosunu kare içinde açar (frame-src). Cloudflare'in sayfaya eklediği satır içi
 # bot tespit betiği bilerek engelli ('unsafe-inline' CSP'yi etkisizleştirir). Başka sitenin kare içine gömmesi yasak.
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://static.cloudflareinsights.com https://cloud.umami.is; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://image.tmdb.org; connect-src 'self' https://api.themoviedb.org https://www.omdbapi.com https://zungbtgtlrltowkvjqso.supabase.co wss://zungbtgtlrltowkvjqso.supabase.co https://cloudflareinsights.com https://cloud.umami.is https://api-gateway.umami.dev; font-src 'self'; frame-src https://cloud.umami.is; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/ https://cdn.jsdelivr.net/npm/chart.js@4.4.6/ https://static.cloudflareinsights.com https://cloud.umami.is; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://image.tmdb.org; connect-src 'self' https://api.themoviedb.org https://www.omdbapi.com https://zungbtgtlrltowkvjqso.supabase.co wss://zungbtgtlrltowkvjqso.supabase.co https://cloudflareinsights.com https://cloud.umami.is https://api-gateway.umami.dev; font-src 'self'; frame-src https://cloud.umami.is; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
