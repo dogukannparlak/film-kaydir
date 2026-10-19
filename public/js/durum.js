@@ -16,6 +16,7 @@ function migrateFilters(f) {
 const S = {
   apiKey: store.get(K.key, ''),
   omdbKey: store.get(K.omdb, ''),
+  age: store.get(K.age, 'all'),          // yaş sınırı: AGE_LIMITS (js/sabitler.js)
   keySync: !!store.get(K.keySync, false), // API anahtarları hesapta (şifreli) saklansın mı; js/kasa.js
   keysLocked: false,                      // hesapta şifreli anahtar var ama bu cihazda açılamadı (şifre gerekiyor)
   omdbCache: store.get(K.omdbCache, {}),

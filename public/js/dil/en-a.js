@@ -201,3 +201,14 @@ Object.assign(EN, {
   'Letterboxd\'dan içe aktarma, yedek, görülenleri yönetme': 'Letterboxd import, backups, managing seen titles',
   'Ücretsiz kayıt ol': 'Sign up for free',
 });
+// Yaş sınırı
+Object.assign(EN, {
+  'Romantik / Aşk': 'Romance',
+  'Hepsi': 'All',
+  '+18 gizle': 'Hide 18+',
+  '13 yaş altı': 'Under 13',
+  '7 yaş altı': 'Under 7',
+  'Yaş sınırı': 'Age limit',
+  'Yaş sınırı: {a}': 'Age limit: {a}',
+  'Keşfette yaş derecelendirmesine göre süzer (ABD derecelendirmesi). Derecelendirmesi olmayan yapımlar da gizlenir. Aramaya uygulanmaz.': 'Filters Discover by age rating (US ratings). Titles without a rating are hidden too. Search is not filtered.',
+});

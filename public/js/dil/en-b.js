@@ -23,7 +23,7 @@ Object.assign(EN, {
   'Korku': 'Horror',
   'Müzik': 'Music',
   'Gizem': 'Mystery',
-  'Romantik': 'Romance',
+  'Romantik / Aşk': 'Romance',
   'Bilim Kurgu': 'Sci-Fi',
   'TV Filmi': 'TV Movie',
   'Gerilim': 'Thriller',

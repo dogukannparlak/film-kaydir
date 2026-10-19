@@ -64,6 +64,11 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
       <button class="btn btn-ico" id="btnAdmin"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg> Yönetim panelini aç</button>
     </section>
     <section>
+      <h3>Yaş sınırı</h3>
+      <div class="chips" id="ageChips"></div>
+      <p class="note">Keşfette yaş derecelendirmesine göre süzer (ABD derecelendirmesi). Derecelendirmesi olmayan yapımlar da gizlenir. Aramaya uygulanmaz.</p>
+    </section>
+    <section>
       <h3>Dil · Language</h3>
       <div class="chips" id="langChips"></div>
     </section>

@@ -63,6 +63,8 @@ function baseParams(type, reg) {
     p.with_watch_monetization_types = 'flatrate|free|ads';
   }
   if (type === 'tv') p.include_null_first_air_dates = false;
+  const age = AGE_LIMITS.find(a => a.id === S.age);
+  if (age?.movie) { p.certification_country = 'US'; p['certification.lte'] = type === 'movie' ? age.movie : age.tv; }
   return p;
 }
 function dateParams(type, y0, y1) {

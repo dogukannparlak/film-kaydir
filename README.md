@@ -57,6 +57,8 @@ Your keys stay in the browser's `localStorage`. If you sign in and turn on the s
   and are deleted when the tab is closed. Sign up to keep them (reminder on the first swipe). Guest settings are simpler: an
   "With an account" card instead of keys, backup, Letterboxd and seen titles.
 - Version: 0.1 beta.
+- Age limit (Settings): All / Hide 18+ / Under 13 / Under 7. Filters Discover by TMDB's US ratings (`certification.lte`;
+  movies PG-13/PG/G, TV TV-14/TV-PG/TV-Y7); unrated titles are hidden too, search is not filtered. Device setting (`kd_age`).
 - Settings › Account: e-mail + password. Works without an account too (data stays in the browser).
 - Signed in, your lists, seen titles and filters are saved to the account and shared between devices.
   Local first: changes go up after 1.5 s (immediately when the tab is hidden); the app pulls on open, on tab focus,

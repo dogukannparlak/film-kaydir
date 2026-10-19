@@ -93,6 +93,7 @@ function updateSummary() {
   if (f.genres.length) parts.push(f.genres.map(id => GENRES.find(g => g.id === id)?.label).join(', '));
   if (f.regions.length) parts.push(selRegions(f).map(r => r.label).join(', '));
   if (f.minRating) parts.push('★ ' + f.minRating + '+');
+  if (S.age !== 'all') parts.push(AGE_LIMITS.find(a => a.id === S.age)?.label);
   if (f.providers.length) parts.push(f.providers.length === 1 ? (providersFor().find(p => p.id === f.providers[0])?.name || t('1 platform')) : t('{n} platform', { n:f.providers.length }));
   $('#summary').textContent = parts.join(' · ');
   let n = 0;

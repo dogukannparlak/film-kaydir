@@ -4,7 +4,7 @@ const API = 'https://api.themoviedb.org/3';
 const IMG = 'https://image.tmdb.org/t/p/';
 // Sitenin TMDB ara katmanı (src/worker.js; anahtar Cloudflare'de gizli). Dosyadan açıkken (file://) yok: kendi anahtarı gerekir.
 const TMDB_PROXY = location.protocol.startsWith('http') ? '/api/tmdb' : null;
-const K = { key:'kd_apikey', items:'kd_items', seen:'kd_seen', filters:'kd_filters', prov:'kd_providers', listF:'kd_listf', omdb:'kd_omdbkey', omdbCache:'kd_omdb', coll:'kd_coll', guide:'kd_guide', dirty:'kd_dirty', keySync:'kd_keysync' };
+const K = { key:'kd_apikey', items:'kd_items', seen:'kd_seen', filters:'kd_filters', prov:'kd_providers', listF:'kd_listf', omdb:'kd_omdbkey', omdbCache:'kd_omdb', coll:'kd_coll', guide:'kd_guide', dirty:'kd_dirty', keySync:'kd_keysync', age:'kd_age' };
 const NOW_Y = new Date().getFullYear();
 const TODAY = new Date().toISOString().slice(0, 10);
 const PREFETCH_AT = 12;         // kuyruk bunun altına inince arka planda yeni sayfa çek
@@ -37,7 +37,7 @@ const GENRES = [
   {id:'horror', label:t('Korku'), m:[27], t:[]},
   {id:'scifi', label:t('Bilim Kurgu'), m:[878], t:[10765]},
   {id:'fantasy', label:t('Fantastik'), m:[14], t:[10765]},
-  {id:'romance', label:t('Romantik'), m:[10749], t:[]},
+  {id:'romance', label:t('Romantik / Aşk'), m:[10749], t:[10766]}, // dizide TMDB'de romantik yok: en yakını Pembe Dizi (soap)
   {id:'animation', label:t('Animasyon'), m:[16], t:[16]},
   {id:'family', label:t('Aile'), m:[10751], t:[10751]},
   {id:'docu', label:t('Belgesel'), m:[99], t:[99]},
@@ -74,6 +74,14 @@ const REGIONS = [
   {id:'in', label:t('Hint'), p:{with_original_language:'hi'}},
   {id:'cn', label:t('Çin'), p:{with_original_language:'zh'}},
   {id:'de', label:t('Alman'), p:{with_original_language:'de'}},
+];
+// Yaş sınırı (Ayarlar; cihaz ayarı, misafirde de kalıcı). TMDB keşifte ABD derecelendirmesiyle süzer:
+// certification.lte. Derecelendirmesi olmayan yapımlar da dışarıda kalır (güvenli taraf). Aramada süzme yok (TMDB desteklemiyor).
+const AGE_LIMITS = [
+  { id:'all', label:t('Hepsi') },
+  { id:'18', label:t('+18 gizle'), movie:'PG-13', tv:'TV-14' },
+  { id:'13', label:t('13 yaş altı'), movie:'PG', tv:'TV-PG' },
+  { id:'7', label:t('7 yaş altı'), movie:'G', tv:'TV-Y7' },
 ];
 const VOTE_OPTS = [20, 50, 100, 300, 1000, 5000];
 const FALLBACK_PROVIDERS = [

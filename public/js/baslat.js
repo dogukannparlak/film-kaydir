@@ -3,6 +3,14 @@
 function init() {
   translateDom();
   $('#langChips').innerHTML = Object.entries(LANGS).map(([k, v]) => `<button class="chip" data-lang="${k}" aria-pressed="${k === LANG}">${v}</button>`).join('');
+  const ageChips = () => $('#ageChips').innerHTML = AGE_LIMITS.map(a => `<button class="chip" data-age="${a.id}" aria-pressed="${a.id === S.age}">${a.label}</button>`).join('');
+  ageChips();
+  $('#ageChips').onclick = e => {
+    const b = e.target.closest('[data-age]');
+    if (!b || b.dataset.age === S.age) return;
+    S.age = b.dataset.age; store.set(K.age, S.age); ageChips(); updateSummary(); resetEngine();
+    toast(t('Yaş sınırı: {a}', { a:AGE_LIMITS.find(a => a.id === S.age).label }));
+  };
   $('#langChips').onclick = e => { const b = e.target.closest('[data-lang]'); if (b) setLang(b.dataset.lang); };
   fillListSelects();
   updateSummary();
