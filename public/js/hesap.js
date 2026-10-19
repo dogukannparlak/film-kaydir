@@ -215,6 +215,9 @@ async function onSignedIn(user) {
     if (same && acc.pass && !pendingPass) pendingPass = acc.pass;
     acc.done = same; acc.mode = 'in'; acc.pass = '';
   }
+  // Cihazdaki veri başka bir hesabınsa (oturumu düşmüş ya da başka sekmede çıkılmış hesap) yeni hesaba taşınmaz:
+  // yoksa misafir verisi sanılıp birleştirilir, eski hesabın listeleri yeni hesaba kopyalanırdı (2026-10-20 hatası)
+  if (sync?.user && sync.user !== user.id) wipeLocalAccountData();
   // Misafir verisi (sekmelik) artık kalıcı depoya: ilk girişte hesaba da birleştirilir
   if (!accountMode) setAccountMode(true, Object.fromEntries([[K.items, S.items], [K.seen, [...S.seen]], [K.filters, S.filters], [K.listF, S.listF],
     [K.key, S.apiKey], [K.omdb, S.omdbKey], [K.omdbCache, S.omdbCache], [K.dirty, { state:S.stateDirty, seen:S.seenDirty }]].filter(([, v]) => v !== '' && v != null)));
@@ -257,8 +260,10 @@ function wipeLocalAccountData() {
   resetEngine(); loadProviders();
   setAccountMode(false); // silme kalıcı depoda yapıldı; bundan sonrası misafir (sekmelik)
 }
+// Başka sekmede çıkış yapıldı (ya da oturum sunucuda düştü): o sekme veriyi hesaba yazıp cihazdan sildi; bu sekmenin
+// belleğindeki kopya da silinir, yoksa misafir verisi sanılıp sonraki hesaba taşınırdı
 function onSignedOut() {
-  if (accountMode) setAccountMode(false);
+  if (accountMode) wipeLocalAccountData();
   S.user = null; clearInterval(pullTimer); clearInterval(resendTimer);
   Object.assign(acc, { mode:'in', pass:'', done:false }); renderAccount(); renderKeySync(); renderPrivacy(); checkAdmin();
 }
