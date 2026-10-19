@@ -95,7 +95,11 @@ Kullanıcı anahtarları tarayıcının `localStorage`'ında durur; giriş yapı
   ziyaret, ziyaretçi, kalma süresi, cihaz türü, dil, nereden gelindiği. Çerez ve IP yok. Geri dönen ziyaretçiyi saymak için
   `localStorage`'a rastgele anonim kimlik yazılır (bant yok, varsayılan açık).
 - Umami Cloud (`js/istatistik.js` › `UMAMI_ID`; yalnız kaydir.dogukanparlak.com sayılır). Cloudflare Web Analytics de açık.
+- Etkinlik günlüğü (`js/kayit.js`, tablo `events`): kullanıcının sitede yaptığı her şey (kaydırma, arama, filtre, açılan sayfalar,
+  tıklamalar, tarayıcı hataları), girişsiz ziyaretçi de anonim kimlikle. Şifre, e-posta kutusu ve API anahtarı içeriği kaydedilmez; 90 gün saklanır.
 - Yönetim sayfası (`/admin.html`, Ayarlar › Yönetim de açar): yalnız `admins` tablosundaki hesaba açık, siteden bağımsız panel.
+  Sekmeler: Genel, Hesaplar (arama, rol, silme), Ziyaretçiler (girişsizler dahil), Etkinlik (canlı akış, tür/metin filtresi),
+  Hatalar (mesaja göre gruplu); kişiye tıklayınca girişten önceki anonim olaylarıyla birlikte bütün geçmişi açılır.
   Kendi sayaç + Umami + Cloudflare (Web Analytics, Worker istek/hata) grafiklerle yan yana; en çok sayfa/nereden/ülke,
   hesap listesi (rol: Kullanıcı / Admin, silme), veritabanı boyutu, bütün panellere bağlantılar. Supabase verisi admin'e özel RPC'lerden
   (`admin_stats`, `admin_users`, `admin_delete_user`, `admin_db`); Cloudflare ve Umami gizli anahtar istediği için Worker
@@ -144,6 +148,7 @@ Tarayıcı testi: headless Chromium/Brave + CDP (Node'un yerleşik `WebSocket`'i
 
 ## Yol haritası
 
+- İleride: Resend destekli mail + geri bildirim (panelden okunur); liste paylaşma (amaç Letterboxd olmak değil); film çıkınca / yeni sezon gelince e-posta bildirimi.
 - 2026-10-19'da eklendi: dil desteği (TR/EN), İngilizce ana README, ziyaretçi istatistiği, yönetim paneli, API anahtarlarını şifreli saklama.
 
 ## Lisans

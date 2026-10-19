@@ -67,6 +67,7 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 | `js/hesap.js` | Supabase hesap + eşitleme: giriş (şifre, sıfırlama; Google `GOOGLE_AUTH` ile kapalı), değişen öğeleri gönderme, `updated_at > since` ile çekme, ilk girişte birleştirme; API anahtarı düğmesi (`keys_enc`, kilitli cihazda şifre sorma, eski düz metin anahtarları taşıma) | `syncSoon`, `pushChanges`, `pullChanges`, `syncNow`, `initAccount`, `applyCloudKeys`, `renderKeySync` |
 | `js/istatistik.js` | Ziyaret sayacı (`visit_start` + 30 sn'de `visit_ping`), kalıcı anonim kimlik (`kd_visitor`), Umami (`UMAMI_ID` doluysa) | `initStats`, `setConsent`, `startVisit` |
 | `js/admin.js` | Ayarlar › Yönetim düğmesi: `is_admin()` ise görünür, `admin.html`'i açar | `checkAdmin`, `initAdmin` |
+| `js/kayit.js` | Etkinlik günlüğü: işlevleri sarar (`act`, `undo`, `runSearch`, `applyFilters`, `setView`, …) + bütün tıklamalar + tarayıcı hataları; 5 sn'de bir `log_events`'e toplu gider. Şifre/e-posta/anahtar içeriği gitmez. `baslat.js`'ten hemen önce yüklenir | `logEv`, `flushLog`, `wrapLog` |
 | `js/rehber.js` | İlk açılış rehberi: adımlar, sonda hesap seçimi (giriş / kayıt / hesapsız), bir kez gösterme (`kd_guide`), Ayarlar › Kısayollar'dan yeniden açma | `openGuide`, `closeGuide`, `initGuide` |
 | `js/baslat.js` | Olay bağlama ve `init()` çağrısı; en sonda yüklenir | `init` |
 
@@ -108,6 +109,8 @@ Göçler: `supabase/migrations/` (önceki dördü panelden/MCP ile uygulandı, a
   şifreli (`{v, salt, iv, ct}`); eski düz metin sütunlar `tmdb_key`, `omdb_key` istemci tarafından hep boşaltılır.
 - `visits` + `visit_start` / `visit_ping`: anonim ziyaret sayacı. Tabloya doğrudan erişim yok, yalnız bu iki
   `security definer` fonksiyon; ziyaretçi başına günde en çok 200 ziyaret.
+- `events` + `log_events(visitor, olaylar, yol)`: etkinlik günlüğü (girişsiz ziyaretçi dahil, hesap `auth.uid()`'den), 90 gün; ziyaretçi
+  başına saatte en çok 1000 olay. Okuma yalnız admin: `admin_events`, `admin_visitors`, `admin_errors`, `admin_event_kinds`.
 - `admins` + `is_admin()`, `admin_stats(p_days)`, `admin_users()`, `admin_delete_user(id)`, `admin_set_role(id, rol)`, `admin_db()`: yönetim sayfası
   (`admin.html` + `js/yonetim.js` + `css/yonetim.css`, siteden bağımsız). Cloudflare/Umami verisi Worker'dan: `src/admin.js`
   (`/api/admin/cloudflare`, `/api/admin/umami`; çağıranın oturumu ve admin olduğu Supabase'e sorulur). Admin satırı elle eklenir.

@@ -2,7 +2,8 @@
 /* ================= Yönetim sayfası (admin.html) ================= */
 // Siteden bağımsız tek dosya. Oturum sitenin Supabase oturumudur (aynı alan adı, aynı localStorage).
 // Veri kaynakları:
-// - Supabase RPC (yalnız admin): admin_stats (kendi sayaç), admin_users, admin_delete_user, admin_set_role, admin_db
+// - Supabase RPC (yalnız admin): admin_stats (kendi sayaç), admin_users, admin_delete_user, admin_set_role, admin_db,
+//   admin_visitors, admin_events, admin_event_kinds, admin_errors (etkinlik günlüğü: js/kayit.js)
 // - Worker /api/admin/cloudflare ve /api/admin/umami (src/admin.js; gizli anahtarlar orada)
 const SB_URL = 'https://zungbtgtlrltowkvjqso.supabase.co';
 const SB_KEY = 'sb_publishable_Bgg9ZLBOaQe4nn904kRYTQ_mcy-SMYS';
@@ -32,7 +33,7 @@ const SETUP = {
     <li><code>CF_ACCOUNT_ID</code> (Text): Workers &amp; Pages sayfasının sağındaki Account ID</li></ol>`,
   umami: `<b>Umami bağlı değil.</b> cloud.umami.is › Settings › API keys › Create key; anahtarı Cloudflare'de <code>UMAMI_API_KEY</code> (Secret) olarak ekle.`,
 };
-const st = { days:30, token:null, me:null, charts:{}, armed:null };
+const st = { days:30, token:null, me:null, charts:{}, armed:null, tab:'genel', users:[], loaded:{} };
 const ROLES = { user:'Kullanıcı', admin:'Admin' }; // public.admin_set_role ile aynı
 
 /* ---- Oturum ---- */
@@ -73,7 +74,9 @@ async function load() {
   const v = r => r.status === 'fulfilled' ? r.value : null;
   const D = { own:v(own), users:v(users), db:v(db), cf:v(cf), um:v(um) };
   renderSources(own, cf, um);
-  renderKpis(D); renderCharts(D); renderTops(D); renderUsers(D.users, users); renderDb(D.db);
+  st.users = D.users || []; st.usersErr = users;
+  renderKpis(D); renderCharts(D); renderTops(D); renderUsers(); renderDb(D.db);
+  st.loaded = {}; showTab(st.tab); loadErrorBadge();
   $('#refresh').textContent = 'Yenile';
 }
 
@@ -129,11 +132,11 @@ function renderCharts({ own, cf, um }) {
     { label:'Hata', data:byDay(w, 'errors'), backgroundColor:COLORS.err, yAxisID:'y1' },
   ], { y1:{ position:'right', grid:{ display:false }, ticks:{ color:'#8b93a7' }, beginAtZero:true } });
 }
-function draw(id, type, labels, datasets, extraScales = {}) {
+function draw(id, type, labels, datasets, extraScales = {}, horizontal = false) {
   st.charts[id]?.destroy();
   const ticks = { color:'#8b93a7', maxRotation:0, autoSkipPadding:14 }, grid = { color:'#252b38' };
   st.charts[id] = new Chart(document.getElementById(id), {
-    type, data:{ labels:labels.map(d => d.slice(5).replace('-', '.')), datasets },
+    type, data:{ labels:horizontal ? labels : labels.map(d => d.slice(5).replace('-', '.')), datasets },
     options:{ responsive:true, maintainAspectRatio:false, interaction:{ mode:'index', intersect:false },
       plugins:{ legend:{ labels:{ color:'#e8eaf0', boxWidth:10 } } },
       scales:{ x:{ ticks, grid:{ display:false } }, y:{ ticks, grid, beginAtZero:true }, ...extraScales } },
@@ -156,11 +159,13 @@ function renderTops({ own, cf, um }) {
 }
 
 /* ---- Hesaplar ---- */
-function renderUsers(users, r) {
+function renderUsers() {
   const tb = $('#users tbody');
-  if (!users) { tb.innerHTML = `<tr><td colspan="8" class="err">${esc(r.reason?.message || 'alınamadı')}</td></tr>`; return; }
-  $('#usersMeta').textContent = `${users.length} hesap`;
-  tb.innerHTML = users.map(u => `<tr>
+  if (st.usersErr?.status === 'rejected') { tb.innerHTML = `<tr><td colspan="8" class="err">${esc(st.usersErr.reason?.message || 'alınamadı')}</td></tr>`; return; }
+  const q = $('#userQ').value.trim().toLowerCase();
+  const users = st.users.filter(u => !q || (u.email || '').toLowerCase().includes(q));
+  $('#usersMeta').textContent = q ? `${users.length} / ${st.users.length} hesap` : `${st.users.length} hesap · satıra tıkla: geçmişi`;
+  tb.innerHTML = users.map(u => `<tr class="click" data-user="${esc(u.id)}">
     <td>${esc(u.email)}${u.is_admin ? '<span class="tag adm">admin</span>' : ''}${u.confirmed ? '' : '<span class="tag">onaysız</span>'}</td>
     <td>${date(u.created_at)}</td><td>${ago(u.last_sign_in_at)}</td><td class="num">${fmt(u.items)}</td><td>${ago(u.last_change)}</td>
     <td>${u.keys_saved ? 'şifreli' : '—'}</td>
@@ -168,8 +173,11 @@ function renderUsers(users, r) {
       ${Object.entries(ROLES).map(([k, v]) => `<option value="${k}" ${(u.is_admin ? 'admin' : 'user') === k ? 'selected' : ''}>${v}</option>`).join('')}</select></td>
     <td>${u.is_admin ? '' : `<button class="btn sm danger" data-del="${esc(u.id)}" data-email="${esc(u.email)}">Sil</button>`}</td></tr>`).join('');
 }
+$('#userQ').oninput = () => renderUsers();
 $('#users').addEventListener('click', async e => {
   const b = e.target.closest('[data-del]');
+  const row = e.target.closest('[data-user]');
+  if (!b && row && !e.target.closest('select')) return openPerson({ user:row.dataset.user });
   if (!b) return;
   // İki aşamalı onay: ilk dokunuş kurar, 4 sn içinde ikincisi siler
   if (st.armed !== b) {
@@ -200,6 +208,141 @@ function renderDb(db) {
     <table><thead><tr><th>Tablo</th><th>Satır (yaklaşık)</th><th>Boyut</th></tr></thead><tbody>
     ${(db.tables || []).map(t => `<tr><td>${esc(t.name)}</td><td class="num">${fmt(Math.max(0, t.rows))}</td><td class="num">${bytes(t.bytes)}</td></tr>`).join('')}</tbody></table>`;
 }
+
+/* ---- Sekmeler ---- */
+function showTab(name) {
+  st.tab = name;
+  document.querySelectorAll('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === name));
+  document.querySelectorAll('.tab').forEach(p => p.classList.toggle('hidden', p.dataset.pane !== name));
+  if (st.loaded[name]) return;
+  st.loaded[name] = true;
+  if (name === 'ziyaretciler') loadVisitors();
+  if (name === 'etkinlik') loadEvents(true);
+  if (name === 'hatalar') loadErrors();
+  if (name === 'genel') Object.values(st.charts).forEach(c => c.resize());
+}
+$('#tabs').onclick = e => { const b = e.target.closest('[data-tab]'); if (b) showTab(b.dataset.tab); };
+
+/* ---- Olay biçimi ---- */
+const KIND = { swipe:'Kaydırdı', undo:'Geri aldı', view:'Sekme', open:'Açtı', filters:'Filtre', search:'Arama', trailer:'Fragman', collection:'Seri',
+  episode:'Bölüm', import:'İçe aktardı', export:'Dışa aktardı', lang:'Dil', keysync:'Anahtar düğmesi', signin:'Giriş', signout:'Çıkış',
+  guide:'Rehber', click:'Tıkladı', error:'Hata', page:'Sayfa açtı' };
+const DIR = { right:'→ İstek', left:'← Geç', up:'↑ İzledim' };
+function evText(e) {
+  const d = e.data || {};
+  switch (e.kind) {
+    case 'swipe': return `${DIR[d.dir] || d.dir} · <b>${esc(d.title || d.key)}</b> <small>${esc(d.how || '')}</small>`;
+    case 'undo': return `<b>${esc(d.title || d.key)}</b>`;
+    case 'search': return `“${esc(d.q)}”`;
+    case 'view': return esc(d.v);
+    case 'open': return esc(d.sheet) + (d.title ? ` · <b>${esc(d.title)}</b>` : '');
+    case 'episode': return `<b>${esc(d.title || d.key)}</b> ${d.next ? '+1 bölüm' : d.at ? `S${d.at.s} B${d.at.e}` : ''}`;
+    case 'error': return `<b>${esc(d.msg)}</b> <small>${esc(d.src || '')}${d.line ? ':' + d.line : ''}</small>`;
+    case 'click': return `${esc(d.text || d.id || '')}${d.title ? ` · <b>${esc(d.title)}</b>` : ''} <small>${esc(Object.entries(d).filter(([k]) => !['text', 'title', 'key', 'id'].includes(k)).map(([k, v]) => k + '=' + v).join(' '))}</small>`;
+    case 'page': return `<small>${esc(d.lang)} · ${d.w}×${d.h} · ${fmt(d.items)} öğe${d.ref ? ' · ' + esc(d.ref) : ''}</small>`;
+    case 'signin': return esc(d.email || '');
+    case 'filters': return esc([d.type, d.sort, d.genres?.length ? d.genres.join('/') : '', d.periods?.length ? d.periods.join('/') : '', d.regions?.length ? d.regions.join('/') : '',
+      d.minRating ? '★' + d.minRating + '+' : '', d.providers?.length ? d.providers.length + ' platform' : ''].filter(Boolean).join(' · '));
+    default: return `<small>${esc(JSON.stringify(d).slice(0, 220))}</small>`;
+  }
+}
+function evRows(list, withWho = true) {
+  if (!list.length) return '<p class="empty">Kayıt yok.</p>';
+  return list.map(e => `<div class="ev"><time title="${esc(new Date(e.at).toLocaleString('tr-TR'))}">${new Date(e.at).toLocaleString('tr-TR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' })}</time>
+    <span class="k k-${esc(e.kind)}">${esc(KIND[e.kind] || e.kind)}</span>
+    ${withWho ? `<span class="who" data-v="${esc(e.visitor)}" data-u="${esc(e.user_id || '')}" title="${esc(e.visitor)}">${e.email ? esc(e.email) : 'anonim · ' + esc(String(e.visitor).slice(0, 8))}</span>` : '<span></span>'}
+    <span class="d">${evText(e)}</span></div>`).join('');
+}
+document.addEventListener('click', e => {
+  const w = e.target.closest('.who[data-v]');
+  if (w) openPerson(w.dataset.u ? { user:w.dataset.u } : { visitor:w.dataset.v });
+});
+
+/* ---- Etkinlik akışı ---- */
+let evTimer = null, evOldest = null;
+async function loadEvents(reset) {
+  const q = $('#evQ').value.trim() || null, kind = $('#evKind').value || null;
+  if (reset) {
+    evOldest = null;
+    rpc('admin_event_kinds', { p_days:st.days }).then(ks => {
+      const cur = $('#evKind').value;
+      $('#evKind').innerHTML = '<option value="">Bütün türler</option>' + ks.map(k => `<option value="${esc(k.kind)}">${esc(KIND[k.kind] || k.kind)} (${fmt(k.count)})</option>`).join('');
+      $('#evKind').value = cur;
+      draw('cKinds', 'bar', ks.slice(0, 12).map(k => KIND[k.kind] || k.kind), [{ label:'Olay', data:ks.slice(0, 12).map(k => k.count), backgroundColor:COLORS.own }], {}, true);
+    }).catch(() => {});
+  }
+  try {
+    const rows = await rpc('admin_events', { p_kind:kind, p_q:q, p_limit:200, p_before:evOldest });
+    if (rows.length) evOldest = rows.at(-1).at;
+    $('#events').innerHTML = (reset ? '' : $('#events').innerHTML) + evRows(rows);
+    $('#evMore').classList.toggle('hidden', rows.length < 200);
+    $('#evMeta').textContent = 'en yeni üstte · kişiye tıkla: geçmişi';
+  } catch (err) { $('#events').innerHTML = `<p class="err">${esc(err.message)}</p>`; }
+}
+$('#evQ').oninput = () => { clearTimeout(evTimer); evTimer = setTimeout(() => loadEvents(true), 350); };
+$('#evKind').onchange = () => loadEvents(true);
+$('#evMore').onclick = () => loadEvents(false);
+
+/* ---- Ziyaretçiler ---- */
+let visTimer = null;
+async function loadVisitors() {
+  const tb = $('#visitors tbody');
+  try {
+    const rows = await rpc('admin_visitors', { p_days:st.days, p_q:$('#visQ').value.trim() || null });
+    tb.innerHTML = rows.map(v => `<tr class="click" data-vis="${esc(v.visitor)}" data-u="${esc(v.user_id || '')}">
+      <td class="mono">${esc(String(v.visitor).slice(0, 8))}</td><td>${v.email ? esc(v.email) : '<span class="muted">anonim</span>'}</td>
+      <td>${ago(v.first_at)}</td><td>${ago(v.last_at)}</td><td class="num">${fmt(v.visits)}</td><td>${secs(v.seconds)}</td>
+      <td class="num">${fmt(v.events)}</td><td>${esc({ mobile:'Telefon', desktop:'Bilgisayar' }[v.device] || v.device || '—')}</td><td>${esc(v.lang || '—')}</td></tr>`).join('')
+      || '<tr><td colspan="9" class="empty">Kayıt yok.</td></tr>';
+    $('#visMeta').textContent = `${rows.length} ziyaretçi · girişsizler dahil · satıra tıkla: geçmişi`;
+  } catch (err) { tb.innerHTML = `<tr><td colspan="9" class="err">${esc(err.message)}</td></tr>`; }
+}
+$('#visQ').oninput = () => { clearTimeout(visTimer); visTimer = setTimeout(loadVisitors, 350); };
+$('#visitors').addEventListener('click', e => { const r = e.target.closest('[data-vis]'); if (r) openPerson(r.dataset.u && st.users.some(x => x.id === r.dataset.u) ? { user:r.dataset.u } : { visitor:r.dataset.vis }); });
+
+/* ---- Hatalar ---- */
+async function loadErrors() {
+  try {
+    const rows = await rpc('admin_errors', { p_days:7 });
+    $('#errors').innerHTML = rows.length ? rows.map(r => `<div class="err-row"><b>${esc(r.message)}</b>
+      <div class="muted">${fmt(r.count)} kez · ${fmt(r.visitors)} ziyaretçi · ${fmt(r.users)} hesap · ilk ${ago(r.first_at)}, son ${ago(r.last_at)}
+      · ${esc(r.sample?.src || '')}${r.sample?.line ? ':' + r.sample.line : ''} ${esc(r.sample?.path || '')}</div>
+      ${r.sample?.stack ? `<pre>${esc(r.sample.stack)}</pre>` : ''}</div>`).join('') : '<p class="empty">Son 7 günde hata yok.</p>';
+  } catch (err) { $('#errors').innerHTML = `<p class="err">${esc(err.message)}</p>`; }
+}
+async function loadErrorBadge() {
+  const rows = await rpc('admin_errors', { p_days:1 }).catch(() => []);
+  const n = rows.reduce((s, r) => s + +r.count, 0);
+  $('#errBadge').textContent = n; $('#errBadge').classList.toggle('hidden', !n);
+}
+
+/* ---- Kişi çekmecesi: bir hesabın ya da anonim ziyaretçinin bütün geçmişi ---- */
+async function openPerson({ user, visitor }) {
+  const u = user && st.users.find(x => x.id === user);
+  $('#drTitle').textContent = u ? u.email : 'Anonim ziyaretçi · ' + String(visitor).slice(0, 8);
+  $('#drMeta').innerHTML = u ? `<div class="stats-line"><span>Kayıt ${date(u.created_at)}</span><span>Son giriş ${ago(u.last_sign_in_at)}</span><span>${fmt(u.items)} liste öğesi</span><span>${u.is_admin ? 'Admin' : 'Kullanıcı'}</span><span>Anahtar: ${u.keys_saved ? 'şifreli' : '—'}</span></div>`
+    : `<div class="stats-line"><span class="mono">${esc(visitor)}</span></div>`;
+  $('#drEvents').innerHTML = '<p class="empty">Yükleniyor…</p>';
+  $('#drawer').classList.remove('hidden');
+  try {
+    let rows = await rpc('admin_events', user ? { p_user:user, p_limit:1000 } : { p_visitor:visitor, p_limit:1000 });
+    // Hesabın kullandığı cihaz kimlikleri: girişten önceki (anonim) olayları da aynı listeye kat
+    const vis = [...new Set(rows.map(r => r.visitor))];
+    if (user && vis.length) {
+      const more = await Promise.all(vis.slice(0, 5).map(v => rpc('admin_events', { p_visitor:v, p_limit:500 }).catch(() => [])));
+      const seen = new Set(rows.map(r => r.id));
+      more.flat().forEach(r => { if (!seen.has(r.id)) { seen.add(r.id); rows.push(r); } });
+      rows.sort((x, y) => x.at < y.at ? 1 : -1);
+    }
+    const by = {}; rows.forEach(r => by[r.kind] = (by[r.kind] || 0) + 1);
+    $('#drMeta').insertAdjacentHTML('beforeend', `<div class="stats-line">${Object.entries(by).sort((a, b) => b[1] - a[1]).map(([k, n]) => `<span><b>${fmt(n)}</b> ${esc(KIND[k] || k)}</span>`).join('')}</div>`
+      + (user && vis.length ? `<div class="stats-line muted">Cihaz kimlikleri (girişsiz olaylar dahil): ${vis.map(v => `<span class="mono">${esc(String(v).slice(0, 8))}</span>`).join(' ')}</div>` : ''));
+    $('#drEvents').innerHTML = evRows(rows, false);
+  } catch (err) { $('#drEvents').innerHTML = `<p class="err">${esc(err.message)}</p>`; }
+}
+$('#drClose').onclick = () => $('#drawer').classList.add('hidden');
+$('#drawer').onclick = e => { if (e.target.id === 'drawer') $('#drawer').classList.add('hidden'); };
+document.addEventListener('keydown', e => { if (e.key === 'Escape') $('#drawer').classList.add('hidden'); });
 
 /* ---- Olaylar ---- */
 $('#days').addEventListener('click', e => {

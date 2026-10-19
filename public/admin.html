@@ -30,6 +30,11 @@
   </section>
 
   <div id="dash" class="hidden">
+    <nav class="tabs" id="tabs">
+      <button data-tab="genel" class="on">Genel</button><button data-tab="hesaplar">Hesaplar</button><button data-tab="ziyaretciler">Ziyaretçiler</button><button data-tab="etkinlik">Etkinlik</button><button data-tab="hatalar">Hatalar <span class="badge hidden" id="errBadge"></span></button>
+    </nav>
+
+    <div class="tab" data-pane="genel">
     <div class="sources" id="sources"></div>
 
     <section class="kpis" id="kpis"></section>
@@ -41,16 +46,49 @@
 
     <section class="grid3" id="tops"></section>
 
-    <section class="card">
-      <h3>Hesaplar <small id="usersMeta"></small></h3>
-      <div class="table-wrap"><table id="users"><thead><tr><th>E-posta</th><th>Kayıt</th><th>Son giriş</th><th>Liste öğesi</th><th>Son değişiklik</th><th>Anahtar</th><th>Rol</th><th></th></tr></thead><tbody></tbody></table></div>
-    </section>
-
     <section class="grid2">
       <div class="card"><h3>Veritabanı <small>Supabase</small></h3><div id="db"></div></div>
       <div class="card"><h3>Paneller</h3><div class="links" id="links"></div></div>
     </section>
+    </div>
+
+    <div class="tab hidden" data-pane="hesaplar">
+    <section class="card">
+      <div class="bar"><h3>Hesaplar <small id="usersMeta"></small></h3><input class="search" id="userQ" type="search" placeholder="E-posta ara…"></div>
+      <div class="table-wrap"><table id="users"><thead><tr><th>E-posta</th><th>Kayıt</th><th>Son giriş</th><th>Liste öğesi</th><th>Son değişiklik</th><th>Anahtar</th><th>Rol</th><th></th></tr></thead><tbody></tbody></table></div>
+    </section>
+    </div>
+
+    <div class="tab hidden" data-pane="ziyaretciler">
+    <section class="card">
+      <div class="bar"><h3>Ziyaretçiler <small id="visMeta">girişsizler dahil · anonim kimlikle</small></h3><input class="search" id="visQ" type="search" placeholder="E-posta ya da kimliğin başı…"></div>
+      <div class="table-wrap"><table id="visitors"><thead><tr><th>Kimlik</th><th>Hesap</th><th>İlk</th><th>Son</th><th>Ziyaret</th><th>Toplam süre</th><th>Olay</th><th>Cihaz</th><th>Dil</th></tr></thead><tbody></tbody></table></div>
+    </section>
+    </div>
+
+    <div class="tab hidden" data-pane="etkinlik">
+    <section class="card">
+      <div class="bar"><h3>Etkinlik akışı <small id="evMeta"></small></h3>
+        <div class="bar-right"><select id="evKind"><option value="">Bütün türler</option></select><input class="search" id="evQ" type="search" placeholder="E-posta, film, arama…"></div></div>
+      <div class="chart small"><canvas id="cKinds"></canvas></div>
+      <div id="events" class="events"></div>
+      <button class="btn more hidden" id="evMore">Daha eski</button>
+    </section>
+    </div>
+
+    <div class="tab hidden" data-pane="hatalar">
+    <section class="card">
+      <h3>Tarayıcı hataları <small>son 7 gün · mesaja göre</small></h3>
+      <div id="errors"></div>
+    </section>
+    </div>
   </div>
+
+  <aside class="drawer hidden" id="drawer"><div class="drawer-in">
+    <div class="bar"><h3 id="drTitle"></h3><button class="btn" id="drClose">Kapat</button></div>
+    <div id="drMeta" class="muted"></div>
+    <div id="drEvents" class="events"></div>
+  </div></aside>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.58.0/dist/umd/supabase.js" integrity="sha384-KX6Y/AMIv9qA8TLCDul2JatZWeyrJVgj3Xu/0r30Nr05xO8md1+wHAgtdsRV9LoE" crossorigin="anonymous"></script>

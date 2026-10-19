@@ -73,7 +73,11 @@ Your keys stay in the browser's `localStorage`. If you sign in and turn on the s
   visits, visitors, time on site, device type, language, referrer. No cookies, no IP addresses.
   A random anonymous ID is kept in `localStorage` so return visits can be counted (no banner, on by default).
 - Umami Cloud (`UMAMI_ID` in `js/istatistik.js`, counts only on kaydir.dogukanparlak.com). Cloudflare Web Analytics is also on.
+- Activity log (`js/kayit.js`, table `events`): everything users do on the site (swipes, searches, filters, opened views, clicks,
+  browser errors), anonymous visitors included under their anonymous ID. Passwords, e-mail fields and API key contents are never logged; kept 90 days.
 - Admin page (`/admin.html`, also Settings › Admin): a standalone dashboard for accounts in the `admins` table.
+  Tabs: Overview, Accounts (search, role, delete), Visitors (incl. anonymous), Activity (live feed with filters), Errors (grouped);
+  clicking a person opens their full history, including anonymous events from before they signed in.
   Own counter + Umami + Cloudflare (Web Analytics and Worker requests/errors) side by side with charts, top pages,
   referrers and countries, the account list (role: User / Admin, delete), database size and links to every dashboard.
   Supabase data comes from admin-only RPCs (`admin_stats`, `admin_users`, `admin_delete_user`, `admin_db`).
