@@ -86,3 +86,8 @@ begin
 end $$;
 revoke all on function public.admin_stats(int) from public;
 grant execute on function public.admin_stats(int) to authenticated;
+
+-- Uygulandı 2026-10-19 (kaydir_keys_admin). Ardından kaydir_admin_revoke_anon: Supabase varsayılan yetkileri anon'a
+-- doğrudan execute verdiği için "from public" yetmedi; admin fonksiyonları girişsize kapatıldı.
+revoke execute on function public.admin_stats(int) from anon;
+revoke execute on function public.is_admin() from anon;
