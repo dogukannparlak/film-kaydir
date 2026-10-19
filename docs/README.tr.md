@@ -94,7 +94,7 @@ Kullanıcı anahtarları tarayıcının `localStorage`'ında durur; giriş yapı
 - Kendi sayaç (`js/istatistik.js`, tablo `visits`): açılışta ziyaret başlar, sekme görünürken 30 sn'de bir sinyal →
   ziyaret, ziyaretçi, kalma süresi, cihaz türü, dil, nereden gelindiği. Çerez ve IP yok. Geri dönen ziyaretçiyi saymak için
   `localStorage`'a rastgele anonim kimlik yazılır (bant yok, varsayılan açık).
-- Umami Cloud: `js/istatistik.js` › `UMAMI_ID` doldurulunca yüklenir (boşsa yüklenmez). Cloudflare Web Analytics de açık.
+- Umami Cloud (`js/istatistik.js` › `UMAMI_ID`; yalnız kaydir.dogukanparlak.com sayılır). Cloudflare Web Analytics de açık.
 - Yönetim paneli (Ayarlar › Yönetim): yalnız `admins` tablosundaki hesaba görünür; 7/30/90 günlük ziyaret özeti, günlük grafik,
   hesap ve öğe sayıları. Veri `admin_stats()` fonksiyonundan gelir, yetki sunucuda denetlenir.
   Admin ekleme (Supabase SQL): `insert into public.admins (user_id) select id from auth.users where email = '…';`
@@ -141,7 +141,6 @@ Tarayıcı testi: headless Chromium/Brave + CDP (Node'un yerleşik `WebSocket`'i
 ## Yol haritası
 
 - 2026-10-19'da eklendi: dil desteği (TR/EN), İngilizce ana README, ziyaretçi istatistiği, yönetim paneli, API anahtarlarını şifreli saklama.
-- Umami site kimliği girilecek (`UMAMI_ID`).
 
 ## Lisans
 

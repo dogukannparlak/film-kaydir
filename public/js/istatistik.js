@@ -6,7 +6,7 @@
 //    kararı 2026-10-19: rıza bandı ve Ayarlar düğmesi yok, varsayılan açık). localStorage kapalıysa kimlik o sayfalık kalır.
 // 2) Umami Cloud: UMAMI_ID doluysa betiği yüklenir (Umami çerezsizdir). Boşsa hiç yüklenmez.
 // Dosyadan açıkken (file://) ikisi de çalışmaz.
-const UMAMI_ID = ''; // cloud.umami.is › Websites › Add website → "Website ID"
+const UMAMI_ID = '08f74919-6681-4aa7-a12c-4a37ecfa130c'; // cloud.umami.is › Websites › Kaydır → "Website ID" (gizli değil)
 const VISITOR_KEY = 'kd_visitor';
 const PING_EVERY = 30000;
 const NEW_VISIT_AFTER = 30 * 60000; // sekme 30 dk'dan uzun gizli kaldıysa dönüş yeni ziyaret sayılır
@@ -41,6 +41,7 @@ function loadUmami() {
   if (!UMAMI_ID || !location.protocol.startsWith('http')) return;
   const s = document.createElement('script');
   s.src = 'https://cloud.umami.is/script.js'; s.defer = true; s.dataset.websiteId = UMAMI_ID;
+  s.dataset.domains = 'kaydir.dogukanparlak.com'; // yerel deneme (localhost) Umami'ye sayılmasın
   document.head.appendChild(s);
 }
 
