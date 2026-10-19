@@ -307,7 +307,7 @@ function renderAccount() {
   if (acc.mode === 'code') {
     box.innerHTML = `<div class="acc-code">
       <b class="acc-title">${t('E-postana kod gönderdik')}</b>
-      <p class="note">${t('{email} adresine gelen 6 haneli kodu yaz. E-postadaki bağlantıya tıklaman da yeter. Gelmediyse istenmeyen klasörüne bak.', { email:`<b>${esc(acc.email)}</b>` })}</p>
+      <p class="note">${t('{email} adresine gelen 6 haneli kodu yaz. Gelmediyse istenmeyen klasörüne bak.', { email:`<b>${esc(acc.email)}</b>` })}</p>
       <div class="acc-f"><input class="field acc-code-in" id="accCode" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="••••••" aria-label="${t('Doğrulama kodu')}"><span class="f-err" id="accCodeErr"></span></div>
       <div class="row-btns"><button class="btn btn-primary" id="accVerify">${t('Doğrula')}</button><button class="btn" id="accResend">${t('Tekrar gönder')}</button></div>
       <button class="linkish" id="accBack">${t('E-postayı değiştir')}</button>

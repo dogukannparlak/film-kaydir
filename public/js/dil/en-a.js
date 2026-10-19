@@ -237,7 +237,7 @@ Object.assign(EN, {
   'E-postan onaylandı. Listelerin bu hesaba yedeklenir; giriş yaptığın her cihazda aynı listeyi görürsün.': 'Your email is confirmed. Your lists are backed up to this account; you\'ll see the same lists on every device you sign in on.',
   'Tamam': 'OK',
   'E-postana kod gönderdik': 'We sent you a code',
-  '{email} adresine gelen 6 haneli kodu yaz. E-postadaki bağlantıya tıklaman da yeter. Gelmediyse istenmeyen klasörüne bak.': 'Enter the 6-digit code sent to {email}. Clicking the link in the email works too. If it hasn\'t arrived, check your spam folder.',
+  '{email} adresine gelen 6 haneli kodu yaz. Gelmediyse istenmeyen klasörüne bak.': 'Enter the 6-digit code sent to {email}. If it hasn\'t arrived, check your spam folder.',
   'Doğrulama kodu': 'Verification code',
   'Doğrula': 'Verify',
   'Tekrar gönder': 'Resend',

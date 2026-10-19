@@ -76,7 +76,7 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 
 Kod bunlara dayanır; panelde elle tutulur:
 - **SMTP:** Resend (`smtp.resend.com:465`, kullanıcı `resend`, gönderen `kaydir@dogukanparlak.com`). Varsayılan Supabase göndericisi saatte birkaç mail atar.
-- **Confirm signup şablonu:** `{{ .Token }}` içermeli; yoksa kod ekranına kod gitmez, yalnız bağlantı çalışır.
+- **Confirm signup şablonu:** yalnız `{{ .Token }}` (Doğukan, 2026-10-20: "sadece kod olsun"; `{{ .ConfirmationURL }}` bağlantısı yok).
 - **Şifre:** en az 8, "Letters and digits" (istemcideki kuralla aynı; sunucu harfi a–z sayar).
 
 ## Veri akışı
