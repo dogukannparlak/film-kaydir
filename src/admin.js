@@ -5,7 +5,7 @@
 // Cloudflare panelinde (Workers & Pages › kaydir › Settings › Variables and secrets):
 //   CF_API_TOKEN   (Secret) My Profile › API Tokens › Create › izinler: Account › Account Analytics › Read
 //   CF_ACCOUNT_ID  (Text)   Workers & Pages sayfasının sağındaki "Account ID"
-//   CF_SITE_TAG    (Text, isteğe bağlı) Web Analytics site etiketi; token site listesini okuyamazsa elle
+//   CF_SITE_TAG    (isteğe bağlı) Web Analytics site etiketi; yoksa alan adına göre süzülür
 //   UMAMI_API_KEY  (Secret) cloud.umami.is › Settings › API keys › Create key
 // Eksik olan kaynak sayfada "bağlı değil" görünür; site etkilenmez.
 const SB_URL = 'https://zungbtgtlrltowkvjqso.supabase.co';
@@ -42,26 +42,24 @@ async function cloudflare(env, days) {
   if (!env.CF_API_TOKEN || !env.CF_ACCOUNT_ID) return { connected:false, missing:['CF_API_TOKEN', 'CF_ACCOUNT_ID'].filter(k => !env[k]) };
   const since = new Date(Date.now() - (days - 1) * DAY).toISOString().slice(0, 10);
   const out = { connected:true, days, since };
-  // Web Analytics site etiketi: alan adına göre listeden bulunur (elle girmeye gerek yok)
-  const sites = await cfRest(env, `/accounts/${env.CF_ACCOUNT_ID}/rum/site_info/list?per_page=50`).catch(e => ({ error:e.message }));
-  const site = (sites.result || []).find(s => s.host === SITE_HOST || s.ruleset?.zone_name === SITE_HOST) || (sites.result || [])[0];
-  out.siteTag = env.CF_SITE_TAG || site?.site_tag || null; // CF_SITE_TAG (Text): liste izni yoksa elle
-  if (sites.error) out.rumError = sites.error;
-  const q = `query($acc: string!, $since: Date!, $sinceT: Time!, $site: string, $script: string) {
+  // Web Analytics: alan adına göre süzülür (requestHost); site etiketi gerekmez. CF_SITE_TAG verilirse onunla.
+  // (Site listesi /rum/site_info ek izin istiyor; Account Analytics: Read yeterli olsun diye kullanılmıyor. 2026-10-19 canlı API'de denendi.)
+  out.siteTag = env.CF_SITE_TAG || null;
+  const rumFilter = out.siteTag ? 'siteTag: $site' : `requestHost: "${SITE_HOST}"`;
+  const q = `query($acc: string!, $since: Date!, $sinceT: Time!, ${out.siteTag ? '$site: string, ' : ''}$script: string) {
     viewer { accounts(filter: { accountTag: $acc }) {
-      ${out.siteTag ? `
-      daily: rumPageloadEventsAdaptiveGroups(limit: 100, filter: { siteTag: $site, date_geq: $since }, orderBy: [date_ASC]) {
+      daily: rumPageloadEventsAdaptiveGroups(limit: 100, filter: { ${rumFilter}, date_geq: $since }, orderBy: [date_ASC]) {
         count sum { visits } dimensions { date } }
-      countries: rumPageloadEventsAdaptiveGroups(limit: 8, filter: { siteTag: $site, date_geq: $since }, orderBy: [count_DESC]) {
+      countries: rumPageloadEventsAdaptiveGroups(limit: 8, filter: { ${rumFilter}, date_geq: $since }, orderBy: [count_DESC]) {
         count dimensions { countryName } }
-      referers: rumPageloadEventsAdaptiveGroups(limit: 8, filter: { siteTag: $site, date_geq: $since }, orderBy: [count_DESC]) {
+      referers: rumPageloadEventsAdaptiveGroups(limit: 8, filter: { ${rumFilter}, date_geq: $since }, orderBy: [count_DESC]) {
         count dimensions { refererHost } }
-      devices: rumPageloadEventsAdaptiveGroups(limit: 5, filter: { siteTag: $site, date_geq: $since }, orderBy: [count_DESC]) {
-        count dimensions { deviceType } }` : ''}
+      devices: rumPageloadEventsAdaptiveGroups(limit: 5, filter: { ${rumFilter}, date_geq: $since }, orderBy: [count_DESC]) {
+        count dimensions { deviceType } }
       worker: workersInvocationsAdaptive(limit: 100, filter: { scriptName: $script, datetime_geq: $sinceT }, orderBy: [date_ASC]) {
         sum { requests errors subrequests } quantiles { cpuTimeP50 } dimensions { date } }
     } } }`;
-  const r = await cfRest(env, '/graphql', { query:q, variables:{ acc:env.CF_ACCOUNT_ID, since, sinceT:since + 'T00:00:00Z', site:out.siteTag, script:SCRIPT } });
+  const r = await cfRest(env, '/graphql', { query:q, variables:{ acc:env.CF_ACCOUNT_ID, since, sinceT:since + 'T00:00:00Z', ...(out.siteTag ? { site:out.siteTag } : {}), script:SCRIPT } });
   if (r.errors?.length) out.graphqlErrors = r.errors.map(e => e.message).slice(0, 3);
   const a = r.data?.viewer?.accounts?.[0] || {};
   out.daily = (a.daily || []).map(g => ({ day:g.dimensions.date, pageviews:g.count, visits:g.sum.visits }));

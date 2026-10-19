@@ -114,7 +114,7 @@ Kullanıcı anahtarları tarayıcının `localStorage`'ında durur; giriş yapı
   hesap listesi (İstek/İzledim/Geçtim sayıları, rol, silme; kişiye tıklayınca listeleri afişleriyle), veritabanı boyutu, bütün panellere bağlantılar. Supabase verisi admin'e özel RPC'lerden
   (`admin_stats`, `admin_users`, `admin_delete_user`, `admin_db`); Cloudflare ve Umami gizli anahtar istediği için Worker
   `/api/admin/*` (`src/admin.js`) üzerinden, Supabase oturumu + `is_admin()` doğrulanarak gelir. Worker ayarları:
-  `CF_API_TOKEN` (Account Analytics: Read), `CF_ACCOUNT_ID`, isteğe bağlı `CF_SITE_TAG`, `UMAMI_API_KEY`.
+  `CF_API_TOKEN` (Account Analytics: Read), `CF_ACCOUNT_ID`, `UMAMI_API_KEY` (hepsi Secret). Web Analytics alan adına göre süzülür, site etiketi gerekmez.
   Admin ekleme (Supabase SQL): `insert into public.admins (user_id) select id from auth.users where email = '…';`
 
 ## Dil

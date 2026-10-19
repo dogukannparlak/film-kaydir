@@ -93,7 +93,7 @@ Your keys stay in the browser's `localStorage`. If you sign in and turn on the s
   Supabase data comes from admin-only RPCs (`admin_stats`, `admin_users`, `admin_delete_user`, `admin_db`).
   Cloudflare and Umami need secret keys, so the Worker serves them at `/api/admin/*` (`src/admin.js`) after checking
   the caller's Supabase session and `is_admin()`. Worker settings: `CF_API_TOKEN` (Account Analytics: Read),
-  `CF_ACCOUNT_ID`, optional `CF_SITE_TAG`, `UMAMI_API_KEY`.
+  `CF_ACCOUNT_ID`, `UMAMI_API_KEY` (all as Secrets). Web Analytics is filtered by host name, no site tag needed.
   Add an admin in Supabase SQL: `insert into public.admins (user_id) select id from auth.users where email = '…';`
 
 ## Security
