@@ -65,3 +65,20 @@ begin
 end $$;
 revoke all on function public.admin_set_role(uuid, text) from public, anon;
 grant execute on function public.admin_set_role(uuid, text) to authenticated;
+
+-- Hesap listeleri (kaydir_admin_user_items, 2026-10-19): admin_user_items + admin_users'a liste başına sayılar.
+create or replace function public.admin_user_items(p_user uuid)
+returns table(key text, status text, title text, original_title text, poster text, date text, type text, progress text, added_at bigint, updated_at timestamptz)
+language plpgsql stable security definer set search_path = ''
+as $$
+begin
+  if not public.is_admin() then raise exception 'not_admin' using errcode = '42501'; end if;
+  return query
+    select i.key, i.data->>'status', i.data->>'title', i.data->>'originalTitle', i.data->>'poster', i.data->>'date',
+           i.data->>'type', i.data->>'progress', nullif(i.data->>'addedAt', '')::bigint, i.updated_at
+    from public.items i where i.user_id = p_user and not i.deleted
+    order by nullif(i.data->>'addedAt', '')::bigint desc nulls last;
+end $$;
+revoke all on function public.admin_user_items(uuid) from public, anon;
+grant execute on function public.admin_user_items(uuid) to authenticated;
+-- admin_users yeniden: items, want, watched, passed sütunları (gövde canlıdaki kaydir_admin_user_items göçünde)

@@ -55,7 +55,7 @@
     <div class="tab hidden" data-pane="hesaplar">
     <section class="card">
       <div class="bar"><h3>Hesaplar <small id="usersMeta"></small></h3><input class="search" id="userQ" type="search" placeholder="E-posta ara…"></div>
-      <div class="table-wrap"><table id="users"><thead><tr><th>E-posta</th><th>Kayıt</th><th>Son giriş</th><th>Liste öğesi</th><th>Son değişiklik</th><th>Anahtar</th><th>Rol</th><th></th></tr></thead><tbody></tbody></table></div>
+      <div class="table-wrap"><table id="users"><thead><tr><th>E-posta</th><th>Kayıt</th><th>Son giriş</th><th>İstek</th><th>İzledim</th><th>Geçtim</th><th>Son değişiklik</th><th>Anahtar</th><th>Rol</th><th></th></tr></thead><tbody></tbody></table></div>
     </section>
     </div>
 
@@ -87,6 +87,9 @@
   <aside class="drawer hidden" id="drawer"><div class="drawer-in">
     <div class="bar"><h3 id="drTitle"></h3><button class="btn" id="drClose">Kapat</button></div>
     <div id="drMeta" class="muted"></div>
+    <div class="seg dr-tabs hidden" id="drTabs"></div>
+    <input class="search dr-q hidden" id="drQ" type="search" placeholder="Listede ara…">
+    <div id="drItems" class="items-grid hidden"></div>
     <div id="drEvents" class="events"></div>
   </div></aside>
 </main>

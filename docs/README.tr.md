@@ -111,7 +111,7 @@ Kullanıcı anahtarları tarayıcının `localStorage`'ında durur; giriş yapı
   Sekmeler: Genel, Hesaplar (arama, rol, silme), Ziyaretçiler (girişsizler dahil), Etkinlik (canlı akış, tür/metin filtresi),
   Hatalar (mesaja göre gruplu); kişiye tıklayınca girişten önceki anonim olaylarıyla birlikte bütün geçmişi açılır.
   Kendi sayaç + Umami + Cloudflare (Web Analytics, Worker istek/hata) grafiklerle yan yana; en çok sayfa/nereden/ülke,
-  hesap listesi (rol: Kullanıcı / Admin, silme), veritabanı boyutu, bütün panellere bağlantılar. Supabase verisi admin'e özel RPC'lerden
+  hesap listesi (İstek/İzledim/Geçtim sayıları, rol, silme; kişiye tıklayınca listeleri afişleriyle), veritabanı boyutu, bütün panellere bağlantılar. Supabase verisi admin'e özel RPC'lerden
   (`admin_stats`, `admin_users`, `admin_delete_user`, `admin_db`); Cloudflare ve Umami gizli anahtar istediği için Worker
   `/api/admin/*` (`src/admin.js`) üzerinden, Supabase oturumu + `is_admin()` doğrulanarak gelir. Worker ayarları:
   `CF_API_TOKEN` (Account Analytics: Read), `CF_ACCOUNT_ID`, isteğe bağlı `CF_SITE_TAG`, `UMAMI_API_KEY`.

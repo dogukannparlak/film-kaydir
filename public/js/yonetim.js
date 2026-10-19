@@ -161,13 +161,13 @@ function renderTops({ own, cf, um }) {
 /* ---- Hesaplar ---- */
 function renderUsers() {
   const tb = $('#users tbody');
-  if (st.usersErr?.status === 'rejected') { tb.innerHTML = `<tr><td colspan="8" class="err">${esc(st.usersErr.reason?.message || 'alınamadı')}</td></tr>`; return; }
+  if (st.usersErr?.status === 'rejected') { tb.innerHTML = `<tr><td colspan="10" class="err">${esc(st.usersErr.reason?.message || 'alınamadı')}</td></tr>`; return; }
   const q = $('#userQ').value.trim().toLowerCase();
   const users = st.users.filter(u => !q || (u.email || '').toLowerCase().includes(q));
   $('#usersMeta').textContent = q ? `${users.length} / ${st.users.length} hesap` : `${st.users.length} hesap · satıra tıkla: geçmişi`;
   tb.innerHTML = users.map(u => `<tr class="click" data-user="${esc(u.id)}">
     <td>${esc(u.email)}${u.is_admin ? '<span class="tag adm">admin</span>' : ''}${u.confirmed ? '' : '<span class="tag">onaysız</span>'}</td>
-    <td>${date(u.created_at)}</td><td>${ago(u.last_sign_in_at)}</td><td class="num">${fmt(u.items)}</td><td>${ago(u.last_change)}</td>
+    <td>${date(u.created_at)}</td><td>${ago(u.last_sign_in_at)}</td><td class="num">${fmt(u.want)}</td><td class="num">${fmt(u.watched)}</td><td class="num">${fmt(u.passed)}</td><td>${ago(u.last_change)}</td>
     <td>${u.keys_saved ? 'şifreli' : '—'}</td>
     <td><select class="role" data-role="${esc(u.id)}" data-email="${esc(u.email)}" ${u.id === st.me ? 'disabled title="Kendi rolünü değiştiremezsin"' : ''}>
       ${Object.entries(ROLES).map(([k, v]) => `<option value="${k}" ${(u.is_admin ? 'admin' : 'user') === k ? 'selected' : ''}>${v}</option>`).join('')}</select></td>
@@ -320,9 +320,10 @@ async function loadErrorBadge() {
 async function openPerson({ user, visitor }) {
   const u = user && st.users.find(x => x.id === user);
   $('#drTitle').textContent = u ? u.email : 'Anonim ziyaretçi · ' + String(visitor).slice(0, 8);
-  $('#drMeta').innerHTML = u ? `<div class="stats-line"><span>Kayıt ${date(u.created_at)}</span><span>Son giriş ${ago(u.last_sign_in_at)}</span><span>${fmt(u.items)} liste öğesi</span><span>${u.is_admin ? 'Admin' : 'Kullanıcı'}</span><span>Anahtar: ${u.keys_saved ? 'şifreli' : '—'}</span></div>`
+  $('#drMeta').innerHTML = u ? `<div class="stats-line"><span>Kayıt ${date(u.created_at)}</span><span>Son giriş ${ago(u.last_sign_in_at)}</span><span>İstek ${fmt(u.want)} · İzledim ${fmt(u.watched)} · Geçtim ${fmt(u.passed)}</span><span>${u.is_admin ? 'Admin' : 'Kullanıcı'}</span><span>Anahtar: ${u.keys_saved ? 'şifreli' : '—'}</span></div>`
     : `<div class="stats-line"><span class="mono">${esc(visitor)}</span></div>`;
   $('#drEvents').innerHTML = '<p class="empty">Yükleniyor…</p>';
+  ['#drTabs', '#drQ', '#drItems'].forEach(s => $(s).classList.add('hidden')); $('#drEvents').classList.remove('hidden');
   $('#drawer').classList.remove('hidden');
   try {
     let rows = await rpc('admin_events', user ? { p_user:user, p_limit:1000 } : { p_visitor:visitor, p_limit:1000 });
@@ -339,7 +340,33 @@ async function openPerson({ user, visitor }) {
       + (user && vis.length ? `<div class="stats-line muted">Cihaz kimlikleri (girişsiz olaylar dahil): ${vis.map(v => `<span class="mono">${esc(String(v).slice(0, 8))}</span>`).join(' ')}</div>` : ''));
     $('#drEvents').innerHTML = evRows(rows, false);
   } catch (err) { $('#drEvents').innerHTML = `<p class="err">${esc(err.message)}</p>`; }
+  if (user) loadPersonItems(user);
 }
+/* ---- Kişinin listeleri: İstek / İzledim / Geçtim ---- */
+const LIST_TABS = [['events', 'Etkinlik'], ['want', 'İstek'], ['watched', 'İzledim'], ['passed', 'Geçtim']];
+const PROG = { watching:'İzliyor', season:'Yeni sezon', dropped:'Bıraktı' };
+let drItems = [], drTab = 'events';
+async function loadPersonItems(user) {
+  try { drItems = await rpc('admin_user_items', { p_user:user }); } catch (err) { drItems = []; }
+  drTab = 'events'; $('#drQ').value = '';
+  renderDrTabs();
+}
+function renderDrTabs() {
+  const n = s => drItems.filter(i => i.status === s).length;
+  $('#drTabs').innerHTML = LIST_TABS.map(([k, l]) => `<button data-dt="${k}" class="${k === drTab ? 'on' : ''}">${l}${k === 'events' ? '' : ` <small>${fmt(n(k))}</small>`}</button>`).join('');
+  $('#drTabs').classList.remove('hidden');
+  const list = drTab !== 'events';
+  $('#drEvents').classList.toggle('hidden', list); $('#drItems').classList.toggle('hidden', !list); $('#drQ').classList.toggle('hidden', !list);
+  if (!list) return;
+  const q = $('#drQ').value.trim().toLocaleLowerCase('tr');
+  const rows = drItems.filter(i => i.status === drTab && (!q || `${i.title} ${i.original_title}`.toLocaleLowerCase('tr').includes(q)));
+  $('#drItems').innerHTML = rows.length ? rows.map(i => `<a class="it" href="https://www.themoviedb.org/${esc(i.type)}/${esc(String(i.key).split(':')[1])}" target="_blank" rel="noopener">
+      ${i.poster ? `<img src="https://image.tmdb.org/t/p/w154${esc(i.poster)}" alt="" loading="lazy">` : '<span class="noimg"></span>'}
+      <b>${esc(i.title || i.key)}</b><small>${esc((i.date || '').slice(0, 4))} · ${i.type === 'tv' ? 'Dizi' : 'Film'}${i.progress ? ' · ' + esc(PROG[i.progress] || i.progress) : ''}</small>
+      <small>${i.added_at ? date(i.added_at) : ''}</small></a>`).join('') : '<p class="empty">Bu listede yapım yok.</p>';
+}
+$('#drTabs').onclick = e => { const b = e.target.closest('[data-dt]'); if (b) { drTab = b.dataset.dt; renderDrTabs(); } };
+$('#drQ').oninput = () => renderDrTabs();
 $('#drClose').onclick = () => $('#drawer').classList.add('hidden');
 $('#drawer').onclick = e => { if (e.target.id === 'drawer') $('#drawer').classList.add('hidden'); };
 document.addEventListener('keydown', e => { if (e.key === 'Escape') $('#drawer').classList.add('hidden'); });
