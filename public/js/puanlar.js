@@ -13,17 +13,31 @@ async function fetchIds(it) {
     if (!it.overview) it.overview = d.overview || '';
   } catch {}
 }
-// Yaş derecelendirmesi: önce Türkiye (RTÜK/Kültür Bakanlığı), yoksa ABD (MPA / TV Parental Guidelines) yaşa çevrilir.
-// Döner: { a:'13+' | 'Genel', src:'TR' | 'US', raw } ya da null (derecelendirme yok).
+// Yaş derecelendirmesi: önce Türkiye, yoksa ABD, İngiltere, Almanya, Hollanda, Fransa… sırayla ilk okunabilen yaşa çevrilir
+// (TMDB'de çoğu yapımda TR/ABD boş, Avrupa dolu). Döner: { a:'13+' | 'Genel', src:'TR' | 'US' | …, raw } ya da null.
 const US_AGE = { 'G':0, 'PG':7, 'PG-13':13, 'R':18, 'NC-17':18, 'TV-Y':0, 'TV-G':0, 'TV-Y7':7, 'TV-PG':7, 'TV-14':14, 'TV-MA':18 };
+const GB_AGE = { 'U':0, 'PG':7, '12A':12, '12':12, '15':15, '18':18, 'R18':18 };
+const AGE_ORDER = ['TR', 'US', 'GB', 'DE', 'NL', 'FR', 'ES', 'IT', 'SE', 'DK', 'NO', 'FI', 'AT', 'CH', 'BR', 'AU', 'CA', 'KR', 'JP', 'RU'];
+function certAge(c, v) {
+  v = String(v || '').trim();
+  if (!v) return null;
+  if (c === 'US') return US_AGE[v] ?? null;
+  if (c === 'GB') return GB_AGE[v] ?? null;
+  if (/^(G|U|AL|TP|L|A|0|Genel İzleyici|Genel)$/i.test(v)) return 0;
+  const m = /(\d{1,2})/.exec(v);
+  return m && +m[1] <= 21 ? +m[1] : null;
+}
 function ageOf(d, type) {
   const list = type === 'movie'
-    ? (d.release_dates?.results || []).map(r => ({ c:r.iso_3166_1, v:(r.release_dates || []).map(x => x.certification).find(Boolean) }))
-    : (d.content_ratings?.results || []).map(r => ({ c:r.iso_3166_1, v:r.rating }));
-  const tr = list.find(x => x.c === 'TR' && x.v)?.v;
-  if (tr) { const m = /(\d+)/.exec(tr); return { a:m ? m[1] + '+' : 'Genel', src:'TR', raw:tr }; }
-  const us = list.find(x => x.c === 'US' && x.v in US_AGE)?.v;
-  if (us) return { a:US_AGE[us] ? US_AGE[us] + '+' : 'Genel', src:'US', raw:us };
+    ? (d.release_dates?.results || []).map(r => ({ c:r.iso_3166_1, vs:(r.release_dates || []).map(x => x.certification) }))
+    : (d.content_ratings?.results || []).map(r => ({ c:r.iso_3166_1, vs:[r.rating] }));
+  const rank = c => { const i = AGE_ORDER.indexOf(c); return i < 0 ? 99 : i; };
+  for (const x of list.sort((p, q) => rank(p.c) - rank(q.c))) {
+    for (const v of x.vs) {
+      const n = certAge(x.c, v);
+      if (n != null) return { a:n ? n + '+' : 'Genel', src:x.c, raw:v };
+    }
+  }
   return null;
 }
 const ageHTML = it => it.age ? `<span class="age" title="${esc(t('Yaş sınırı') + ' · ' + it.age.src + ' ' + it.age.raw)}">${esc(it.age.a === 'Genel' ? t('Genel') : it.age.a)}</span>` : '';
