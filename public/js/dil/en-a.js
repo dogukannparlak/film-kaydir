@@ -237,7 +237,7 @@ Object.assign(EN, {
   'E-postan onaylandı. Listelerin bu hesaba yedeklenir; giriş yaptığın her cihazda aynı listeyi görürsün.': 'Your email is confirmed. Your lists are backed up to this account; you\'ll see the same lists on every device you sign in on.',
   'Tamam': 'OK',
   'E-postana kod gönderdik': 'We sent you a code',
-  '{email} adresine gelen 6 haneli kodu yaz. Gelmediyse istenmeyen klasörüne bak.': 'Enter the 6-digit code sent to {email}. If it hasn\'t arrived, check your spam folder.',
+  '{email} adresine gelen doğrulama kodunu yaz. Gelmediyse istenmeyen klasörüne bak.': 'Enter the verification code sent to {email}. If it hasn\'t arrived, check your spam folder.',
   'Doğrulama kodu': 'Verification code',
   'Doğrula': 'Verify',
   'Tekrar gönder': 'Resend',
@@ -257,7 +257,7 @@ Object.assign(EN, {
   'Doğrulanıyor…': 'Verifying…',
   'Kaydediliyor…': 'Saving…',
   'Şifre sıfırlama bağlantısı gönderildi: e-postana bak.': 'Password reset link sent: check your email.',
-  'E-postadaki 6 haneli kodu yaz.': 'Enter the 6-digit code from the email.',
+  'E-postadaki doğrulama kodunu yaz.': 'Enter the verification code from the email.',
   'Yeni kod gönderildi.': 'New code sent.',
   'Hoş geldin! Listelerin eşitleniyor': 'Welcome! Syncing your lists',
 });

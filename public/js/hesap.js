@@ -264,7 +264,7 @@ function onSignedOut() {
 }
 
 /* ---- Giriş arayüzü (Ayarlar › Hesap) ---- */
-// Misafir formu üç hâlde: 'in' giriş, 'up' kayıt (şifre kuralları + tekrar), 'code' e-posta kodu (kayıttan sonra ya da
+// Misafir formu üç hâlde: 'in' giriş, 'up' kayıt (şifre kuralları + tekrar), 'code' e-posta kodu (uzunluk panelde, şu an 8) (kayıttan sonra ya da
 // onaylanmamış hesapla girişte). Kayıt bitince oturumlu görünümde "Hesabın hazır" kartı (acc.done) çıkar.
 // 'reset': şifre sıfırlama bağlantısıyla gelen oturumda yeni şifre formu (oturumlu görünüm yerine).
 // acc.pass: kod ekranındayken kasa anahtarı için şifre yalnız bellekte durur (kod doğrulanınca pendingPass olur).
@@ -307,8 +307,8 @@ function renderAccount() {
   if (acc.mode === 'code') {
     box.innerHTML = `<div class="acc-code">
       <b class="acc-title">${t('E-postana kod gönderdik')}</b>
-      <p class="note">${t('{email} adresine gelen 6 haneli kodu yaz. Gelmediyse istenmeyen klasörüne bak.', { email:`<b>${esc(acc.email)}</b>` })}</p>
-      <div class="acc-f"><input class="field acc-code-in" id="accCode" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="••••••" aria-label="${t('Doğrulama kodu')}"><span class="f-err" id="accCodeErr"></span></div>
+      <p class="note">${t('{email} adresine gelen doğrulama kodunu yaz. Gelmediyse istenmeyen klasörüne bak.', { email:`<b>${esc(acc.email)}</b>` })}</p>
+      <div class="acc-f"><input class="field acc-code-in" id="accCode" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="••••••••" aria-label="${t('Doğrulama kodu')}"><span class="f-err" id="accCodeErr"></span></div>
       <div class="row-btns"><button class="btn btn-primary" id="accVerify">${t('Doğrula')}</button><button class="btn" id="accResend">${t('Tekrar gönder')}</button></div>
       <button class="linkish" id="accBack">${t('E-postayı değiştir')}</button>
       <div class="err" id="accErr" role="alert" aria-live="polite"></div></div>`;
@@ -459,7 +459,7 @@ async function onAccountClick(e) {
   } else if (id === 'accVerify') {
     clearErrs();
     const code = $('#accCode').value.replace(/\s/g, '');
-    if (!/^\d{6,10}$/.test(code)) { fieldErr('accCode', t('E-postadaki 6 haneli kodu yaz.')); return $('#accCode').focus(); }
+    if (!/^\d{6,10}$/.test(code)) { fieldErr('accCode', t('E-postadaki doğrulama kodunu yaz.')); return $('#accCode').focus(); }
     await busy(btn, t('Doğrulanıyor…'), async () => {
       pendingPass = acc.pass || null;
       const { error } = await sb.auth.verifyOtp({ email:acc.email, token:code, type:'email' });
