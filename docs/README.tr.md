@@ -95,8 +95,12 @@ Kullanıcı anahtarları tarayıcının `localStorage`'ında durur; giriş yapı
   ziyaret, ziyaretçi, kalma süresi, cihaz türü, dil, nereden gelindiği. Çerez ve IP yok. Geri dönen ziyaretçiyi saymak için
   `localStorage`'a rastgele anonim kimlik yazılır (bant yok, varsayılan açık).
 - Umami Cloud (`js/istatistik.js` › `UMAMI_ID`; yalnız kaydir.dogukanparlak.com sayılır). Cloudflare Web Analytics de açık.
-- Yönetim paneli (Ayarlar › Yönetim): yalnız `admins` tablosundaki hesaba görünür; 7/30/90 günlük ziyaret özeti, günlük grafik,
-  hesap ve öğe sayıları. Veri `admin_stats()` fonksiyonundan gelir, yetki sunucuda denetlenir.
+- Yönetim sayfası (`/admin.html`, Ayarlar › Yönetim de açar): yalnız `admins` tablosundaki hesaba açık, siteden bağımsız panel.
+  Kendi sayaç + Umami + Cloudflare (Web Analytics, Worker istek/hata) grafiklerle yan yana; en çok sayfa/nereden/ülke,
+  hesap listesi (silme dahil), veritabanı boyutu, bütün panellere bağlantılar. Supabase verisi admin'e özel RPC'lerden
+  (`admin_stats`, `admin_users`, `admin_delete_user`, `admin_db`); Cloudflare ve Umami gizli anahtar istediği için Worker
+  `/api/admin/*` (`src/admin.js`) üzerinden, Supabase oturumu + `is_admin()` doğrulanarak gelir. Worker ayarları:
+  `CF_API_TOKEN` (Account Analytics: Read), `CF_ACCOUNT_ID`, isteğe bağlı `CF_SITE_TAG`, `UMAMI_API_KEY`.
   Admin ekleme (Supabase SQL): `insert into public.admins (user_id) select id from auth.users where email = '…';`
 
 ## Dil

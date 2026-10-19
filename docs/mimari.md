@@ -22,7 +22,6 @@ Parçalarda ters tırnak (`` ` ``) ve `${` kullanma; şablon metnini bozar.
 | `html/arama.js` | Arama alt sayfası: arama kutusu ve sonuç listesi |
 | `html/bolum.js` | Bölüm seçici alt sayfası |
 | `html/ayarlar.js` | Ayarlar alt sayfası: hesap, anahtarlar, anahtarları hesapta saklama düğmesi, tekrar gelişi sayma düğmesi, yönetim, görülenler, yedek, Letterboxd, kısayollar, Hakkında (lisans, bağlantılar, atıflar) |
-| `html/admin.js` | Yönetim paneli alt sayfasının kabı (içeriği `js/admin.js` çizer) |
 | `html/rehber.js` | İlk açılış rehberinin kabı (adımları `js/rehber.js` çizer) |
 
 `index.html` içinde yalnız `.app` kabı, `#backdrop`, `#toasts` ve betik etiketleri kalır.
@@ -67,7 +66,7 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 | `js/kasa.js` | API anahtarlarını hesapta şifreli saklama: hesap şifresinden PBKDF2-SHA256 (310 000 tur) ile AES-GCM anahtarı türetme, şifreleme/çözme; türetilen anahtar cihazda `kd_vault` | `deriveVault`, `setVault`, `vaultFor`, `sealKeys`, `openKeys` |
 | `js/hesap.js` | Supabase hesap + eşitleme: giriş (şifre, sıfırlama; Google `GOOGLE_AUTH` ile kapalı), değişen öğeleri gönderme, `updated_at > since` ile çekme, ilk girişte birleştirme; API anahtarı düğmesi (`keys_enc`, kilitli cihazda şifre sorma, eski düz metin anahtarları taşıma) | `syncSoon`, `pushChanges`, `pullChanges`, `syncNow`, `initAccount`, `applyCloudKeys`, `renderKeySync` |
 | `js/istatistik.js` | Ziyaret sayacı (`visit_start` + 30 sn'de `visit_ping`), kalıcı anonim kimlik (`kd_visitor`), Umami (`UMAMI_ID` doluysa) | `initStats`, `setConsent`, `startVisit` |
-| `js/admin.js` | Yönetim paneli: `is_admin()` ile düğme, `admin_stats(p_days)` ile özet, günlük çubuk grafik | `checkAdmin`, `openAdmin`, `initAdmin` |
+| `js/admin.js` | Ayarlar › Yönetim düğmesi: `is_admin()` ise görünür, `admin.html`'i açar | `checkAdmin`, `initAdmin` |
 | `js/rehber.js` | İlk açılış rehberi: adımlar, sonda hesap seçimi (giriş / kayıt / hesapsız), bir kez gösterme (`kd_guide`), Ayarlar › Kısayollar'dan yeniden açma | `openGuide`, `closeGuide`, `initGuide` |
 | `js/baslat.js` | Olay bağlama ve `init()` çağrısı; en sonda yüklenir | `init` |
 
@@ -109,7 +108,9 @@ Göçler: `supabase/migrations/` (önceki dördü panelden/MCP ile uygulandı, a
   şifreli (`{v, salt, iv, ct}`); eski düz metin sütunlar `tmdb_key`, `omdb_key` istemci tarafından hep boşaltılır.
 - `visits` + `visit_start` / `visit_ping`: anonim ziyaret sayacı. Tabloya doğrudan erişim yok, yalnız bu iki
   `security definer` fonksiyon; ziyaretçi başına günde en çok 200 ziyaret.
-- `admins` + `is_admin()` / `admin_stats(p_days)`: yönetim paneli. Admin satırı elle eklenir.
+- `admins` + `is_admin()`, `admin_stats(p_days)`, `admin_users()`, `admin_delete_user(id)`, `admin_db()`: yönetim sayfası
+  (`admin.html` + `js/yonetim.js` + `css/yonetim.css`, siteden bağımsız). Cloudflare/Umami verisi Worker'dan: `src/admin.js`
+  (`/api/admin/cloudflare`, `/api/admin/umami`; çağıranın oturumu ve admin olduğu Supabase'e sorulur). Admin satırı elle eklenir.
 
 ## Dış API'ler
 

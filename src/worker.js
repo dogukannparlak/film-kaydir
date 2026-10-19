@@ -1,6 +1,8 @@
 // Cloudflare Worker: public/ klasörünü statik site olarak sunar, /api/tmdb/* isteklerini TMDB'ye iletir.
 // TMDB anahtarı Cloudflare'de gizli değişken (secret) TMDB_KEY olarak durur: koda, repoya ve tarayıcıya hiç girmez.
 // Panelden: Workers & Pages › kaydir › Settings › Variables and secrets › Add › Secret › TMDB_KEY
+import { adminApi } from './admin.js';
+
 const TMDB = 'https://api.themoviedb.org/3';
 const CACHE_SECONDS = 6 * 3600; // aynı liste/detay isteği 6 saat kenar önbellekten döner
 // Yalnız sitenin kullandığı TMDB yolları: ara katman genel amaçlı TMDB vekili olmasın
@@ -21,6 +23,7 @@ export default {
       try { return await tmdbProxy(request, url, env, ctx); }
       catch (e) { console.error('tmdb proxy', e); return json({ error:'upstream' }, 502); }
     }
+    if (url.pathname.startsWith('/api/admin/')) return adminApi(request, url, env); // yönetim sayfası (src/admin.js)
     return env.ASSETS.fetch(request);
   },
 };
