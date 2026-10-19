@@ -47,11 +47,11 @@ function renderAdmin() {
         ${tile(t('Ziyaretçi'), fmtN(d.visitors))}
         ${tile(t('Ziyaret'), fmtN(d.visits))}
         ${tile(t('Ort. kalma'), fmtSecs(d.avg_secs), t('ortanca {s}', { s: fmtSecs(d.median_secs) }))}
-        ${tile(t('Geri dönen'), fmtN(d.returning), t('kimliğine izin veren {n} kişiden', { n: fmtN(d.kept_visitors) }))}
+        ${tile(t('Geri dönen'), fmtN(d.returning), t('{n} ziyaretçiden', { n: fmtN(d.kept_visitors) }))}
         ${tile(t('Girişli ziyaret'), '%' + fmtN(d.logged_in_share))}
       </div>
       <div class="bars" aria-label="${t('Günlük ziyaret')}">${bars}</div>
-      <p class="note">${t('Telefon {m} · bilgisayar {d}. Rıza vermeyenin her açılışı yeni ziyaretçi sayılır.', { m: fmtN(dev.mobile), d: fmtN(dev.desktop) })}</p>
+      <p class="note">${t('Telefon {m} · bilgisayar {d}. Tarayıcı verisini silen yeni ziyaretçi sayılır.', { m: fmtN(dev.mobile), d: fmtN(dev.desktop) })}</p>
     </section>
     <section>
       <h3>${t('Hesaplar')}</h3>

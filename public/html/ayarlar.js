@@ -44,10 +44,6 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
       <div class="note lb-status" id="lbStatus" aria-live="polite"></div>
       <p class="note">letterboxd.com → Settings → Data → Export Your Data. İzlenenler İzlediklerim'e, izleme listesi İstek'e gider; Letterboxd puanın saklanır. Zip yerine <code>watched.csv</code> ve <code>watchlist.csv</code> da seçilebilir.</p>
     </section>
-    <section>
-      <div class="switch-row"><h3>Tekrar gelişimi say <small>anonim</small></h3><button class="switch" id="consentSwitch" role="switch" aria-checked="false" aria-label="Tekrar gelişimi say"></button></div>
-      <p class="note">Site anonim ziyaret istatistiği tutar (ziyaret sayısı, kalma süresi; çerez yok). Açıksa cihazına rastgele bir kimlik yazılır, böylece tekrar gelişin de sayılır. Kişisel bilgi içermez. <a href="gizlilik.html" target="_blank">Gizlilik</a></p>
-    </section>
     <section id="adminSec" class="hidden">
       <h3>Yönetim</h3>
       <button class="btn btn-ico" id="btnAdmin"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg> Yönetim panelini aç</button>

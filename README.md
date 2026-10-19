@@ -71,8 +71,7 @@ Your keys stay in the browser's `localStorage`. If you sign in and turn on the s
 
 - Own counter (`js/istatistik.js`, table `visits`): a visit starts on load and pings every 30 s while the tab is visible →
   visits, visitors, time on site, device type, language, referrer. No cookies, no IP addresses.
-  If the visitor accepts the consent banner (or Settings › "Count my return visits"), a random anonymous ID is kept on the
-  device so return visits can be counted.
+  A random anonymous ID is kept in `localStorage` so return visits can be counted (no banner, on by default).
 - Umami Cloud: loaded only when `UMAMI_ID` in `js/istatistik.js` is set. Cloudflare Web Analytics is also on.
 - Admin panel (Settings › Admin): visible only to accounts in the `admins` table; 7/30/90-day visit summary, daily chart,
   account and list-item counts. Data comes from `admin_stats()`, which checks permissions on the server.

@@ -554,13 +554,6 @@ nav.tabs svg.i{width:21px;height:21px}
 .switch[aria-checked="true"]::after{transform:translateX(20px)}
 .switch:disabled{opacity:.5}
 
-/* Rıza bandı (anonim ziyaretçi kimliği) */
-.consent{position:fixed;left:12px;right:12px;bottom:calc(86px + env(safe-area-inset-bottom));margin:0 auto;max-width:480px;z-index:70;
-  padding:14px 16px;border-radius:18px;background:rgba(30,30,48,.88);border:1px solid var(--glass-edge);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:0 10px 40px rgba(0,0,0,.5)}
-.consent p{margin:0;font-size:13.5px;line-height:1.45}
-.consent a{color:#c4b5fd}
-.consent .row-btns{margin-top:10px}
-.consent .btn{flex:1}
 
 /* Yönetim paneli */
 .admin-days{margin:0 0 14px}

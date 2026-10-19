@@ -92,8 +92,8 @@ Kullanıcı anahtarları tarayıcının `localStorage`'ında durur; giriş yapı
 ## İstatistik ve yönetim
 
 - Kendi sayaç (`js/istatistik.js`, tablo `visits`): açılışta ziyaret başlar, sekme görünürken 30 sn'de bir sinyal →
-  ziyaret, ziyaretçi, kalma süresi, cihaz türü, dil, nereden gelindiği. Çerez ve IP yok. Rıza bandında (ya da Ayarlar ›
-  Tekrar gelişimi say) kabul edilirse cihaza rastgele anonim kimlik yazılır ve geri dönen ziyaretçi sayılır.
+  ziyaret, ziyaretçi, kalma süresi, cihaz türü, dil, nereden gelindiği. Çerez ve IP yok. Geri dönen ziyaretçiyi saymak için
+  `localStorage`'a rastgele anonim kimlik yazılır (bant yok, varsayılan açık).
 - Umami Cloud: `js/istatistik.js` › `UMAMI_ID` doldurulunca yüklenir (boşsa yüklenmez). Cloudflare Web Analytics de açık.
 - Yönetim paneli (Ayarlar › Yönetim): yalnız `admins` tablosundaki hesaba görünür; 7/30/90 günlük ziyaret özeti, günlük grafik,
   hesap ve öğe sayıları. Veri `admin_stats()` fonksiyonundan gelir, yetki sunucuda denetlenir.

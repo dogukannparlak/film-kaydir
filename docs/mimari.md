@@ -66,7 +66,7 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 | `js/letterboxd.js` | Letterboxd zip/CSV okuma (tarayıcıda `DecompressionStream` ile açar), TMDB eşleştirme, listelere yazma | `importLetterboxd`, `unzipFiles`, `parseCSV`, `matchTMDB` |
 | `js/kasa.js` | API anahtarlarını hesapta şifreli saklama: hesap şifresinden PBKDF2-SHA256 (310 000 tur) ile AES-GCM anahtarı türetme, şifreleme/çözme; türetilen anahtar cihazda `kd_vault` | `deriveVault`, `setVault`, `vaultFor`, `sealKeys`, `openKeys` |
 | `js/hesap.js` | Supabase hesap + eşitleme: giriş (şifre, sıfırlama; Google `GOOGLE_AUTH` ile kapalı), değişen öğeleri gönderme, `updated_at > since` ile çekme, ilk girişte birleştirme; API anahtarı düğmesi (`keys_enc`, kilitli cihazda şifre sorma, eski düz metin anahtarları taşıma) | `syncSoon`, `pushChanges`, `pullChanges`, `syncNow`, `initAccount`, `applyCloudKeys`, `renderKeySync` |
-| `js/istatistik.js` | Ziyaret sayacı (`visit_start` + 30 sn'de `visit_ping`), rıza bandı ve Ayarlar düğmesi, Umami (`UMAMI_ID` doluysa) | `initStats`, `setConsent`, `startVisit` |
+| `js/istatistik.js` | Ziyaret sayacı (`visit_start` + 30 sn'de `visit_ping`), kalıcı anonim kimlik (`kd_visitor`), Umami (`UMAMI_ID` doluysa) | `initStats`, `setConsent`, `startVisit` |
 | `js/admin.js` | Yönetim paneli: `is_admin()` ile düğme, `admin_stats(p_days)` ile özet, günlük çubuk grafik | `checkAdmin`, `openAdmin`, `initAdmin` |
 | `js/rehber.js` | İlk açılış rehberi: adımlar, sonda hesap seçimi (giriş / kayıt / hesapsız), bir kez gösterme (`kd_guide`), Ayarlar › Kısayollar'dan yeniden açma | `openGuide`, `closeGuide`, `initGuide` |
 | `js/baslat.js` | Olay bağlama ve `init()` çağrısı; en sonda yüklenir | `init` |
@@ -91,7 +91,7 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 | `kd_keysync` | API anahtarları hesapta (şifreli) saklansın mı |
 | `kd_vault` | Hesap şifresinden türetilen AES anahtarı + tuz (`{user, salt, k}`); çıkışta silinir |
 | `kd_lang` | Arayüz dili (`tr` / `en`) |
-| `kd_consent`, `kd_visitor` | Ziyaret istatistiği rızası (`yes`/`no`) ve kalıcı anonim ziyaretçi kimliği (yalnız rıza varsa) |
+| `kd_visitor` | Kalıcı anonim ziyaretçi kimliği (geri dönen ziyaretçi sayımı) |
 | `kd_items` | Liste öğeleri: `id, type, title, originalTitle, trailer, latestSeason/seasonAck/newSeason/nextSeason/tvCheckedAt (dizi), collection ({id, name} | null), poster, date, status, genres, rating, imdb, imdbRating, rt, director, scoreAt, addedAt`, İzlediklerim'de isteğe bağlı `progress` (`watching` \| `season` \| `dropped`; İzliyorum'da kaldığın yer `at: {s, e}` ve yayınlanmış bölümler `eps`, bkz. `PROGRESS`; başka listeye taşınınca silinir) |
 | `kd_seen` | Daha önce gösterilenler (tekrar gelmesin) |
 | `kd_filters`, `kd_listf` | Deste ve liste filtreleri |
