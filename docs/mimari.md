@@ -108,7 +108,7 @@ Göçler: `supabase/migrations/` (önceki dördü panelden/MCP ile uygulandı, a
   şifreli (`{v, salt, iv, ct}`); eski düz metin sütunlar `tmdb_key`, `omdb_key` istemci tarafından hep boşaltılır.
 - `visits` + `visit_start` / `visit_ping`: anonim ziyaret sayacı. Tabloya doğrudan erişim yok, yalnız bu iki
   `security definer` fonksiyon; ziyaretçi başına günde en çok 200 ziyaret.
-- `admins` + `is_admin()`, `admin_stats(p_days)`, `admin_users()`, `admin_delete_user(id)`, `admin_db()`: yönetim sayfası
+- `admins` + `is_admin()`, `admin_stats(p_days)`, `admin_users()`, `admin_delete_user(id)`, `admin_set_role(id, rol)`, `admin_db()`: yönetim sayfası
   (`admin.html` + `js/yonetim.js` + `css/yonetim.css`, siteden bağımsız). Cloudflare/Umami verisi Worker'dan: `src/admin.js`
   (`/api/admin/cloudflare`, `/api/admin/umami`; çağıranın oturumu ve admin olduğu Supabase'e sorulur). Admin satırı elle eklenir.
 

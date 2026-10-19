@@ -97,7 +97,7 @@ Kullanıcı anahtarları tarayıcının `localStorage`'ında durur; giriş yapı
 - Umami Cloud (`js/istatistik.js` › `UMAMI_ID`; yalnız kaydir.dogukanparlak.com sayılır). Cloudflare Web Analytics de açık.
 - Yönetim sayfası (`/admin.html`, Ayarlar › Yönetim de açar): yalnız `admins` tablosundaki hesaba açık, siteden bağımsız panel.
   Kendi sayaç + Umami + Cloudflare (Web Analytics, Worker istek/hata) grafiklerle yan yana; en çok sayfa/nereden/ülke,
-  hesap listesi (silme dahil), veritabanı boyutu, bütün panellere bağlantılar. Supabase verisi admin'e özel RPC'lerden
+  hesap listesi (rol: Kullanıcı / Admin, silme), veritabanı boyutu, bütün panellere bağlantılar. Supabase verisi admin'e özel RPC'lerden
   (`admin_stats`, `admin_users`, `admin_delete_user`, `admin_db`); Cloudflare ve Umami gizli anahtar istediği için Worker
   `/api/admin/*` (`src/admin.js`) üzerinden, Supabase oturumu + `is_admin()` doğrulanarak gelir. Worker ayarları:
   `CF_API_TOKEN` (Account Analytics: Read), `CF_ACCOUNT_ID`, isteğe bağlı `CF_SITE_TAG`, `UMAMI_API_KEY`.

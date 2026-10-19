@@ -50,3 +50,18 @@ revoke all on function public.admin_db() from public, anon;
 grant execute on function public.admin_users() to authenticated;
 grant execute on function public.admin_delete_user(uuid) to authenticated;
 grant execute on function public.admin_db() to authenticated;
+
+-- Rol atama (kaydir_admin_set_role, 2026-10-19): 'user' | 'admin'. Kendini düşüremezsin (panelden kilitlenme olmasın).
+create or replace function public.admin_set_role(p_id uuid, p_role text)
+returns void language plpgsql security definer set search_path = ''
+as $$
+begin
+  if not public.is_admin() then raise exception 'not_admin' using errcode = '42501'; end if;
+  if p_role not in ('user', 'admin') then raise exception 'bad_role'; end if;
+  if p_id = (select auth.uid()) and p_role <> 'admin' then raise exception 'cannot_demote_self'; end if;
+  if not exists (select 1 from auth.users where id = p_id) then raise exception 'no_user'; end if;
+  if p_role = 'admin' then insert into public.admins (user_id) values (p_id) on conflict do nothing;
+  else delete from public.admins where user_id = p_id; end if;
+end $$;
+revoke all on function public.admin_set_role(uuid, text) from public, anon;
+grant execute on function public.admin_set_role(uuid, text) to authenticated;

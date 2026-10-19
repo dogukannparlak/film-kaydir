@@ -75,7 +75,7 @@ Your keys stay in the browser's `localStorage`. If you sign in and turn on the s
 - Umami Cloud (`UMAMI_ID` in `js/istatistik.js`, counts only on kaydir.dogukanparlak.com). Cloudflare Web Analytics is also on.
 - Admin page (`/admin.html`, also Settings › Admin): a standalone dashboard for accounts in the `admins` table.
   Own counter + Umami + Cloudflare (Web Analytics and Worker requests/errors) side by side with charts, top pages,
-  referrers and countries, the account list (with delete), database size and links to every dashboard.
+  referrers and countries, the account list (role: User / Admin, delete), database size and links to every dashboard.
   Supabase data comes from admin-only RPCs (`admin_stats`, `admin_users`, `admin_delete_user`, `admin_db`).
   Cloudflare and Umami need secret keys, so the Worker serves them at `/api/admin/*` (`src/admin.js`) after checking
   the caller's Supabase session and `is_admin()`. Worker settings: `CF_API_TOKEN` (Account Analytics: Read),

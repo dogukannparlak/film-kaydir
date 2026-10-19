@@ -2,7 +2,7 @@
 /* ================= Yönetim sayfası (admin.html) ================= */
 // Siteden bağımsız tek dosya. Oturum sitenin Supabase oturumudur (aynı alan adı, aynı localStorage).
 // Veri kaynakları:
-// - Supabase RPC (yalnız admin): admin_stats (kendi sayaç), admin_users, admin_delete_user, admin_db
+// - Supabase RPC (yalnız admin): admin_stats (kendi sayaç), admin_users, admin_delete_user, admin_set_role, admin_db
 // - Worker /api/admin/cloudflare ve /api/admin/umami (src/admin.js; gizli anahtarlar orada)
 const SB_URL = 'https://zungbtgtlrltowkvjqso.supabase.co';
 const SB_KEY = 'sb_publishable_Bgg9ZLBOaQe4nn904kRYTQ_mcy-SMYS';
@@ -32,13 +32,14 @@ const SETUP = {
     <li><code>CF_ACCOUNT_ID</code> (Text): Workers &amp; Pages sayfasının sağındaki Account ID</li></ol>`,
   umami: `<b>Umami bağlı değil.</b> cloud.umami.is › Settings › API keys › Create key; anahtarı Cloudflare'de <code>UMAMI_API_KEY</code> (Secret) olarak ekle.`,
 };
-const st = { days:30, token:null, charts:{}, armed:null };
+const st = { days:30, token:null, me:null, charts:{}, armed:null };
+const ROLES = { user:'Kullanıcı', admin:'Admin' }; // public.admin_set_role ile aynı
 
 /* ---- Oturum ---- */
 async function boot() {
   const { data:{ session } } = await sb.auth.getSession();
   if (!session) return showLogin();
-  st.token = session.access_token;
+  st.token = session.access_token; st.me = session.user.id;
   const { data:admin } = await sb.rpc('is_admin');
   if (admin !== true) return showLogin('Bu hesap admin değil.', session.user.email);
   $('#who').innerHTML = `${esc(session.user.email)} · <a href="#" id="out">çıkış</a>`;
@@ -157,12 +158,14 @@ function renderTops({ own, cf, um }) {
 /* ---- Hesaplar ---- */
 function renderUsers(users, r) {
   const tb = $('#users tbody');
-  if (!users) { tb.innerHTML = `<tr><td colspan="7" class="err">${esc(r.reason?.message || 'alınamadı')}</td></tr>`; return; }
+  if (!users) { tb.innerHTML = `<tr><td colspan="8" class="err">${esc(r.reason?.message || 'alınamadı')}</td></tr>`; return; }
   $('#usersMeta').textContent = `${users.length} hesap`;
   tb.innerHTML = users.map(u => `<tr>
     <td>${esc(u.email)}${u.is_admin ? '<span class="tag adm">admin</span>' : ''}${u.confirmed ? '' : '<span class="tag">onaysız</span>'}</td>
     <td>${date(u.created_at)}</td><td>${ago(u.last_sign_in_at)}</td><td class="num">${fmt(u.items)}</td><td>${ago(u.last_change)}</td>
     <td>${u.keys_saved ? 'şifreli' : '—'}</td>
+    <td><select class="role" data-role="${esc(u.id)}" data-email="${esc(u.email)}" ${u.id === st.me ? 'disabled title="Kendi rolünü değiştiremezsin"' : ''}>
+      ${Object.entries(ROLES).map(([k, v]) => `<option value="${k}" ${(u.is_admin ? 'admin' : 'user') === k ? 'selected' : ''}>${v}</option>`).join('')}</select></td>
     <td>${u.is_admin ? '' : `<button class="btn sm danger" data-del="${esc(u.id)}" data-email="${esc(u.email)}">Sil</button>`}</td></tr>`).join('');
 }
 $('#users').addEventListener('click', async e => {
@@ -178,6 +181,15 @@ $('#users').addEventListener('click', async e => {
   st.armed = null; b.disabled = true; b.textContent = 'Siliniyor…';
   try { await rpc('admin_delete_user', { p_id:b.dataset.del }); load(); }
   catch (err) { b.disabled = false; b.textContent = 'Sil'; alertBox(`${b.dataset.email} silinemedi: ${err.message}`); }
+});
+// Rol değişikliği: seçince hemen kaydedilir; hata olursa eski değere döner
+$('#users').addEventListener('change', async e => {
+  const s = e.target.closest('[data-role]');
+  if (!s) return;
+  const prev = s.value === 'admin' ? 'user' : 'admin';
+  s.disabled = true;
+  try { await rpc('admin_set_role', { p_id:s.dataset.role, p_role:s.value }); load(); }
+  catch (err) { s.value = prev; s.disabled = false; alertBox(`${s.dataset.email} rolü değiştirilemedi: ${err.message}`); }
 });
 function alertBox(msg) { $('#sources').insertAdjacentHTML('afterbegin', `<div class="setup">${esc(msg)}</div>`); }
 
