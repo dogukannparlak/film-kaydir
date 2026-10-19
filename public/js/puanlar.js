@@ -1,9 +1,10 @@
 'use strict';
 // Kart ekrana yaklaşınca: IMDb kimliği + yönetmen (TMDB) + OMDb puanları + eksikse İngilizce özet
 async function fetchIds(it) {
-  if (it.imdb !== undefined && it.director !== undefined && (it.type !== 'movie' || it.collection !== undefined)) return;
+  if (it.imdb !== undefined && it.director !== undefined && it.age !== undefined && (it.type !== 'movie' || it.collection !== undefined)) return;
   try {
-    const d = await tmdb(`/${it.type}/${it.id}`, { append_to_response:'external_ids,credits,videos', include_video_language:'tr,en,null', language:LOCALE });
+    const d = await tmdb(`/${it.type}/${it.id}`, { append_to_response:'external_ids,credits,videos,' + (it.type === 'movie' ? 'release_dates' : 'content_ratings'), include_video_language:'tr,en,null', language:LOCALE });
+    it.age = ageOf(d, it.type);
     it.trailer = pickTrailer(d.videos?.results) || '';
     it.imdb = d.external_ids?.imdb_id || d.imdb_id || null;
     it.director = directorOf(d, it.type);
@@ -12,6 +13,20 @@ async function fetchIds(it) {
     if (!it.overview) it.overview = d.overview || '';
   } catch {}
 }
+// Yaş derecelendirmesi: önce Türkiye (RTÜK/Kültür Bakanlığı), yoksa ABD (MPA / TV Parental Guidelines) yaşa çevrilir.
+// Döner: { a:'13+' | 'Genel', src:'TR' | 'US', raw } ya da null (derecelendirme yok).
+const US_AGE = { 'G':0, 'PG':7, 'PG-13':13, 'R':18, 'NC-17':18, 'TV-Y':0, 'TV-G':0, 'TV-Y7':7, 'TV-PG':7, 'TV-14':14, 'TV-MA':18 };
+function ageOf(d, type) {
+  const list = type === 'movie'
+    ? (d.release_dates?.results || []).map(r => ({ c:r.iso_3166_1, v:(r.release_dates || []).map(x => x.certification).find(Boolean) }))
+    : (d.content_ratings?.results || []).map(r => ({ c:r.iso_3166_1, v:r.rating }));
+  const tr = list.find(x => x.c === 'TR' && x.v)?.v;
+  if (tr) { const m = /(\d+)/.exec(tr); return { a:m ? m[1] + '+' : 'Genel', src:'TR', raw:tr }; }
+  const us = list.find(x => x.c === 'US' && x.v in US_AGE)?.v;
+  if (us) return { a:US_AGE[us] ? US_AGE[us] + '+' : 'Genel', src:'US', raw:us };
+  return null;
+}
+const ageHTML = it => it.age ? `<span class="age" title="${esc(t('Yaş sınırı') + ' · ' + it.age.src + ' ' + it.age.raw)}">${esc(it.age.a === 'Genel' ? t('Genel') : it.age.a)}</span>` : '';
 // Film: yönetmen(ler); dizi: yaratıcı(lar). En fazla iki isim.
 function directorOf(d, type) {
   const names = type === 'movie'
@@ -42,6 +57,7 @@ async function ensureExtra(it) {
   if (el) {
     $('.overview', el).textContent = it.overview || t('Özet yok.');
     $('.director', el).innerHTML = directorHTML(it);
+    const ag = $('.age-slot', el); if (ag) ag.innerHTML = ageHTML(it);
   }
   refreshCollTag(it);
   await loadScores(it);
@@ -88,6 +104,7 @@ function refreshScores(it) {
     S.items[it.key].imdb = it.imdb;
     if (it.originalTitle) S.items[it.key].originalTitle = it.originalTitle;
     if (it.director !== undefined) S.items[it.key].director = it.director;
+    if (it.age !== undefined) S.items[it.key].age = it.age;
     if (it.collection !== undefined) S.items[it.key].collection = it.collection;
     if (it.trailer !== undefined) S.items[it.key].trailer = it.trailer;
     if (it.scores) Object.assign(S.items[it.key], { imdbRating: it.scores.imdb || null, rt: it.scores.rt || null, scoreAt: Date.now() });

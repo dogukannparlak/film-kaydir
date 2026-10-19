@@ -132,7 +132,7 @@ function itemHTML(i, tab, inGroup = false) {
       <div class="item-main">
         <div class="item-head">
           <a class="item-title" href="https://www.themoviedb.org/${i.type}/${i.id}" target="_blank" rel="noopener"><span class="t-main">${esc(tt.main)}</span>${tt.sub ? `<small>${esc(tt.sub)}</small>` : ''}</a>
-          ${yearOf(i.date) ? `<span class="item-year">${yearOf(i.date)}</span>` : ''}
+          ${yearOf(i.date) ? `<span class="item-year">${yearOf(i.date)}</span>` : ''}${ageHTML(i)}
         </div>
         ${sub ? `<div class="item-sub">${esc(sub).replace('\u0000', ico('director'))}</div>` : ''}
         ${scores ? `<div class="item-scores">${scores}</div>` : ''}

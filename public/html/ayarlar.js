@@ -66,7 +66,7 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
     <section>
       <h3>Yaş sınırı</h3>
       <div class="chips" id="ageChips"></div>
-      <p class="note">Keşfette yaş derecelendirmesine göre süzer (ABD derecelendirmesi). Derecelendirmesi olmayan yapımlar da gizlenir. Aramaya uygulanmaz.</p>
+      <p class="note"><b>+18 gizle:</b> en çok 13+ (dizide 14+) gösterilir · <b>13 yaş altı:</b> en çok 7+ · <b>7 yaş altı:</b> yalnız Genel izleyici. Kartlarda her yapımın yaş sınırı yazar (önce Türkiye, yoksa ABD derecelendirmesi). Derecelendirmesi olmayanlar da gizlenir; aramaya uygulanmaz.</p>
     </section>
     <section>
       <h3>Dil · Language</h3>

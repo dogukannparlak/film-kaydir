@@ -79,7 +79,7 @@ Kullanıcı anahtarları tarayıcının `localStorage`'ında durur; giriş yapı
 - Sürüm: 0.1 beta.
 - Yaş sınırı (Ayarlar): Hepsi / +18 gizle / 13 yaş altı / 7 yaş altı. Keşfette TMDB'nin ABD derecelendirmesiyle süzer
   (`certification.lte`; film PG-13/PG/G, dizi TV-14/TV-PG/TV-Y7); derecelendirmesiz yapımlar da gizlenir, arama süzülmez.
-  Cihaz ayarıdır (`kd_age`).
+  Cihaz ayarıdır (`kd_age`). Kart ve listede her yapımın yaş rozeti (önce TR derecelendirmesi, yoksa ABD → yaş; `ageOf`).
 - Ayarlar › Hesap: e-posta + şifre. Google ile giriş şimdilik kapalı (`js/hesap.js` › `GOOGLE_AUTH`). Hesapsız da çalışır (veri yalnız tarayıcıda).
 - Giriş yapınca listeler, görülenler ve filtreler hesaba yazılır; cihazlar aynı listeyi görür.
 - API anahtarları (Ayarlar › "API anahtarlarını hesabımda sakla", varsayılan kapalı): açıksa anahtarlar hesapta **şifreli**

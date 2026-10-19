@@ -20,6 +20,7 @@ function createCard(it) {
       <div class="meta">
         <span class="badge">${it.type === 'movie' ? t('FİLM') : t('DİZİ')}</span>
         ${yearOf(it.date) ? `<span>${yearOf(it.date)}</span>` : ''}
+        <span class="age-slot">${ageHTML(it)}</span>
         <span class="rating">★ ${it.rating.toFixed(1)}</span><span class="votes">${t('{n} oy', { n:votes })}</span>
       </div>
       <h2 class="title">${esc(titles(it).main)}</h2>

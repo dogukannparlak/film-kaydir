@@ -212,3 +212,12 @@ Object.assign(EN, {
   'Yaş sınırı: {a}': 'Age limit: {a}',
   'Keşfette yaş derecelendirmesine göre süzer (ABD derecelendirmesi). Derecelendirmesi olmayan yapımlar da gizlenir. Aramaya uygulanmaz.': 'Filters Discover by age rating (US ratings). Titles without a rating are hidden too. Search is not filtered.',
 });
+Object.assign(EN, {
+  'Genel': 'All ages',
+  '+18 gizle:': 'Hide 18+:',
+  'en çok 13+ (dizide 14+) gösterilir ·': 'shows up to 13+ (TV: 14+) ·',
+  '13 yaş altı:': 'Under 13:',
+  'en çok 7+ ·': 'up to 7+ ·',
+  '7 yaş altı:': 'Under 7:',
+  'yalnız Genel izleyici. Kartlarda her yapımın yaş sınırı yazar (önce Türkiye, yoksa ABD derecelendirmesi). Derecelendirmesi olmayanlar da gizlenir; aramaya uygulanmaz.': 'all-ages titles only. Each card shows its age rating (Turkish rating first, otherwise US). Unrated titles are hidden too; search is not filtered.',
+});
