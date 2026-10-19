@@ -3,7 +3,7 @@
 async function fetchIds(it) {
   if (it.imdb !== undefined && it.director !== undefined && (it.type !== 'movie' || it.collection !== undefined)) return;
   try {
-    const d = await tmdb(`/${it.type}/${it.id}`, { append_to_response:'external_ids,credits,videos', include_video_language:'tr,en,null', language:'tr-TR' });
+    const d = await tmdb(`/${it.type}/${it.id}`, { append_to_response:'external_ids,credits,videos', include_video_language:'tr,en,null', language:LOCALE });
     it.trailer = pickTrailer(d.videos?.results) || '';
     it.imdb = d.external_ids?.imdb_id || d.imdb_id || null;
     it.director = directorOf(d, it.type);
@@ -20,7 +20,7 @@ function directorOf(d, type) {
   return [...new Set(names)].slice(0, 2).join(', ') || null;
 }
 const directorHTML = it => it.director
-  ? `${it.type === 'movie' ? 'Yönetmen' : 'Yaratıcı'}: <b>${esc(it.director)}</b>` : '';
+  ? `${it.type === 'movie' ? t('Yönetmen') : t('Yaratıcı')}: <b>${esc(it.director)}</b>` : '';
 const scoreSort = s => s === 'imdb' || s === 'rt' ? s : null;
 // Puansızlar sona: -1
 const scoreVal = (s, by) => (by === 'imdb' ? parseFloat(s?.imdb) : parseInt(s?.rt, 10)) || -1;
@@ -40,7 +40,7 @@ async function ensureExtra(it) {
   } catch {}
   const el = $(keySel(it.key));
   if (el) {
-    $('.overview', el).textContent = it.overview || 'Özet yok.';
+    $('.overview', el).textContent = it.overview || t('Özet yok.');
     $('.director', el).innerHTML = directorHTML(it);
   }
   refreshCollTag(it);
@@ -71,14 +71,14 @@ let omdbWarned = false;
 function omdbWarn(msg) {
   if (omdbWarned) return;
   omdbWarned = true;
-  toast('OMDb: ' + (/limit/i.test(msg) ? 'günlük istek sınırı doldu.' : 'anahtar geçersiz.'), null, null, 4000);
+  toast(/limit/i.test(msg) ? t('OMDb: günlük istek sınırı doldu.') : t('OMDb: anahtar geçersiz.'), null, null, 4000);
 }
 function scoresHTML(it) {
   const s = it.scores || {};
   let h = it.imdb ? `<a class="score score-imdb" href="https://www.imdb.com/title/${encodeURIComponent(it.imdb)}/" target="_blank" rel="noopener"><b>IMDb</b>${s.imdb ? ' ' + esc(s.imdb.replace('.', ',')) : ''}</a>` : '';
-  if (s.rt) h += `<span class="score" title="Rotten Tomatoes">🍅 ${esc(s.rt)}</span>`;
+  if (s.rt) h += `<span class="score" title="${t('Rotten Tomatoes')}">🍅 ${esc(s.rt)}</span>`;
   if (s.mc) h += `<span class="score" title="Metacritic">MC ${esc(s.mc.split('/')[0])}</span>`;
-  if (it.trailer) h += `<a class="score score-trailer" href="${trailerURL(it.trailer)}" target="_blank" rel="noopener">${ico('trailer')} Fragman</a>`;
+  if (it.trailer) h += `<a class="score score-trailer" href="${trailerURL(it.trailer)}" target="_blank" rel="noopener">${ico('trailer')} ${t('Fragman')}</a>`;
   return h;
 }
 function refreshScores(it) {

@@ -17,7 +17,7 @@ async function getCollection(id) {
 }
 async function fetchCollection(id) {
   const [tr, en] = await Promise.all([
-    tmdb(`/collection/${id}`, { language:'tr-TR' }),
+    tmdb(`/collection/${id}`, { language:LOCALE }),
     tmdb(`/collection/${id}`, { language:'en-US' }).catch(() => null),
   ]);
   const ref = { id, name:tr.name };
@@ -33,28 +33,28 @@ async function fetchCollection(id) {
   return out;
 }
 const released = it => it.date && it.date <= TODAY;
-const SEARCH_ADD = { want:['want', 'İstek'], watched:['check', 'İzledim'], passed:['pass', 'Geç'] };
+const SEARCH_ADD = { want:['want', t('İstek')], watched:['check', t('İzledim')], passed:['pass', t('Geç')] };
 
 // Aramada ve serilerde ortak sonuç satırı
 function resultHTML(it) {
-  const t = titles(it), cur = S.items[it.key]?.status;
+  const tt = titles(it), cur = S.items[it.key]?.status;
   const sub = [genreNames(it.type, it.genres).slice(0, 2).join(' · '), it.via ? '\u0000' + it.via : ''].filter(Boolean).join(' · ');
   return `
     <li class="item" data-key="${esc(it.key)}">
       <a class="item-poster" href="https://www.themoviedb.org/${it.type}/${it.id}" target="_blank" rel="noopener" tabindex="-1">
         ${it.poster ? `<img src="${IMG}w185${esc(it.poster)}" alt="" loading="lazy">` : ''}
-        <span class="type">${it.type === 'movie' ? 'FİLM' : 'DİZİ'}</span>
+        <span class="type">${it.type === 'movie' ? t('FİLM') : t('DİZİ')}</span>
       </a>
       <div class="item-main">
         <div class="item-head">
-          <a class="item-title" href="https://www.themoviedb.org/${it.type}/${it.id}" target="_blank" rel="noopener"><span class="t-main">${esc(t.main)}</span>${t.sub ? `<small>${esc(t.sub)}</small>` : ''}</a>
-          <span class="item-year">${yearOf(it.date) || 'yakında'}</span>
+          <a class="item-title" href="https://www.themoviedb.org/${it.type}/${it.id}" target="_blank" rel="noopener"><span class="t-main">${esc(tt.main)}</span>${tt.sub ? `<small>${esc(tt.sub)}</small>` : ''}</a>
+          <span class="item-year">${yearOf(it.date) || t('yakında')}</span>
         </div>
         ${sub ? `<div class="item-sub">${esc(sub).replace('\u0000', ico('account'))}</div>` : ''}
-        ${it.rating ? `<div class="item-scores"><span class="sc sc-tmdb" title="TMDB">★ ${it.rating.toFixed(1).replace('.', ',')}</span>${it.votes ? `<span class="sc">${it.votes.toLocaleString('tr-TR')} oy</span>` : ''}</div>` : ''}
+        ${it.rating ? `<div class="item-scores"><span class="sc sc-tmdb" title="TMDB">★ ${it.rating.toFixed(1).replace('.', ',')}</span>${it.votes ? `<span class="sc">${t('{n} oy', { n:it.votes.toLocaleString(LOCALE) })}</span>` : ''}</div>` : ''}
       </div>
       <div class="item-acts">
-        ${cur ? `<span class="in-list in-${cur}">${STATUS[cur]}</span>` : '<span class="note" style="margin:0">Listene ekle</span>'}
+        ${cur ? `<span class="in-list in-${cur}">${STATUS[cur]}</span>` : `<span class="note" style="margin:0">${t('Listene ekle')}</span>`}
         <span class="acts-right">
           ${Object.entries(SEARCH_ADD).map(([s, [ic, l]]) => `<button class="pill pill-ico pill-${s}" data-add="${s}" aria-label="${l}" title="${l}" aria-pressed="${cur === s}" ${cur === s ? 'disabled' : ''}>${ico(ic)}</button>`).join('')}
         </span>
@@ -62,7 +62,7 @@ function resultHTML(it) {
     </li>`;
 }
 function collHTML(c, open) {
-  const t = titles(c), n = c.parts.length, rel = c.parts.filter(released).length;
+  const tt = titles(c), n = c.parts.length, rel = c.parts.filter(released).length;
   const counts = { want:0, watched:0, passed:0 };
   c.parts.forEach(p => { const s = S.items[p.key]?.status; if (s) counts[s]++; });
   const inList = Object.entries(counts).filter(([, v]) => v).map(([s, v]) => `<span class="in-list in-${s}">${v} ${STATUS[s].split(' ')[0]}</span>`).join('');
@@ -72,19 +72,19 @@ function collHTML(c, open) {
     <li class="coll" data-coll="${c.id}">
       <details ${open ? 'open' : ''}>
         <summary>
-          <span class="item-poster">${c.poster ? `<img src="${IMG}w185${esc(c.poster)}" alt="" loading="lazy">` : ''}<span class="type">SERİ</span></span>
+          <span class="item-poster">${c.poster ? `<img src="${IMG}w185${esc(c.poster)}" alt="" loading="lazy">` : ''}<span class="type">${t('SERİ')}</span></span>
           <span class="coll-main">
-            <span class="item-title"><span class="t-main">${esc(t.main)}</span>${t.sub ? `<small>${esc(t.sub)}</small>` : ''}</span>
-            <span class="item-sub">${n} film${span.length ? ' · ' + span.join('–') : ''}${n > rel ? ` · ${n - rel} yakında` : ''}</span>
-            <span class="coll-prog" title="İzlenen / çıkmış film"><i style="width:${pct}%"></i></span>
-            <span class="coll-in">${inList || '<span class="note" style="margin:0">Hiçbiri listende değil</span>'}<span class="coll-frac">${counts.watched}/${rel} izlendi</span></span>
+            <span class="item-title"><span class="t-main">${esc(tt.main)}</span>${tt.sub ? `<small>${esc(tt.sub)}</small>` : ''}</span>
+            <span class="item-sub">${t('{n} film', { n })}${span.length ? ' · ' + span.join('–') : ''}${n > rel ? ` · ${t('{n} yakında', { n:n - rel })}` : ''}</span>
+            <span class="coll-prog" title="${t('İzlenen / çıkmış film')}"><i style="width:${pct}%"></i></span>
+            <span class="coll-in">${inList || `<span class="note" style="margin:0">${t('Hiçbiri listende değil')}</span>`}<span class="coll-frac">${t('{w}/{r} izlendi', { w:counts.watched, r:rel })}</span></span>
           </span>
           <span class="coll-chev" aria-hidden="true">›</span>
         </summary>
         <div class="coll-bulk">
-          <span class="note" style="margin:0">Hepsini taşı</span>
+          <span class="note" style="margin:0">${t('Hepsini taşı')}</span>
           <span class="acts-right">
-            ${Object.entries(SEARCH_ADD).map(([s, [ic, l]]) => `<button class="pill pill-bulk pill-${s}" data-bulk="${s}" title="Serinin bütün filmleri: ${l}">${ico(ic)} ${l}</button>`).join('')}
+            ${Object.entries(SEARCH_ADD).map(([s, [ic, l]]) => `<button class="pill pill-bulk pill-${s}" data-bulk="${s}" title="${t('Serinin bütün filmleri: {l}', { l })}">${ico(ic)} ${l}</button>`).join('')}
           </span>
         </div>
         <ul class="list coll-parts">${c.parts.map(resultHTML).join('')}</ul>
@@ -128,11 +128,11 @@ function onCollAction(e, colls, lookup) {
     const status = b.dataset.bulk;
     // Henüz çıkmamış filmler "izledim" olamaz; zaten o listede olanlara dokunma
     const targets = c.parts.filter(p => (status !== 'watched' || released(p)) && S.items[p.key]?.status !== status);
-    if (!targets.length) { toast(`Hepsi zaten ${STATUS[status]} içinde`); return true; }
+    if (!targets.length) { toast(t('Hepsi zaten {s} içinde', { s:STATUS[status] })); return true; }
     const undos = targets.map(p => putItem(p, status));
     afterPut();
     const skipped = status === 'watched' ? c.parts.filter(p => !released(p)).length : 0;
-    toast(`${targets.length} film ${STATUS_TO[status]} taşındı${skipped ? ` (${skipped} çıkmamış film atlandı)` : ''}`, 'Geri al', () => { undos.forEach(u => u()); afterPut(); }, 5000);
+    toast(`${t('{n} film {to} taşındı', { n:targets.length, to:STATUS_TO[status] })}${skipped ? ` (${t('{n} çıkmamış film atlandı', { n:skipped })})` : ''}`, t('Geri al'), () => { undos.forEach(u => u()); afterPut(); }, 5000);
     return true;
   }
   const key = b.closest('.item').dataset.key;
@@ -140,7 +140,7 @@ function onCollAction(e, colls, lookup) {
   if (!it) return true;
   const u = putItem(it, b.dataset.add);
   afterPut();
-  toast(`${STATUS_TO[b.dataset.add]} eklendi`, 'Geri al', () => { u(); afterPut(); });
+  toast(t('{to} eklendi', { to:STATUS_TO[b.dataset.add] }), t('Geri al'), () => { u(); afterPut(); });
   return true;
 }
 
@@ -164,7 +164,7 @@ function collListTag(i) {
   const idx = c.parts.findIndex(p => p.key === i.key), rel = c.parts.filter(released).length;
   const watched = c.parts.filter(p => S.items[p.key]?.status === 'watched').length;
   const done = rel && watched >= rel;
-  return `<button class="coll-tag coll-tag-sm${done ? ' coll-done' : ''}" data-coll-open="${c.id}" title="Seriyi aç">${ico('series')} ${esc(titles(c).main)}${idx >= 0 ? ` · ${idx + 1}. film` : ''} · ${done ? ico('check') + ' hepsi izlendi' : `${watched}/${rel} izlendi`} ›</button>`;
+  return `<button class="coll-tag coll-tag-sm${done ? ' coll-done' : ''}" data-coll-open="${c.id}" title="${t('Seriyi aç')}">${ico('series')} ${esc(titles(c).main)}${idx >= 0 ? ` · ${t('{n}. film', { n:idx + 1 })}` : ''} · ${done ? ico('check') + ' ' + t('hepsi izlendi') : t('{w}/{r} izlendi', { w:watched, r:rel })} ›</button>`;
 }
 async function refreshCollTag(it) {
   if (!it.collection) return;
@@ -182,7 +182,7 @@ async function openCollection(id) {
     searchIndex.clear(); c.parts.forEach(p => searchIndex.set(p.key, p));
     $('#sResults').innerHTML = '';
     renderSearch();
-  } catch (e) { toast('Seri açılamadı'); }
+  } catch (e) { toast(t('Seri açılamadı')); }
 }
 
 /* ---- Listeler › Seriler ---- */
@@ -201,7 +201,7 @@ async function scanCollections() {
     batch.forEach(([k]) => scanTried.add(k));
     await pool(batch, 4, async ([k, i]) => {
       try {
-        const d = await tmdb(`/movie/${i.id}`, { language:'tr-TR', append_to_response:'external_ids,credits' });
+        const d = await tmdb(`/movie/${i.id}`, { language:LOCALE, append_to_response:'external_ids,credits' });
         const item = S.items[k];
         if (!item) return;
         item.collection = collRef(d);
@@ -228,16 +228,16 @@ function renderSeries() {
     .filter(c => c.parts.length && (!q || [c.title, c.originalTitle].some(t => fold(t).includes(q))))
     .map(c => ({ c, inList: c.parts.filter(p => S.items[p.key]).length, watched: c.parts.filter(p => S.items[p.key]?.status === 'watched').length }))
     // Önce yarım kalan seriler (izlenmeye başlanmış ama bitmemiş), sonra listede çok filmi olanlar
-    .sort((a, b) => ((b.watched && b.watched < b.c.parts.filter(released).length) - (a.watched && a.watched < a.c.parts.filter(released).length)) || b.inList - a.inList || titles(a.c).main.localeCompare(titles(b.c).main, 'tr'))
+    .sort((a, b) => ((b.watched && b.watched < b.c.parts.filter(released).length) - (a.watched && a.watched < a.c.parts.filter(released).length)) || b.inList - a.inList || titles(a.c).main.localeCompare(titles(b.c).main, LOCALE))
     .map(x => x.c);
   if (seriesOrder?.q === q) {
     const pos = new Map(seriesOrder.ids.map((id, n) => [id, n]));
     seriesColls.sort((a, b) => (pos.get(a.id) ?? 1e9) - (pos.get(b.id) ?? 1e9));
   }
   seriesOrder = { q, ids: seriesColls.map(c => c.id) };
-  $('#lCount').innerHTML = (seriesColls.length ? `<b>${seriesColls.length}</b> seri` : '') + (pending ? `${seriesColls.length ? ' · ' : ''}<span class="scan">seriler taranıyor: ${pending} film kaldı</span>` : '');
+  $('#lCount').innerHTML = (seriesColls.length ? t('<b>{n}</b> seri', { n:seriesColls.length }) : '') + (pending ? `${seriesColls.length ? ' · ' : ''}<span class="scan">${t('seriler taranıyor: {n} film kaldı', { n:pending })}</span>` : '');
   if (!seriesColls.length) {
-    ul.innerHTML = `<li class="empty"><span class="empty-icon">${ico('series')}</span><b>${pending ? 'Seriler taranıyor…' : q ? 'Bu aramaya uyan seri yok' : 'Listende seriye ait film yok'}</b>${pending ? 'Listendeki filmlerin serileri TMDB\'den bulunuyor.' : 'Bir seri filmini listene ekleyince serisi burada görünür.'}</li>`;
+    ul.innerHTML = `<li class="empty"><span class="empty-icon">${ico('series')}</span><b>${pending ? t('Seriler taranıyor…') : q ? t('Bu aramaya uyan seri yok') : t('Listende seriye ait film yok')}</b>${pending ? t('Listendeki filmlerin serileri TMDB\'den bulunuyor.') : t('Bir seri filmini listene ekleyince serisi burada görünür.')}</li>`;
     return;
   }
   const open = openColls(ul);

@@ -1,8 +1,8 @@
 'use strict';
 /* ================= Listeler ================= */
 function fillListSelects() {
-  $('#lGenre').innerHTML = '<option value="">Tüm türler</option>' + GENRES.map(g => `<option value="${g.id}">${g.label}</option>`).join('');
-  $('#lPeriod').innerHTML = PERIODS.filter(p => p.id !== 'custom').map(p => `<option value="${p.id}">${p.id === 'all' ? 'Tüm dönemler' : p.label}</option>`).join('');
+  $('#lGenre').innerHTML = `<option value="">${t('Tüm türler')}</option>` + GENRES.map(g => `<option value="${g.id}">${g.label}</option>`).join('');
+  $('#lPeriod').innerHTML = PERIODS.filter(p => p.id !== 'custom').map(p => `<option value="${p.id}">${p.id === 'all' ? t('Tüm dönemler') : p.label}</option>`).join('');
   $('#lType').value = S.listF.type; $('#lGenre').value = S.listF.genre; $('#lPeriod').value = S.listF.period; $('#lq').value = S.listF.q;
   $('#lSort').value = S.listF.sort; $('#lProgress').value = S.listF.progress;
 }
@@ -57,12 +57,12 @@ function renderList() {
   [['#lType', 'all'], ['#lGenre', ''], ['#lPeriod', 'all'], ['#lProgress', 'all']].forEach(([s, d]) => $(s).classList.toggle('on', $(s).value !== d));
   const total = Object.values(S.items).filter(i => i.status === tab).length;
   const partial = tab === 'watched' ? arr.filter(i => PROGRESS[i.progress]).length : 0;
-  $('#lCount').innerHTML = (total ? `<b>${arr.length}</b> yapım${arr.length < total ? ` · ${total} içinden` : ''}${partial ? ` · ${partial} yarım` : ''}` : '')
-    + (resortReady ? ' · <button class="resort" data-resort>Puanlar geldi, yeniden sırala</button>' : '');
+  $('#lCount').innerHTML = (total ? `${t('<b>{n}</b> yapım', { n:arr.length })}${arr.length < total ? ` · ${t('{n} içinden', { n:total })}` : ''}${partial ? ` · ${t('{n} yarım', { n:partial })}` : ''}` : '')
+    + (resortReady ? ' · <button class="resort" data-resort>' + t('Puanlar geldi, yeniden sırala') + '</button>' : '');
   if (!arr.length) {
     list.innerHTML = total
-      ? `<li class="empty"><span class="empty-icon">${ico('search')}</span><b>Bu süzgeçlere uyan yapım yok</b>Aramayı ya da süzgeçleri gevşet.</li>`
-      : `<li class="empty"><span class="empty-icon">${ico(EMPTY_ICON[tab])}</span><b>Bu liste boş</b>Keşfet'te kaydırdıkça burası dolar.</li>`;
+      ? `<li class="empty"><span class="empty-icon">${ico('search')}</span><b>${t('Bu süzgeçlere uyan yapım yok')}</b>${t('Aramayı ya da süzgeçleri gevşet.')}</li>`
+      : `<li class="empty"><span class="empty-icon">${ico(EMPTY_ICON[tab])}</span><b>${t('Bu liste boş')}</b>${t("Keşfet'te kaydırdıkça burası dolar.")}</li>`;
     return;
   }
   // Aynı seriden en az iki film bu listede ise tek kutuda: kutu, grubun en üstteki filminin yerinde durur
@@ -81,12 +81,12 @@ function renderList() {
 }
 const EMPTY_ICON = { want:'want', watched:'check', passed:'pass' };
 // Taşıma düğmeleri: destedeki simgelerle aynı (istek, izledim, geç)
-const MOVES = { want:['want', 'İstek listesine taşı'], watched:['check', 'İzlediklerim\'e taşı'], passed:['pass', 'Geçtiklerim\'e taşı'] };
+const MOVES = { want:['want', t('İstek listesine taşı')], watched:['check', t('İzlediklerim\'e taşı')], passed:['pass', t('Geçtiklerim\'e taşı')] };
 const TRASH = ico('trash');
 function groupHTML(ref, members, tab, open) {
   const c = collCache[ref.id];
   if (!c) collListTag(members[0]); // seri önbellekte yoksa getirir ve listeyi yeniler
-  const t = c ? titles(c) : { main: ref.name, sub: '' };
+  const tt = c ? titles(c) : { main: ref.name, sub: '' };
   // Grubun içinde seri sırasıyla (çıkış tarihi)
   const sorted = [...members].sort((a, b) => (a.date || '9999').localeCompare(b.date || '9999'));
   const rel = c ? c.parts.filter(released).length : 0;
@@ -96,29 +96,29 @@ function groupHTML(ref, members, tab, open) {
     <li class="coll lgroup" data-coll="${ref.id}">
       <details ${open ? 'open' : ''}>
         <summary>
-          <span class="item-poster">${poster ? `<img src="${IMG}w185${esc(poster)}" alt="" loading="lazy">` : ''}<span class="type">SERİ</span></span>
+          <span class="item-poster">${poster ? `<img src="${IMG}w185${esc(poster)}" alt="" loading="lazy">` : ''}<span class="type">${t('SERİ')}</span></span>
           <span class="coll-main">
-            <span class="item-title"><span class="t-main">${esc(t.main)}</span>${t.sub ? `<small>${esc(t.sub)}</small>` : ''}</span>
-            <span class="item-sub">Bu listede <b>${members.length}</b> film${c ? ` · seride ${c.parts.length}` : ''}</span>
+            <span class="item-title"><span class="t-main">${esc(tt.main)}</span>${tt.sub ? `<small>${esc(tt.sub)}</small>` : ''}</span>
+            <span class="item-sub">${t('Bu listede <b>{n}</b> film', { n:members.length })}${c ? ` · ${t('seride {n}', { n:c.parts.length })}` : ''}</span>
             ${c ? `<span class="coll-prog"><i style="width:${rel ? Math.round(100 * Math.min(watched, rel) / rel) : 0}%"></i></span>` : ''}
-            <span class="lg-thumbs">${sorted.slice(0, 6).map(m => m.poster ? `<img src="${IMG}w92${esc(m.poster)}" alt="" loading="lazy">` : '').join('')}${c ? `<span class="coll-frac">${watched}/${rel} izlendi</span>` : ''}</span>
+            <span class="lg-thumbs">${sorted.slice(0, 6).map(m => m.poster ? `<img src="${IMG}w92${esc(m.poster)}" alt="" loading="lazy">` : '').join('')}${c ? `<span class="coll-frac">${t('{w}/{r} izlendi', { w:watched, r:rel })}</span>` : ''}</span>
           </span>
           <span class="coll-chev" aria-hidden="true">›</span>
         </summary>
         <ul class="list coll-parts">${sorted.map(m => itemHTML(m, tab, true)).join('')}</ul>
-        <button class="lg-all" data-coll-open="${ref.id}">Serinin tamamını aç ›</button>
+        <button class="lg-all" data-coll-open="${ref.id}">${t('Serinin tamamını aç ›')}</button>
       </details>
     </li>`;
 }
 function itemHTML(i, tab, inGroup = false) {
-  const t = titles(i);
+  const tt = titles(i);
   const scores = [
     i.imdb ? `<a class="sc sc-imdb" href="https://www.imdb.com/title/${encodeURIComponent(i.imdb)}/" target="_blank" rel="noopener">IMDb${i.imdbRating ? ' ' + esc(String(i.imdbRating).replace('.', ',')) : ''}</a>` : '',
-    i.rt ? `<span class="sc" title="Rotten Tomatoes">🍅 ${esc(i.rt)}</span>` : '',
+    i.rt ? `<span class="sc" title="${t('Rotten Tomatoes')}">🍅 ${esc(i.rt)}</span>` : '',
     seasonBadges(i),
-    i.lbRating ? `<span class="sc sc-lb" title="Letterboxd puanın">LB ${String(i.lbRating).replace('.', ',')}★</span>` : '',
+    i.lbRating ? `<span class="sc sc-lb" title="${t('Letterboxd puanın')}">LB ${String(i.lbRating).replace('.', ',')}★</span>` : '',
     i.rating ? `<span class="sc sc-tmdb" title="TMDB">★ ${(+i.rating).toFixed(1).replace('.', ',')}</span>` : '',
-    i.trailer === '' ? '' : `<button class="sc sc-trailer" data-trailer title="YouTube'da fragman">${ico('trailer')} Fragman</button>`,
+    i.trailer === '' ? '' : `<button class="sc sc-trailer" data-trailer title="${t("YouTube'da fragman")}">${ico('trailer')} ${t('Fragman')}</button>`,
   ].join('');
   const sub = [genreNames(i.type, i.genres || []).slice(0, 2).join(' · '), i.director ? '\u0000' + i.director : ''].filter(Boolean).join(' · ');
   const progBtns = tab === 'watched' ? Object.entries(PROGRESS).filter(([, p]) => !p.tvOnly || i.type === 'tv').map(([id, p]) =>
@@ -127,11 +127,11 @@ function itemHTML(i, tab, inGroup = false) {
     <li class="item${shownKeys.has(i.key) ? '' : ' fresh'}" data-key="${esc(i.key)}">
       <a class="item-poster" href="https://www.themoviedb.org/${i.type}/${i.id}" target="_blank" rel="noopener" tabindex="-1">
         ${i.poster ? `<img src="${IMG}w185${esc(i.poster)}" alt="" loading="lazy">` : ''}
-        <span class="type">${i.type === 'movie' ? 'FİLM' : 'DİZİ'}</span>
+        <span class="type">${i.type === 'movie' ? t('FİLM') : t('DİZİ')}</span>
       </a>
       <div class="item-main">
         <div class="item-head">
-          <a class="item-title" href="https://www.themoviedb.org/${i.type}/${i.id}" target="_blank" rel="noopener"><span class="t-main">${esc(t.main)}</span>${t.sub ? `<small>${esc(t.sub)}</small>` : ''}</a>
+          <a class="item-title" href="https://www.themoviedb.org/${i.type}/${i.id}" target="_blank" rel="noopener"><span class="t-main">${esc(tt.main)}</span>${tt.sub ? `<small>${esc(tt.sub)}</small>` : ''}</a>
           ${yearOf(i.date) ? `<span class="item-year">${yearOf(i.date)}</span>` : ''}
         </div>
         ${sub ? `<div class="item-sub">${esc(sub).replace('\u0000', ico('director'))}</div>` : ''}
@@ -143,7 +143,7 @@ function itemHTML(i, tab, inGroup = false) {
         ${progBtns}
         <span class="acts-right">
           ${Object.keys(MOVES).filter(s => s !== tab).map(s => `<button class="pill pill-ico pill-${s}" data-move="${s}" aria-label="${MOVES[s][1]}" title="${MOVES[s][1]}">${ico(MOVES[s][0])}</button>`).join('')}
-          <button class="pill pill-ico pill-del" data-del aria-label="Sil" title="Sil">${TRASH}</button>
+          <button class="pill pill-ico pill-del" data-del aria-label="${t('Sil')}" title="${t('Sil')}">${TRASH}</button>
         </span>
       </div>
     </li>`;
@@ -162,7 +162,7 @@ async function backfillTitles(arr) {
   need.forEach(i => triedTitle.add(i.key));
   await pool(need, 4, async i => {
     try {
-      const d = await tmdb(`/${i.type}/${i.id}`, { language:'tr-TR', append_to_response:'external_ids,credits' });
+      const d = await tmdb(`/${i.type}/${i.id}`, { language:LOCALE, append_to_response:'external_ids,credits' });
       const item = S.items[i.key];
       if (!item) return;
       item.originalTitle = d.original_title || d.original_name || '';
@@ -221,7 +221,7 @@ function onListClick(e) {
     if (prev === 'watching' && next !== 'watching') delete item.at;
     saveItems(); renderList();
     if (next === 'watching' && !item.at) return openEpisodes(k);
-    toast(next ? `Yarım kaldı: ${PROGRESS[next].label}` : 'Bitti olarak işaretlendi', 'Geri al', () => {
+    toast(next ? t('Yarım kaldı: {p}', { p:PROGRESS[next].label }) : t('Bitti olarak işaretlendi'), t('Geri al'), () => {
       S.items[k] = snap; saveItems(); renderList();
     });
   } else if (mv) {
@@ -229,7 +229,7 @@ function onListClick(e) {
     item.status = mv.dataset.move; item.addedAt = Date.now();
     delete item.progress; // yarım işareti yalnız İzlediklerim'de anlamlı
     saveItems(); renderList(); updateCounts();
-    toast(`${STATUS_TO[item.status]} taşındı`, 'Geri al', () => {
+    toast(t('{to} taşındı', { to:STATUS_TO[item.status] }), t('Geri al'), () => {
       item.status = prev; item.addedAt = prevAt; if (prevProg) item.progress = prevProg;
       saveItems(); renderList(); updateCounts();
     });
@@ -237,7 +237,7 @@ function onListClick(e) {
     const copy = { ...item };
     delete S.items[k];
     saveItems(); renderList(); updateCounts();
-    toast('Silindi', 'Geri al', () => { S.items[k] = copy; saveItems(); renderList(); updateCounts(); }, 4000);
+    toast(t('Silindi'), t('Geri al'), () => { S.items[k] = copy; saveItems(); renderList(); updateCounts(); }, 4000);
   }
 }
 function exportJSON() {
@@ -249,7 +249,7 @@ function exportJSON() {
   a.download = `kaydir-yedek-${TODAY}.json`;
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-  toast(`${data.items.length} öğe dışa aktarıldı`);
+  toast(t('{n} öğe dışa aktarıldı', { n:data.items.length }));
 }
 async function importJSON(file) {
   try {
@@ -269,8 +269,8 @@ async function importJSON(file) {
     S.queue = S.queue.filter(it => !S.seen.has(it.key));
     S.queued = new Set(S.queue.map(it => it.key));
     renderDeck(); renderList(); updateCounts();
-    toast(`${n} öğe içe aktarıldı${kept ? ` · ${kept} öğede buradaki daha yeni sürüm korundu` : ''}`, null, null, 4000);
+    toast(`${t('{n} öğe içe aktarıldı', { n })}${kept ? ` · ${t('{n} öğede buradaki daha yeni sürüm korundu', { n:kept })}` : ''}`, null, null, 4000);
   } catch (e) {
-    toast('İçe aktarılamadı: geçerli bir JSON yedeği değil.');
+    toast(t('İçe aktarılamadı: geçerli bir JSON yedeği değil.'));
   }
 }

@@ -12,34 +12,34 @@ function openFilters() {
 function renderFilterSheet() {
   const f = draft;
   $('#filterBody').innerHTML = `
-    <section><h3>İçerik</h3><div class="chips" data-single="type">
-      ${[['both','İkisi'],['movie','Film'],['tv','Dizi']].map(([v, l]) => chip(v, l, f.type === v)).join('')}</div></section>
-    <section><h3>Sıralama</h3><div class="chips" data-single="sort">
+    <section><h3>${t('İçerik')}</h3><div class="chips" data-single="type">
+      ${[['both',t('İkisi')],['movie',t('Film')],['tv',t('Dizi')]].map(([v, l]) => chip(v, l, f.type === v)).join('')}</div></section>
+    <section><h3>${t('Sıralama')}</h3><div class="chips" data-single="sort">
       ${SORTS.map(s => chip(s.id, s.label, f.sort === s.id)).join('')}</div>
-      <p class="note">Rastgele: dönemi dilimlere bölüp eski ve yeni yapımları karıştırır.<br>
-      IMDb/RT: en çok oy alanlar gelir, her parti kendi içinde puana göre dizilir (yaklaşık). OMDb anahtarı gerekir; yoksa çok oy alanlar sırasıyla gelir.</p></section>
-    <section><h3>Dönem <small>birden fazla seçilebilir</small></h3><div class="chips" data-multi="periods">
+      <p class="note">${t('Rastgele: dönemi dilimlere bölüp eski ve yeni yapımları karıştırır.')}<br>
+      ${t('IMDb/RT: en çok oy alanlar gelir, her parti kendi içinde puana göre dizilir (yaklaşık). OMDb anahtarı gerekir; yoksa çok oy alanlar sırasıyla gelir.')}</p></section>
+    <section><h3>${t('Dönem')} <small>${t('birden fazla seçilebilir')}</small></h3><div class="chips" data-multi="periods">
       ${PERIODS.map(p => chip(p.id, p.label, p.id === 'all' ? !f.periods.length : f.periods.includes(p.id))).join('')}</div>
       <div class="years ${f.periods.includes('custom') ? '' : 'hidden'}" id="yearsRow">
-        <input type="number" inputmode="numeric" id="yFrom" min="1900" max="${NOW_Y}" value="${f.from}" aria-label="Başlangıç yılı">
+        <input type="number" inputmode="numeric" id="yFrom" min="1900" max="${NOW_Y}" value="${f.from}" aria-label="${t('Başlangıç yılı')}">
         <span>–</span>
-        <input type="number" inputmode="numeric" id="yTo" min="1900" max="${NOW_Y}" value="${f.to}" aria-label="Bitiş yılı"></div></section>
-    <section><h3>Tür <small>birden fazla seçilebilir · herhangi biri</small></h3><div class="chips" data-multi="genres">
+        <input type="number" inputmode="numeric" id="yTo" min="1900" max="${NOW_Y}" value="${f.to}" aria-label="${t('Bitiş yılı')}"></div></section>
+    <section><h3>${t('Tür')} <small>${t('birden fazla seçilebilir · herhangi biri')}</small></h3><div class="chips" data-multi="genres">
       ${GENRES.map(g => chip(g.id, g.label, f.genres.includes(g.id), genreHiddenFor(g, f.type) ? 'hidden' : '')).join('')}</div></section>
-    <section><h3>Dil / bölge <small>birden fazla seçilebilir</small></h3><div class="chips" data-multi="regions">
+    <section><h3>${t('Dil / bölge')} <small>${t('birden fazla seçilebilir')}</small></h3><div class="chips" data-multi="regions">
       ${REGIONS.map(r => chip(r.id, r.label, r.id === 'all' ? !f.regions.length : f.regions.includes(r.id))).join('')}</div></section>
-    <section><h3>Minimum puan <small id="ratingOut">${f.minRating ? '★ ' + f.minRating : 'yok'}</small></h3>
+    <section><h3>${t('Minimum puan')} <small id="ratingOut">${f.minRating ? '★ ' + f.minRating : t('yok')}</small></h3>
       <input type="range" id="minRating" min="0" max="9" step="0.5" value="${f.minRating}"></section>
-    <section><h3>Minimum oy sayısı</h3><div class="chips" data-single="minVotes">
-      ${VOTE_OPTS.map(v => chip(v, v.toLocaleString('tr-TR'), f.minVotes === v)).join('')}</div>
-      <p class="note">Az bilinen yapımlar (ör. Türk dizileri) için düşük tut.</p></section>
-    <section><h3>Platform <small>abonelikle · birden fazla seçilebilir</small></h3>
+    <section><h3>${t('Minimum oy sayısı')}</h3><div class="chips" data-single="minVotes">
+      ${VOTE_OPTS.map(v => chip(v, v.toLocaleString(LOCALE), f.minVotes === v)).join('')}</div>
+      <p class="note">${t('Az bilinen yapımlar (ör. Türk dizileri) için düşük tut.')}</p></section>
+    <section><h3>${t('Platform')} <small>${t('abonelikle · birden fazla seçilebilir')}</small></h3>
       <div class="chips" data-multi="providers" id="provChips">${providerChips(f)}</div>
-      <p class="note">Hepsi: hiçbir platformda olmayanlar, platformdan kalkanlar ve yalnız sinemada gösterilenler de gelir.<br>
-      Platform seçersen yalnız o platformlardan en az birinde (herhangi bir ülkede) şu an olanlar gelir.</p></section>`;
+      <p class="note">${t('Hepsi: hiçbir platformda olmayanlar, platformdan kalkanlar ve yalnız sinemada gösterilenler de gelir.')}<br>
+      ${t('Platform seçersen yalnız o platformlardan en az birinde (herhangi bir ülkede) şu an olanlar gelir.')}</p></section>`;
 }
 function providerChips(f) {
-  return chip('all', 'Hepsi · platform şartı yok', !f.providers.length) + providersFor().map(p => chip(p.id, `${p.logo ? `<img src="${IMG}w45${esc(p.logo)}" alt="">` : ''}${esc(p.name)}`, f.providers.includes(p.id))).join('');
+  return chip('all', t('Hepsi · platform şartı yok'), !f.providers.length) + providersFor().map(p => chip(p.id, `${p.logo ? `<img src="${IMG}w45${esc(p.logo)}" alt="">` : ''}${esc(p.name)}`, f.providers.includes(p.id))).join('');
 }
 function onFilterClick(e) {
   const c = e.target.closest('.chip');
@@ -87,13 +87,13 @@ function updateSummary() {
   const f = S.filters;
   const parts = [
     SORTS.find(s => s.id === f.sort).label,
-    { both:'Film + dizi', movie:'Film', tv:'Dizi' }[f.type],
-    f.periods.length ? f.periods.map(id => id === 'custom' ? `${Math.min(f.from, f.to)}–${Math.max(f.from, f.to)}` : PERIODS.find(p => p.id === id)?.label).join(', ') : 'Tüm dönemler',
+    { both:t('Film + dizi'), movie:t('Film'), tv:t('Dizi') }[f.type],
+    f.periods.length ? f.periods.map(id => id === 'custom' ? `${Math.min(f.from, f.to)}–${Math.max(f.from, f.to)}` : PERIODS.find(p => p.id === id)?.label).join(', ') : t('Tüm dönemler'),
   ];
   if (f.genres.length) parts.push(f.genres.map(id => GENRES.find(g => g.id === id)?.label).join(', '));
   if (f.regions.length) parts.push(selRegions(f).map(r => r.label).join(', '));
   if (f.minRating) parts.push('★ ' + f.minRating + '+');
-  if (f.providers.length) parts.push(f.providers.length === 1 ? (providersFor().find(p => p.id === f.providers[0])?.name || '1 platform') : f.providers.length + ' platform');
+  if (f.providers.length) parts.push(f.providers.length === 1 ? (providersFor().find(p => p.id === f.providers[0])?.name || t('1 platform')) : t('{n} platform', { n:f.providers.length }));
   $('#summary').textContent = parts.join(' · ');
   let n = 0;
   if (f.type !== 'both') n++; if (f.sort !== 'random') n++; if (f.periods.length) n++;
@@ -123,7 +123,7 @@ async function loadProviders(countries = WATCH_REGIONS) {
   const need = countries.filter(c => !(cache[c] && Date.now() - cache[c].at < 3 * 864e5));
   await Promise.all(need.map(async c => {
     try {
-      const d = await tmdb('/watch/providers/movie', { watch_region:c, language:'tr-TR' });
+      const d = await tmdb('/watch/providers/movie', { watch_region:c, language:LOCALE });
       const list = (d.results || [])
         .filter(p => p.display_priorities && p.display_priorities[c] != null)
         .sort((a, b) => a.display_priorities[c] - b.display_priorities[c])

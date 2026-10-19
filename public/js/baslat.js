@@ -1,6 +1,9 @@
 'use strict';
 /* ================= Başlat ================= */
 function init() {
+  translateDom();
+  $('#langChips').innerHTML = Object.entries(LANGS).map(([k, v]) => `<button class="chip" data-lang="${k}" aria-pressed="${k === LANG}">${v}</button>`).join('');
+  $('#langChips').onclick = e => { const b = e.target.closest('[data-lang]'); if (b) setLang(b.dataset.lang); };
   fillListSelects();
   updateSummary();
   updateCounts();
@@ -16,7 +19,7 @@ function init() {
   $('#filterBody').addEventListener('input', e => {
     if (e.target.id === 'minRating') {
       draft.minRating = +e.target.value;
-      $('#ratingOut').textContent = draft.minRating ? '★ ' + draft.minRating : 'yok';
+      $('#ratingOut').textContent = draft.minRating ? '★ ' + draft.minRating : t('yok');
     }
   });
   $('#btnApplyFilters').onclick = applyFilters;
@@ -58,14 +61,14 @@ function init() {
 
   $('#btnSaveKey2').onclick = () => saveKey($('#setKey').value, $('#setKeyErr'));
   $('#btnDelKey').onclick = () => {
-    store.del(K.key); S.apiKey = ''; S.proxyDown = false; stateChanged(); closeSheet(); resetEngine(); toast(TMDB_PROXY ? 'Anahtar silindi: ortak bağlantı kullanılıyor' : 'Anahtar silindi');
+    store.del(K.key); S.apiKey = ''; S.proxyDown = false; stateChanged(); closeSheet(); resetEngine(); toast(TMDB_PROXY ? t('Anahtar silindi: ortak bağlantı kullanılıyor') : t('Anahtar silindi'));
   };
   $('#btnSaveOmdb').onclick = saveOmdb;
-  $('#btnDelOmdb').onclick = () => { store.del(K.omdb); S.omdbKey = ''; stateChanged(); $('#setOmdb').value = ''; toast('OMDb anahtarı silindi'); };
+  $('#btnDelOmdb').onclick = () => { store.del(K.omdb); S.omdbKey = ''; stateChanged(); $('#setOmdb').value = ''; toast(t('OMDb anahtarı silindi')); };
   $('#btnResetSeen').onclick = () => {
-    if (!resetSeenArmed) { resetSeenArmed = true; $('#btnResetSeen').textContent = 'Emin misin? Tekrar dokun'; return; }
+    if (!resetSeenArmed) { resetSeenArmed = true; $('#btnResetSeen').textContent = t('Emin misin? Tekrar dokun'); return; }
     S.seen = new Set(Object.keys(S.items)); saveSeen();
-    closeSheet(); resetEngine(); toast('Görülenler sıfırlandı');
+    closeSheet(); resetEngine(); toast(t('Görülenler sıfırlandı'));
   };
 
   // Aynı site iki sekmede açıksa: biri kaydedince diğeri eski kopyasıyla üzerine yazmasın
@@ -88,6 +91,8 @@ function init() {
   renderDeck();
   if (tmdbReady()) loadProviders();
   initAccount();
+  initStats();
+  initAdmin();
   initSheetDrag();
   initTabDrag();
   initGuide();

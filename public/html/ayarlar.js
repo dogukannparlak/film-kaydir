@@ -14,7 +14,7 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
       <input class="field" id="setKey" type="password" placeholder="API anahtarı ya da okuma erişim jetonu" autocomplete="off">
       <div class="row-btns"><button class="btn btn-primary" id="btnSaveKey2">Kaydet</button><button class="btn btn-danger" id="btnDelKey">Anahtarı sil</button></div>
       <div class="err" id="setKeyErr"></div>
-      <p class="note">Gerekmez: site TMDB'ye kendi ortak bağlantısıyla bağlanır. Kendi anahtarını girersen istekler doğrudan onunla gider; bu tarayıcıda saklanır, giriş yaptıysan hesabında da yedeklenir.</p>
+      <p class="note">Gerekmez: site TMDB'ye kendi ortak bağlantısıyla bağlanır. Kendi anahtarını girersen istekler doğrudan onunla gider; bu tarayıcıda saklanır; giriş yaptıysan ve aşağıdaki düğme açıksa hesabında şifreli yedeklenir.</p>
     </section>
     <section>
       <h3>OMDb anahtarı <small>isteğe bağlı · IMDb, RT, Metacritic puanı</small></h3>
@@ -22,6 +22,10 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
       <div class="row-btns"><button class="btn btn-primary" id="btnSaveOmdb">Kaydet</button><button class="btn btn-danger" id="btnDelOmdb">Sil</button></div>
       <div class="err" id="omdbErr"></div>
       <p class="note">Ücretsiz anahtar: <a href="https://www.omdbapi.com/apikey.aspx" target="_blank" rel="noopener">omdbapi.com/apikey.aspx</a> (FREE, günde 1000 istek). Anahtarsız da IMDb bağlantısı görünür.</p>
+    </section>
+    <section id="keySyncSec" class="hidden">
+      <div class="switch-row"><h3>API anahtarlarını hesabımda sakla <small>şifreli</small></h3><button class="switch" id="keySync" role="switch" aria-checked="false" aria-label="API anahtarlarını hesabımda sakla"></button></div>
+      <div id="keySyncBox"></div>
     </section>
     <section>
       <h3>Görülenler <small id="seenCount"></small></h3>
@@ -39,6 +43,18 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
       <input type="file" id="fileLetterboxd" accept=".zip,.csv,application/zip,text/csv" multiple class="hidden">
       <div class="note lb-status" id="lbStatus" aria-live="polite"></div>
       <p class="note">letterboxd.com → Settings → Data → Export Your Data. İzlenenler İzlediklerim'e, izleme listesi İstek'e gider; Letterboxd puanın saklanır. Zip yerine <code>watched.csv</code> ve <code>watchlist.csv</code> da seçilebilir.</p>
+    </section>
+    <section>
+      <div class="switch-row"><h3>Tekrar gelişimi say <small>anonim</small></h3><button class="switch" id="consentSwitch" role="switch" aria-checked="false" aria-label="Tekrar gelişimi say"></button></div>
+      <p class="note">Site anonim ziyaret istatistiği tutar (ziyaret sayısı, kalma süresi; çerez yok). Açıksa cihazına rastgele bir kimlik yazılır, böylece tekrar gelişin de sayılır. Kişisel bilgi içermez. <a href="gizlilik.html" target="_blank">Gizlilik</a></p>
+    </section>
+    <section id="adminSec" class="hidden">
+      <h3>Yönetim</h3>
+      <button class="btn btn-ico" id="btnAdmin"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg> Yönetim panelini aç</button>
+    </section>
+    <section>
+      <h3>Dil · Language</h3>
+      <div class="chips" id="langChips"></div>
     </section>
     <section>
       <h3>Kısayollar</h3>

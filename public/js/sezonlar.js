@@ -6,7 +6,7 @@
 const SEASON_CHECK_EVERY = 12 * 3600e3, SEASON_BATCH = 40;
 let seasonChecking = false;
 const dayStr = ms => new Date(ms).toISOString().slice(0, 10);
-const shortDate = d => new Date(d + 'T00:00:00').toLocaleDateString('tr-TR', { day:'numeric', month:'short' });
+const shortDate = d => new Date(d + 'T00:00:00').toLocaleDateString(LOCALE, { day:'numeric', month:'short' });
 async function checkNewSeasons() {
   if (seasonChecking || !tmdbReady()) return;
   const due = Object.entries(S.items).filter(([, i]) => i.type === 'tv' && i.status === 'watched' && !(Date.now() - (i.tvCheckedAt || 0) < SEASON_CHECK_EVERY)).slice(0, SEASON_BATCH);
@@ -15,7 +15,7 @@ async function checkNewSeasons() {
   const found = [];
   await pool(due, 3, async ([k, i]) => {
     try {
-      const d = await tmdb(`/tv/${i.id}`, { language:'tr-TR' });
+      const d = await tmdb(`/tv/${i.id}`, { language:LOCALE });
       const item = S.items[k];
       if (!item || item.status !== 'watched') return;
       const since = dayStr(item.addedAt || Date.now());
@@ -37,7 +37,7 @@ async function checkNewSeasons() {
   saveItems();
   seasonChecking = false;
   if (S.view === 'lists') renderList();
-  if (found.length) toast(`Yeni sezon · ${found.length === 1 ? found[0] : found.length + ' dizi'}`, 'Göster', showNewSeasons, 6000);
+  if (found.length) toast(`${t('Yeni sezon')} · ${found.length === 1 ? found[0] : t('{n} dizi', { n:found.length })}`, t('Göster'), showNewSeasons, 6000);
   // Kalan varsa sonraki partiyi biraz sonra kontrol et
   if (Object.values(S.items).some(i => i.type === 'tv' && i.status === 'watched' && !(Date.now() - (i.tvCheckedAt || 0) < SEASON_CHECK_EVERY))) setTimeout(checkNewSeasons, 5000);
 }
@@ -55,15 +55,15 @@ function ackSeason(item) {
 }
 function seasonBadges(i) {
   if (i.type !== 'tv' || i.status !== 'watched') return '';
-  return (i.newSeason && ['season', 'watching'].includes(i.progress) ? `<span class="sc sc-new" title="Eklediğinden sonra yayınlandı">${ico('newseason')} ${i.newSeason.n}. sezon · ${shortDate(i.newSeason.date)}</span>` : '')
-    + (i.nextSeason ? `<span class="sc" title="Yayın tarihi açıklandı">${ico('upcoming')} ${i.nextSeason.n}. sezon · ${shortDate(i.nextSeason.date)}</span>` : '');
+  return (i.newSeason && ['season', 'watching'].includes(i.progress) ? `<span class="sc sc-new" title="${t('Eklediğinden sonra yayınlandı')}">${ico('newseason')} ${t('{n}. sezon', { n:i.newSeason.n })} · ${shortDate(i.newSeason.date)}</span>` : '')
+    + (i.nextSeason ? `<span class="sc" title="${t('Yayın tarihi açıklandı')}">${ico('upcoming')} ${t('{n}. sezon', { n:i.nextSeason.n })} · ${shortDate(i.nextSeason.date)}</span>` : '');
 }
 
 /* ---- Fragman ---- */
 // YouTube fragmanı: önce Türkçe, sonra İngilizce; resmi "Trailer" > "Teaser"
 function pickTrailer(videos) {
   const yt = (videos || []).filter(v => v.site === 'YouTube' && v.key);
-  const rank = v => (v.type === 'Trailer' ? 0 : v.type === 'Teaser' ? 2 : 4) + (v.official ? 0 : 1) + (v.iso_639_1 === 'tr' ? 0 : 0.5);
+  const rank = v => (v.type === 'Trailer' ? 0 : v.type === 'Teaser' ? 2 : 4) + (v.official ? 0 : 1) + (v.iso_639_1 === LANG ? 0 : 0.5);
   return yt.filter(v => ['Trailer', 'Teaser'].includes(v.type)).sort((a, b) => rank(a) - rank(b))[0]?.key || null;
 }
 const trailerURL = key => `https://www.youtube.com/watch?v=${encodeURIComponent(key)}`;
@@ -73,10 +73,10 @@ async function openTrailer(type, id) {
   if (item?.trailer) { window.open(trailerURL(item.trailer), '_blank', 'noopener'); return; }
   const w = window.open('about:blank', '_blank');
   try {
-    const d = await tmdb(`/${type}/${id}/videos`, { language:'tr-TR', include_video_language:'tr,en,null' });
-    const t = pickTrailer(d.results);
-    if (item) { item.trailer = t || ''; saveItems(); }
-    if (t && w) w.location.href = trailerURL(t);
-    else { w?.close(); toast('Fragman bulunamadı'); }
-  } catch { w?.close(); toast('Fragman alınamadı'); }
+    const d = await tmdb(`/${type}/${id}/videos`, { language:LOCALE, include_video_language:`${LANG},en,null` });
+    const tk = pickTrailer(d.results);
+    if (item) { item.trailer = tk || ''; saveItems(); }
+    if (tk && w) w.location.href = trailerURL(tk);
+    else { w?.close(); toast(t('Fragman bulunamadı')); }
+  } catch { w?.close(); toast(t('Fragman alınamadı')); }
 }

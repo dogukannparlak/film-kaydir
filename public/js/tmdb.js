@@ -54,7 +54,7 @@ function baseParams(type, reg) {
   const f = S.filters;
   const g = genreIds(type, f.genres);
   if (g === null) return null;
-  const p = { language:'tr-TR', include_adult:false, 'vote_count.gte': f.minVotes, ...reg.p };
+  const p = { language:LOCALE, include_adult:false, 'vote_count.gte': f.minVotes, ...reg.p };
   if (f.minRating > 0) p['vote_average.gte'] = f.minRating;
   if (g.length) p.with_genres = g.join('|');
   else if (reg.anime) p.with_genres = '16';

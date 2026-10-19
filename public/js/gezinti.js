@@ -26,10 +26,10 @@ function openSettings() {
   $('#setOmdb').value = S.omdbKey;
   $('#omdbErr').textContent = '';
   $('#setKeyErr').textContent = '';
-  $('#seenCount').textContent = S.seen.size.toLocaleString('tr-TR') + ' içerik';
+  $('#seenCount').textContent = t('{n} içerik', { n:S.seen.size.toLocaleString(LOCALE) });
   resetSeenArmed = false;
-  $('#btnResetSeen').textContent = 'Görülenleri sıfırla';
-  $('#appVersion').textContent = `Film ve dizi keşfi · sürüm ${APP_VERSION}`;
+  $('#btnResetSeen').textContent = t('Görülenleri sıfırla');
+  $('#appVersion').textContent = t('Film ve dizi keşfi · sürüm {v}', { v:APP_VERSION });
   openSheet('#sheetSettings');
 }
 // Ayarları aç ve Hesap bölümüne odaklan (rehber ve anahtar kutusundan); mode 'up' kayıt düğmesini öne çıkarır

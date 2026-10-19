@@ -21,14 +21,15 @@ Parçalarda ters tırnak (`` ` ``) ve `${` kullanma; şablon metnini bozar.
 | `html/filtreler.js` | Filtreler alt sayfasının kabı (içeriği `js/filtreler.js` çizer) |
 | `html/arama.js` | Arama alt sayfası: arama kutusu ve sonuç listesi |
 | `html/bolum.js` | Bölüm seçici alt sayfası |
-| `html/ayarlar.js` | Ayarlar alt sayfası: hesap, anahtarlar, görülenler, yedek, Letterboxd, kısayollar, Hakkında (lisans, bağlantılar, atıflar) |
+| `html/ayarlar.js` | Ayarlar alt sayfası: hesap, anahtarlar, anahtarları hesapta saklama düğmesi, tekrar gelişi sayma düğmesi, yönetim, görülenler, yedek, Letterboxd, kısayollar, Hakkında (lisans, bağlantılar, atıflar) |
+| `html/admin.js` | Yönetim paneli alt sayfasının kabı (içeriği `js/admin.js` çizer) |
 | `html/rehber.js` | İlk açılış rehberinin kabı (adımları `js/rehber.js` çizer) |
 
 `index.html` içinde yalnız `.app` kabı, `#backdrop`, `#toasts` ve betik etiketleri kalır.
 
 ## Neden ES modülü değil
 
-Dosyalar klasik `<script src>` olarak, sırayla yüklenir. `type="module"` kullanılsaydı tarayıcı
+Dosyalar klasik `<script src>` olarak, sırayla yüklenir (en başta `js/dil.js` + sözlükler, sonra html/ parçaları). `type="module"` kullanılsaydı tarayıcı
 `file://` adresinden modül yüklemeyi CORS yüzünden reddederdi ve site çift tıklamayla açılmazdı.
 Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalarda ortaktır, bu yüzden:
 
@@ -42,6 +43,8 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 
 | Dosya | İş | Başlıca adlar |
 |---|---|---|
+| `js/dil.js` | Dil: `LANG` (`kd_lang` ya da tarayıcı dili), `LOCALE`, `t('Türkçe metin', {yer tutucu})` (sözlükte "tekil\|çoğul" desteği), html/ parçalarını çeviren `translateDom()`, `setLang` (sayfayı yeniler) | `LANG`, `LOCALE`, `t`, `translateDom`, `setLang` |
+| `js/dil/en*.js` | İngilizce sözlük (`EN`), anahtar Türkçe kaynak metin; gruplara bölünmüş (`en-a` hesap/ayarlar/yönetim, `en-b` liste/filtre/kart, `en-c` rehber/bölüm/Letterboxd) | `EN` |
 | `js/sabitler.js` | API adresleri, localStorage anahtarları (`K`), türler, dönemler, sıralamalar, bölgeler, varsayılan filtreler | `API`, `IMG`, `K`, `GENRES`, `PERIODS`, `SORTS`, `REGIONS`, `DEFAULT_FILTERS` |
 | `js/yardimci.js` | DOM kısayolları, kaçış, güvenli `store` (localStorage), bildirim | `$`, `$$`, `esc`, `store`, `toast`, `shuffle` |
 | `js/durum.js` | Uygulama durumu `S` (anahtarlar, öğeler, görülenler, filtreler, kuyruk) | `S`, `saveItems`, `saveSeen` |
@@ -61,7 +64,10 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 | `js/sezonlar.js` | Yeni sezon tespiti (`/tv/{id}` sezon tarihleri ↔ `addedAt`, `seasonAck`), fragman (`videos`) | `checkNewSeasons`, `ackSeason`, `pickTrailer`, `openTrailer` |
 | `js/bolumler.js` | İzliyorum: kaldığın sezon/bölüm (`at`), yayınlanmış bölüm sayıları (`eps`, 12 saat), seçici ve +1 | `openEpisodes`, `setAt`, `nextEpisode`, `nextEp`, `watchingRow` |
 | `js/letterboxd.js` | Letterboxd zip/CSV okuma (tarayıcıda `DecompressionStream` ile açar), TMDB eşleştirme, listelere yazma | `importLetterboxd`, `unzipFiles`, `parseCSV`, `matchTMDB` |
-| `js/hesap.js` | Supabase hesap + eşitleme: giriş (şifre, sıfırlama; Google `GOOGLE_AUTH` ile kapalı), değişen öğeleri gönderme, `updated_at > since` ile çekme, ilk girişte birleştirme | `syncSoon`, `pushChanges`, `pullChanges`, `syncNow`, `initAccount` |
+| `js/kasa.js` | API anahtarlarını hesapta şifreli saklama: hesap şifresinden PBKDF2-SHA256 (310 000 tur) ile AES-GCM anahtarı türetme, şifreleme/çözme; türetilen anahtar cihazda `kd_vault` | `deriveVault`, `setVault`, `vaultFor`, `sealKeys`, `openKeys` |
+| `js/hesap.js` | Supabase hesap + eşitleme: giriş (şifre, sıfırlama; Google `GOOGLE_AUTH` ile kapalı), değişen öğeleri gönderme, `updated_at > since` ile çekme, ilk girişte birleştirme; API anahtarı düğmesi (`keys_enc`, kilitli cihazda şifre sorma, eski düz metin anahtarları taşıma) | `syncSoon`, `pushChanges`, `pullChanges`, `syncNow`, `initAccount`, `applyCloudKeys`, `renderKeySync` |
+| `js/istatistik.js` | Ziyaret sayacı (`visit_start` + 30 sn'de `visit_ping`), rıza bandı ve Ayarlar düğmesi, Umami (`UMAMI_ID` doluysa) | `initStats`, `setConsent`, `startVisit` |
+| `js/admin.js` | Yönetim paneli: `is_admin()` ile düğme, `admin_stats(p_days)` ile özet, günlük çubuk grafik | `checkAdmin`, `openAdmin`, `initAdmin` |
 | `js/rehber.js` | İlk açılış rehberi: adımlar, sonda hesap seçimi (giriş / kayıt / hesapsız), bir kez gösterme (`kd_guide`), Ayarlar › Kısayollar'dan yeniden açma | `openGuide`, `closeGuide`, `initGuide` |
 | `js/baslat.js` | Olay bağlama ve `init()` çağrısı; en sonda yüklenir | `init` |
 
@@ -82,6 +88,10 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 | Anahtar | İçerik |
 |---|---|
 | `kd_apikey`, `kd_omdbkey` | API anahtarları |
+| `kd_keysync` | API anahtarları hesapta (şifreli) saklansın mı |
+| `kd_vault` | Hesap şifresinden türetilen AES anahtarı + tuz (`{user, salt, k}`); çıkışta silinir |
+| `kd_lang` | Arayüz dili (`tr` / `en`) |
+| `kd_consent`, `kd_visitor` | Ziyaret istatistiği rızası (`yes`/`no`) ve kalıcı anonim ziyaretçi kimliği (yalnız rıza varsa) |
 | `kd_items` | Liste öğeleri: `id, type, title, originalTitle, trailer, latestSeason/seasonAck/newSeason/nextSeason/tvCheckedAt (dizi), collection ({id, name} | null), poster, date, status, genres, rating, imdb, imdbRating, rt, director, scoreAt, addedAt`, İzlediklerim'de isteğe bağlı `progress` (`watching` \| `season` \| `dropped`; İzliyorum'da kaldığın yer `at: {s, e}` ve yayınlanmış bölümler `eps`, bkz. `PROGRESS`; başka listeye taşınınca silinir) |
 | `kd_seen` | Daha önce gösterilenler (tekrar gelmesin) |
 | `kd_filters`, `kd_listf` | Deste ve liste filtreleri |
@@ -90,6 +100,16 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 | `kd_guide` | Rehber görüldü işareti (`1`) |
 | `kd_dirty` | Buluta gönderilmemiş durum: `{ state, seen }` (anahtar/filtre, görülenler) |
 | `kd_omdb` | OMDb puan önbelleği (14 gün, en çok 3000 kayıt) |
+
+## Supabase tabloları ve fonksiyonları
+
+Göçler: `supabase/migrations/` (önceki dördü panelden/MCP ile uygulandı, adları dosyanın başında).
+
+- `items`, `user_state`: kullanıcı verisi, RLS ile yalnız sahibine açık. API anahtarları `user_state.keys_enc`'te
+  şifreli (`{v, salt, iv, ct}`); eski düz metin sütunlar `tmdb_key`, `omdb_key` istemci tarafından hep boşaltılır.
+- `visits` + `visit_start` / `visit_ping`: anonim ziyaret sayacı. Tabloya doğrudan erişim yok, yalnız bu iki
+  `security definer` fonksiyon; ziyaretçi başına günde en çok 200 ziyaret.
+- `admins` + `is_admin()` / `admin_stats(p_days)`: yönetim paneli. Admin satırı elle eklenir.
 
 ## Dış API'ler
 

@@ -10,7 +10,7 @@ const keySel = k => `.card[data-key="${CSS.escape(k)}"]`;
 function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
 const store = {
   get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch { return d; } },
-  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { toast('Kaydedilemedi: tarayıcı depolaması dolu ya da kapalı.'); } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch { toast(t('Kaydedilemedi: tarayıcı depolaması dolu ya da kapalı.')); } },
   del(k) { try { localStorage.removeItem(k); } catch {} },
 };
 function toast(msg, action, fn, ms = 2800) {

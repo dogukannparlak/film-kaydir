@@ -9,7 +9,7 @@ async function unzipFiles(buf, names) {
   const v = new DataView(buf), u8 = new Uint8Array(buf), out = {};
   let eocd = -1;
   for (let i = buf.byteLength - 22; i >= Math.max(0, buf.byteLength - 65557); i--) if (v.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
-  if (eocd < 0) throw new Error('zip değil');
+  if (eocd < 0) throw new Error(t('zip değil'));
   let p = v.getUint32(eocd + 16, true);
   const count = v.getUint16(eocd + 10, true);
   for (let n = 0; n < count; n++) {
@@ -54,7 +54,7 @@ async function readLetterboxd(files) {
     if (/\.zip$/i.test(f.name)) Object.assign(texts, await unzipFiles(await f.arrayBuffer(), LB_FILES));
     else if (LB_FILES.includes(f.name.toLowerCase())) texts[f.name.toLowerCase()] = await f.text();
   }
-  if (!texts['watched.csv'] && !texts['watchlist.csv']) throw new Error('watched.csv ya da watchlist.csv bulunamadı');
+  if (!texts['watched.csv'] && !texts['watchlist.csv']) throw new Error(t('watched.csv ya da watchlist.csv bulunamadı'));
   const rows = n => texts[n] ? parseCSV(texts[n]) : [];
   return { watched: rows('watched.csv'), watchlist: rows('watchlist.csv'), ratings: rows('ratings.csv') };
 }
@@ -78,10 +78,10 @@ async function matchTMDB(name, year) {
 }
 async function importLetterboxd(files) {
   const out = $('#lbStatus'), btn = $('#btnLetterboxd');
-  if (!tmdbReady()) { out.textContent = 'TMDB\'ye bağlanılamıyor: Ayarlar\'dan kendi anahtarını kaydet.'; return; }
+  if (!tmdbReady()) { out.textContent = t('TMDB\'ye bağlanılamıyor: Ayarlar\'dan kendi anahtarını kaydet.'); return; }
   let data;
   try { data = await readLetterboxd(files); }
-  catch (e) { out.textContent = 'Okunamadı: ' + e.message; return; }
+  catch (e) { out.textContent = t('Okunamadı:') + ' ' + e.message; return; }
   const rating = {};
   data.ratings.forEach(r => { rating[r['Letterboxd URI']] = +r.Rating || null; });
   // İzlenen kazanır: aynı film iki dosyada varsa İzlediklerim'e gider
@@ -92,7 +92,7 @@ async function importLetterboxd(files) {
   btn.disabled = true;
   let done = 0, added = 0, upgraded = 0, kept = 0;
   const missing = [];
-  out.textContent = `Eşleştiriliyor… 0 / ${list.length}`;
+  out.textContent = t('Eşleştiriliyor… {n} / {total}', { n:0, total:list.length });
   let failed = null;
   await pool(list, 4, async job => {
     if (failed) return;
@@ -102,7 +102,7 @@ async function importLetterboxd(files) {
       if (!r) missing.push(`${row.Name} (${row.Year || '?'})`);
       else {
         // Türkçe ad + özet, IMDb kimliği ve yönetmen tek istekte
-        const det = await tmdb(`/movie/${r.id}`, { language:'tr-TR', append_to_response:'external_ids,credits' }).catch(() => null);
+        const det = await tmdb(`/movie/${r.id}`, { language:LOCALE, append_to_response:'external_ids,credits' }).catch(() => null);
         const it = norm(det ? { ...r, title:det.title || r.title } : r, 'movie'), cur = S.items[it.key];
         const lb = rating[row['Letterboxd URI']] || null;
         if (!cur) {
@@ -120,16 +120,16 @@ async function importLetterboxd(files) {
       }
     } catch (e) {
       if (e instanceof AuthError) throw e;
-      missing.push(`${row.Name} (${row.Year || '?'}) — hata`);
+      missing.push(`${row.Name} (${row.Year || '?'}) — ${t('hata')}`);
     }
     done++;
-    if (done % 5 === 0 || done === list.length) out.textContent = `Eşleştiriliyor… ${done} / ${list.length}`;
-  }).catch(e => { failed = e instanceof AuthError ? 'TMDB anahtarı geçersiz; aktarım durdu.' : 'Hata: ' + e.message; });
+    if (done % 5 === 0 || done === list.length) out.textContent = t('Eşleştiriliyor… {n} / {total}', { n:done, total:list.length });
+  }).catch(e => { failed = e instanceof AuthError ? t('TMDB anahtarı geçersiz; aktarım durdu.') : t('Hata:') + ' ' + e.message; });
   saveItems(); saveSeen();
   S.queue = S.queue.filter(it => !S.seen.has(it.key)); S.queued = new Set(S.queue.map(it => it.key));
   renderDeck(); renderList(); updateCounts();
   btn.disabled = false;
-  out.innerHTML = (failed ? `<b class="lb-err">${esc(failed)}</b><br>` : '') + `<b>${added}</b> eklendi · <b>${upgraded}</b> İzlediklerim'e taşındı · ${kept} zaten vardı · <b>${missing.length}</b> eşleşmedi`
-    + (missing.length ? `<details><summary>Eşleşmeyenler</summary><ul>${missing.map(m => `<li>${esc(m)}</li>`).join('')}</ul></details>` : '');
-  toast(`Letterboxd: ${added + upgraded} film aktarıldı`);
+  out.innerHTML = (failed ? `<b class="lb-err">${esc(failed)}</b><br>` : '') + t('<b>{added}</b> eklendi · <b>{upgraded}</b> İzlediklerim\'e taşındı · {kept} zaten vardı · <b>{missing}</b> eşleşmedi', { added, upgraded, kept, missing:missing.length })
+    + (missing.length ? `<details><summary>${t('Eşleşmeyenler')}</summary><ul>${missing.map(m => `<li>${esc(m)}</li>`).join('')}</ul></details>` : '');
+  toast(t('Letterboxd: {n} film aktarıldı', { n:added + upgraded }));
 }

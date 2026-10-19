@@ -544,3 +544,34 @@ nav.tabs svg.i{width:21px;height:21px}
 .about-links .btn{flex:1 1 auto;padding:10px 12px;font-size:13.5px;text-decoration:none;color:var(--text)}
 .about .note a{color:#c4b5fd}
 .about-credits{font-size:12px;margin-top:8px}
+
+/* Aç/kapa düğmesi (Ayarlar › API anahtarlarını hesabımda sakla) */
+.switch-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.switch-row h3{margin:0;justify-content:flex-start;gap:8px;flex-wrap:wrap}
+.switch{position:relative;flex:none;width:48px;height:28px;padding:0;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid var(--glass-edge);transition:background .2s}
+.switch::after{content:'';position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.4);transition:transform .2s cubic-bezier(.3,.7,.4,1)}
+.switch[aria-checked="true"]{background:var(--accent)}
+.switch[aria-checked="true"]::after{transform:translateX(20px)}
+.switch:disabled{opacity:.5}
+
+/* Rıza bandı (anonim ziyaretçi kimliği) */
+.consent{position:fixed;left:12px;right:12px;bottom:calc(86px + env(safe-area-inset-bottom));margin:0 auto;max-width:480px;z-index:70;
+  padding:14px 16px;border-radius:18px;background:rgba(30,30,48,.88);border:1px solid var(--glass-edge);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:0 10px 40px rgba(0,0,0,.5)}
+.consent p{margin:0;font-size:13.5px;line-height:1.45}
+.consent a{color:#c4b5fd}
+.consent .row-btns{margin-top:10px}
+.consent .btn{flex:1}
+
+/* Yönetim paneli */
+.admin-days{margin:0 0 14px}
+.stats{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+.stat{padding:12px;border-radius:14px;background:rgba(255,255,255,.05);border:1px solid var(--line);display:flex;flex-direction:column;gap:2px;min-width:0}
+.stat b{font-size:22px;font-variant-numeric:tabular-nums}
+.stat small{color:var(--muted);font-size:12px}
+.bars{display:flex;align-items:flex-end;gap:2px;height:90px;margin-top:14px;padding:6px;border-radius:12px;background:rgba(255,255,255,.03)}
+.bar{flex:1;height:100%;display:flex;align-items:flex-end;min-width:0}
+.bar i{display:block;width:100%;min-height:2px;border-radius:3px 3px 0 0;background:var(--accent)}
+.admin-lists{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.admin-lists ul{list-style:none;margin:0;padding:0}
+.admin-lists li{display:flex;justify-content:space-between;gap:8px;padding:6px 0;border-bottom:1px solid var(--line);font-size:13.5px}
+.admin-lists li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}

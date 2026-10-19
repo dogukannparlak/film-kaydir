@@ -102,8 +102,8 @@ async function fetchMore() {
   } catch (err) {
     if (gen !== E.gen) return;
     if (err instanceof AuthError) {
-      if (err.message === 'proxy') S.keyMsg = 'Sitenin ortak TMDB bağlantısı şu an çalışmıyor. Kendi anahtarını yapıştırabilirsin.';
-      else { S.apiKey = ''; store.del(K.key); S.keyMsg = 'Anahtar geçersiz. Yeniden yapıştır.'; }
+      if (err.message === 'proxy') S.keyMsg = t('Sitenin ortak TMDB bağlantısı şu an çalışmıyor. Kendi anahtarını yapıştırabilirsin.');
+      else { S.apiKey = ''; store.del(K.key); S.keyMsg = t('Anahtar geçersiz. Yeniden yapıştır.'); }
       return;
     }
     E.error = err;

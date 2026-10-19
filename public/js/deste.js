@@ -32,9 +32,9 @@ function updateDeckStatus() {
   let st = $('.deck-status', deck);
   if (!tmdbReady() || S.queue.length) { st?.remove(); return; }
   if (!st) { st = document.createElement('div'); st.className = 'deck-status'; deck.prepend(st); }
-  if (E.loading) st.innerHTML = '<div class="spinner"></div><div>Yükleniyor…</div>';
-  else if (E.error) st.innerHTML = `<div>Bağlantı hatası: ${esc(E.error.message)}</div><button class="btn btn-primary" data-retry>Tekrar dene</button>`;
-  else if (E.exhausted) st.innerHTML = `<div class="empty-icon">${ico('popcorn')}</div><div>Bu filtrelerle gösterilecek yeni içerik kalmadı.</div><button class="btn btn-primary" data-open-filters>Filtreleri değiştir</button>`;
+  if (E.loading) st.innerHTML = '<div class="spinner"></div><div>' + t('Yükleniyor…') + '</div>';
+  else if (E.error) st.innerHTML = `<div>${t('Bağlantı hatası:')} ${esc(E.error.message)}</div><button class="btn btn-primary" data-retry>${t('Tekrar dene')}</button>`;
+  else if (E.exhausted) st.innerHTML = `<div class="empty-icon">${ico('popcorn')}</div><div>${t('Bu filtrelerle gösterilecek yeni içerik kalmadı.')}</div><button class="btn btn-primary" data-open-filters>${t('Filtreleri değiştir')}</button>`;
   else st.innerHTML = '<div class="spinner"></div>';
 }
 // Cam görünümü: üstteki kartın afişi sayfanın arkasında bulanık yansır (değişince yumuşak geçiş)

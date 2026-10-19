@@ -1,146 +1,117 @@
-# Kaydır · Film ve Dizi
+# Kaydır · Movies & TV
 
-**Canlı:** https://kaydir.dogukanparlak.com · **Yapan:** [Doğukan Parlak](https://dogukanparlak.com) · **Lisans:** [PolyForm Noncommercial 1.0.0](LICENSE) (ticari kullanım yasak)
+English · [Türkçe](docs/README.tr.md)
 
-Tinder tarzı film/dizi keşfi: kartı sağa kaydır "istiyorum", sola "geç", yukarı "izledim".
-Veri TMDB'den, IMDb / Rotten Tomatoes / Metacritic puanları isteğe bağlı OMDb'den gelir.
-Sunucu, derleme ya da paket yok. Site dosyaları `public/` altında: `public/index.html` dosyasını tarayıcıda aç.
-Yayın: https://kaydir.dogukanparlak.com (Cloudflare Workers, GitHub'a bağlı; `wrangler.jsonc` ile `public/` yayınlanır,
-`src/worker.js` TMDB ara katmanıdır).
+**Live:** https://kaydir.dogukanparlak.com · **Author:** [Doğukan Parlak](https://dogukanparlak.com) · **License:** [PolyForm Noncommercial 1.0.0](LICENSE) (no commercial use)
 
-## Kurulum
+Tinder-style movie and TV discovery: swipe a card right for "want", left for "pass", up for "watched".
+Data comes from TMDB; IMDb / Rotten Tomatoes / Metacritic scores come from OMDb (optional).
+No build step and no packages. The site lives in `public/`: open `public/index.html` in a browser.
+Production runs on Cloudflare Workers, connected to GitHub: `wrangler.jsonc` serves `public/`, and `src/worker.js` is a small TMDB proxy.
 
-1. https://kaydir.dogukanparlak.com adresini aç: TMDB anahtarı gerekmez, site sitenin ortak bağlantısını
-   (`/api/tmdb/*`, aşağıda) kullanır. `public/index.html` dosyadan açılırsa ortak bağlantı yoktur, 2. adım gerekir.
-2. İsteğe bağlı: Ayarlar → kendi TMDB anahtarını yapıştır (istekler doğrudan TMDB'ye gider). İkisi de olur:
-   - "API Read Access Token" (`eyJ...`): `Authorization: Bearer` başlığıyla gider.
-   - v3 "API Key" (32 karakter): `api_key=` parametresiyle gider.
-   Anahtar: themoviedb.org → Ayarlar → API.
-3. İsteğe bağlı: Ayarlar → OMDb anahtarı. Ücretsiz anahtar: omdbapi.com/apikey.aspx
-   (günde 1000 istek; e-postadaki bağlantıyla etkinleştirilir).
+The interface is available in **English and Turkish** (Settings › Language). On first visit it follows the browser language.
 
-Kullanıcı anahtarları tarayıcının `localStorage`'ında durur; giriş yapılmışsa hesapta da yedeklenir (aşağıda).
+## Getting started
 
-### TMDB ortak bağlantısı (Cloudflare Worker)
+1. Open https://kaydir.dogukanparlak.com. No TMDB key is needed: the site uses its shared connection
+   (`/api/tmdb/*`, see below). When `public/index.html` is opened from disk there is no shared connection, so step 2 is required.
+2. Optional: Settings → paste your own TMDB key (requests then go straight to TMDB). Either works:
+   - "API Read Access Token" (`eyJ...`): sent as `Authorization: Bearer`.
+   - v3 "API Key" (32 characters): sent as `api_key=`.
+   Get one at themoviedb.org → Settings → API.
+3. Optional: Settings → OMDb key. Free key: omdbapi.com/apikey.aspx (1,000 requests a day; activate it from the e-mail link).
 
-- `src/worker.js`: `public/` dosyalarını sunar, `/api/tmdb/<yol>` isteklerini `api.themoviedb.org/3/<yol>`'a iletir.
-- Sitenin TMDB anahtarı **Cloudflare'de gizli değişkendir** (secret `TMDB_KEY`): kodda, repoda ve tarayıcıda yoktur;
-  repo public olsa da görünmez. Ekleme: Workers & Pages › kaydir › Settings › Variables and secrets › Add › Secret.
-- Yalnız sitenin kendi sayfalarından gelen GET istekleri kabul edilir (`Sec-Fetch-Site` / Origin / Referer).
-- Yalnız sitenin kullandığı TMDB yollarına izin var (`ALLOWED`); IP başına dakikada 600 istek sınırı (`wrangler.jsonc › ratelimits`,
-  köken başlığı taklit edilebildiği için asıl koruma bu). Aşılınca 429 + `Retry-After`; istemci bekleyip en çok 3 kez yeniden dener.
-  Yanıtlar 6 saat kenar önbellekte tutulur (aynı istek TMDB'ye tekrar gitmez).
-- Secret yoksa ya da geçersizse site "ortak bağlantı çalışmıyor" der ve kendi anahtarını ister.
-- Yerel deneme için anahtar `.dev.vars` dosyasına yazılır (`TMDB_KEY=…`); bu dosya `.gitignore`'dadır.
+Your keys stay in the browser's `localStorage`. If you sign in and turn on the setting, they are also stored **encrypted** in your account (see below).
 
-## Özellikler
+### Shared TMDB connection (Cloudflare Worker)
 
-- Kaydırma (fare, dokunma, klavye ← → ↑), geri al.
-- Telefonda kart ekranı doldurur (9:16'ya yakın); üst çubuk, özet ve eylem düğmeleri kartın üstünde yüzer.
-- Alt sekme çubuğu ve Koleksiyonum üstündeki İstek/İzledim/Geçtim/Seriler çubuğu yüzen cam kapsül; etkin sekmenin arkasında
-  parlak vurgu. Parmakla sağa sola kaydırarak sekme değişir (iOS gibi).
-- Alt sayfalar (Ayarlar, Filtreler, Arama, Bölüm) aşağı sürüklenerek kapanır: yarısından fazla çekilirse kapanır, azsa geri döner.
-  İçerik en üstteyken içerikten de çekilebilir.
-- Arama (🔍 ya da `/`): bütün TMDB'de film/dizi; kişi adı (yönetmen, oyuncu) yazınca bilinen işleri de gelir.
-  Sonuçtan doğrudan İstek / İzledim / Geç listesine eklenir; listede olanın durumu görünür.
-  Film serisi (Harry Potter, Yüzüklerin Efendisi …) en üstte bütün filmleriyle çıkar; "Hepsini taşı" ile tek seferde
-  listeye eklenir (çıkmamış filmler İzledim'e eklenmez), tek "Geri al" ile geri alınır.
-- Filtreler: film/dizi, dönem, tür, bölge/dil, en az puan, en az oy, platform ("Hepsi" ya da platformlar; ülke seçilmez, 14 ülkede birden aranır).
-  Dönem, tür, bölge/dil ve platformda birden fazla seçim yapılır ("ya da": seçilenlerden herhangi biri).
-- Sıralama: rastgele, popüler, en yüksek puan, en yeni, **IMDb yüksek**, **RT yüksek**.
-- Başlık: orijinal ad büyük, altında Türkçe ad (aynıysa tek satır). Orijinal ad Latin alfabesinde değilse
-  (Korece, Japonca …) Türkçe ad üstte kalır. Listede arama iki adda da çalışır.
-- Kartta: TMDB puanı, IMDb bağlantısı, OMDb puanları, yönetmen (dizide yaratıcı), özet.
-- Seriler: kartta "🎞️ Harry Potter Serisi · 2/8" etiketi (dokununca seri açılır, toplu taşınır);
-  İstek ve İzledim'de aynı seriden 2+ film tek kutuda toplanır (seri sırasıyla, ilerleme çubuğu, açılır kapanır);
-  tek filmse satırında "🎞️ Harry Potter Serisi · 3. film · 5/7 izlendi" etiketi (dokununca seri açılır);
-  Koleksiyonum › Seriler sekmesinde listendeki filmlerin serileri, izleme ilerlemesi ve eksik filmleriyle.
-- Üç liste (İstek, İzledim, Geç): arama, tür/dönem filtresi, sıralama
-  (son eklenen, IMDb, Rotten Tomatoes, TMDB).
-- İzlediklerim'de "yarım kaldı" işareti: ◐ Yeni sezon (yalnız dizi) ya da ⏸ Bıraktım. Öğe İzlediklerim'de
-  kalır; durum kutusuyla bitenler / yarım kalanlar / yeni sezon bekleyenler / bıraktıklarım süzülür.
-- Yeni sezon: İzlediklerim'deki dizilerde, diziyi eklediğin tarihten sonra yayınlanan sezon 12 saatte bir kontrol edilir;
-  bulununca "◐ Yeni sezon" kendiliğinden konur (🆕 rozet + bildirim). İşareti kaldırınca o sezon görüldü sayılır.
-  "Bıraktım" işaretli dizilere dokunulmaz. Tarihi açıklanmış gelecek sezon 📅 rozetiyle görünür.
-- İzliyorum (diziler): İzlediklerim'de "▶ İzliyorum" + kaldığın yer ("📍 2. sezon 5. bölüm"); sezon/bölüm seçici,
-  "+1 bölüm" ile sonraki yayınlanmış bölüm. Süzgeçte "İzliyorum". Yeni sezon gelirse rozet çıkar, işaret değişmez.
-- Fragman: kartta ve listede ▶ Fragman (YouTube, önce Türkçe).
-- JSON dışa/içe aktarma (yedek): Ayarlar → Yedek. İçe aktarmada buradaki daha yeni kayıt korunur.
-- Letterboxd'dan içe aktarma: Ayarlar → Letterboxd. Export zip'i (ya da `watched.csv`, `watchlist.csv`) seçilir;
-  filmler ad + yılla TMDB'de eşleştirilir, Letterboxd puanı `LB` rozeti olarak görünür. Eşleşmeyenler listelenir.
+- `src/worker.js` serves `public/` and forwards `/api/tmdb/<path>` to `api.themoviedb.org/3/<path>`.
+- The site's TMDB key is a **Cloudflare secret** (`TMDB_KEY`): it is not in the code, the repo or the browser.
+- Only GET requests from the site's own pages are accepted (`Sec-Fetch-Site` / Origin / Referer), only the TMDB paths
+  the site uses are allowed (`ALLOWED`), and each IP is limited to 600 requests a minute (`wrangler.jsonc › ratelimits`).
+  Responses are cached at the edge for 6 hours.
+- If the secret is missing or invalid, the site says the shared connection is down and asks for your own key.
+- For local testing put the key in `.dev.vars` (`TMDB_KEY=…`); the file is git-ignored.
 
-## Hesap ve eşitleme (Supabase)
+## Features
 
-- Ayarlar › Hesap: e-posta + şifre. Google ile giriş şimdilik kapalı (`js/hesap.js` › `GOOGLE_AUTH`). Hesapsız da çalışır (veri yalnız tarayıcıda).
-- Giriş yapınca listeler, görülenler, filtreler ve API anahtarları hesaba yazılır; cihazlar aynı listeyi görür.
-- API anahtarları: yeni cihazda giriş yapınca hesaptan gelir (yeniden girmek gerekmez); bir cihazda değişen anahtar
-  diğerlerine de geçer. Yerelde anahtar varsa ilk girişte o kalır, hesapta yoksa hesaba yedeklenir.
-- Çıkış yapınca önce her şey hesaba yazılır, sonra API anahtarları bu cihazdan silinir (hesapta durur, girişte geri gelir).
-  Listeler cihazda kalır.
-- İlk açılışta kısa bir rehber çıkar, sonunda giriş yap / kaydol / hesapsız devam et seçimi sorulur ("Geç" doğrudan bu seçime atlar); Ayarlar › Kısayollar › "Rehberi yeniden göster" ile tekrar açılır.
-- Önce yerel: değişiklik 1,5 sn sonra (sekme gizlenince hemen) buluta gider; düzenli eşitleme: açılışta, sekmeye dönünce,
-  bağlantı gelince ve sekme açıkken 30 sn'de bir çekilir ve gönderilir.
-  Bir cihazda ilk girişte yerel ve bulut birleşir (aynı öğede yeni olan kazanır).
-- Supabase projesi `kaydir` (eu-central-1). Tablolar `items`, `user_state`; RLS: her satır yalnız sahibine açık.
-- E-posta bağlantıları (onay, şifre sıfırlama) yalnız yayındaki adreste çalışır (`file://` değil).
+- Swipe with mouse, touch or keyboard (← → ↑), with undo.
+- On phones the card fills the screen; the top bar, summary and action buttons float over it.
+- Floating glass tab bars; swipe sideways to switch tabs. Sheets close by dragging down.
+- Search (🔍 or `/`) across all of TMDB, including people (their known work) and film collections
+  ("Move all" adds a whole collection in one step, undoable).
+- Filters: movie/TV, decade, genre, region/language, minimum rating, minimum votes, streaming services
+  (searched across 14 countries at once). Multiple choices mean "any of".
+- Sorting: random, popular, top rated, newest, **IMDb**, **RT**.
+- Titles: original title first, localized title below (when different). Non-Latin original titles show the localized title first.
+- Cards show the TMDB rating, IMDb link, OMDb scores, director (creator for TV) and overview.
+- Collections: card label, grouped rows in Want and Watched, and a Collections tab with progress and missing films.
+- Three lists (Want, Watched, Passed) with search, filters and sorting.
+- Progress marks in Watched: new season (TV) or dropped. New seasons of watched shows are detected every 12 hours.
+- Watching (TV): remember season and episode, "+1 episode" jumps to the next aired episode.
+- Trailers (YouTube), JSON backup export/import, Letterboxd import (zip or `watched.csv` / `watchlist.csv`).
 
-## Görsel kimlik
+## Account and sync (Supabase)
 
-- Logo: sinema bileti (`public/icons/logo.svg`); ana ekran simgeleri ondan üretilir (`icons/*.png`).
-- Simgeler: tek set, çizgi stili (`public/html/simgeler.js`, önizleme `docs/simgeler.html`). Kullanım: `ico('ad')`.
-  Emoji kullanılmaz; yalnız 🍅 (Rotten Tomatoes) ve ★ (TMDB) tanınırlık için kalır.
+- Settings › Account: e-mail + password. Works without an account too (data stays in the browser).
+- Signed in, your lists, seen titles and filters are saved to the account and shared between devices.
+  Local first: changes go up after 1.5 s (immediately when the tab is hidden); the app pulls on open, on tab focus,
+  when back online and every 30 s.
+- **API keys** (Settings › "Store my API keys in my account", off by default): when on, keys are stored **encrypted**
+  (`user_state.keys_enc`). The encryption key is derived from your account password in the browser
+  (PBKDF2-SHA256, 310,000 rounds → AES-GCM, `js/kasa.js`); neither the plain keys nor the derived key reach the server.
+  On a new device, signing in with your password brings the keys over; if the session came from an e-mail link,
+  Settings asks for the password once. After a password reset the old copy cannot be opened and the keys must be entered again.
+  When off, keys stay on the device only and the account copy is deleted.
+- Signing out first saves everything; keys stored in the account are removed from the device (they come back on sign-in),
+  keys that are not stored in the account stay on the device.
+- Supabase project `kaydir` (eu-central-1). Row level security: every row is visible only to its owner.
 
-## Güvenlik
+## Analytics and admin
 
-- Güvenlik başlıkları `public/_headers`: CSP (betik yalnız bu site + jsDelivr), kare içine gömme yasak, nosniff, referrer.
-  CSP satır içi betiğe izin vermez: `onerror=` gibi satır içi olay yazma, dinleyici kullan.
-- Supabase kütüphanesi SRI (`integrity`) ile yüklenir; sürüm değişirse özeti yeniden hesapla:
-  `curl -s <adres> | openssl dgst -sha384 -binary | openssl base64 -A`.
-- Veritabanı sınırları (kayıt herkese açık): öğe verisi ≤ 16 KB, kullanıcı başına ≤ 20.000 öğe, görülenler ≤ 100.000,
-  filtreler ≤ 16 KB, anahtarlar ≤ 512 karakter (migration `kaydir_size_limits`).
+- Own counter (`js/istatistik.js`, table `visits`): a visit starts on load and pings every 30 s while the tab is visible →
+  visits, visitors, time on site, device type, language, referrer. No cookies, no IP addresses.
+  If the visitor accepts the consent banner (or Settings › "Count my return visits"), a random anonymous ID is kept on the
+  device so return visits can be counted.
+- Umami Cloud: loaded only when `UMAMI_ID` in `js/istatistik.js` is set. Cloudflare Web Analytics is also on.
+- Admin panel (Settings › Admin): visible only to accounts in the `admins` table; 7/30/90-day visit summary, daily chart,
+  account and list-item counts. Data comes from `admin_stats()`, which checks permissions on the server.
+  Add an admin in Supabase SQL: `insert into public.admins (user_id) select id from auth.users where email = '…';`
 
-## Bilinen sınırlar
+## Security
 
-- **IMDb/RT sıralaması destede yaklaşık.** TMDB bu puanlara göre arama yapamaz; site en çok oy
-  almış yapımları çeker ve her partiyi (20–40 kart) kendi içinde OMDb puanına göre dizer.
-  Her parti ~40 OMDb isteği harcar. Listelerdeki sıralama tamdır.
-- Yönetmen bilgisi yeni kaydırılan kartlarda gelir. Eski liste öğelerinde, listeyi IMDb/RT'ye göre
-  sıralayınca puanı eksik olanlarla birlikte tamamlanır.
-- Hesapsız kullanımda veriler tarayıcıya bağlı: başka cihazda görmek için giriş yap ya da JSON yedeğini taşı.
-- Gerçek "her ülke" platform araması yok: TMDB ülke şart koşar, 14 ülkede aranır.
-- Seriler yalnız filmler için (TMDB collection); diziler kapsanmaz.
+- Security headers in `public/_headers`: CSP (scripts only from this site, jsDelivr, Cloudflare Insights and Umami),
+  no framing, nosniff, referrer policy. No inline scripts or inline event handlers.
+- The Supabase library is loaded with SRI (`integrity`).
+- Database limits (sign-up is open): item data ≤ 16 KB, ≤ 20,000 items per user, ≤ 100,000 seen titles,
+  ≤ 200 visits per visitor per day.
 
-## Geliştirme
+## Known limits
 
-Yapı (html/ parçaları, css/, js/ modülleri): [docs/mimari.md](docs/mimari.md).
-Testler elle ve sahte `fetch` ile yapılır (bkz. mimari belgesinde "Test").
-Tarayıcı testi: headless Chromium/Brave + CDP (Node'un yerleşik `WebSocket`'i), sahte `fetch` ile.
+- IMDb/RT sorting in the deck is approximate: TMDB cannot search by these scores, so each batch (20–40 cards) is sorted by its OMDb score. List sorting is exact.
+- Without an account data is tied to the browser: sign in or move the JSON backup.
+- Streaming search covers 14 countries, not every country. Collections cover movies only.
+- Titles already in your lists keep the language they were added in.
 
-## Yol haritası
+## Development
 
-- Dil desteği (i18n): arayüz metinleri tek sözlük dosyasına toplanacak, Türkçe + İngilizce.
-- Ana README İngilizce olacak (Türkçe belge `docs/` altında kalır).
-- Ziyaretçi istatistiği: kendi sayaç (Supabase, çerezsiz: ziyaretçi + kalma süresi) ve Umami. Cloudflare Web Analytics şu an açık.
-- Admin paneli: istatistikler ve yönetim, yalnız site sahibine açık.
-- API anahtarlarını tarayıcıda şifreleme (sunucuda yalnız şifreli hâli) ya da eşitlemeyi kapatma seçeneği.
+Structure (html/ fragments, css/, js/ modules), database functions and the test method: [docs/mimari.md](docs/mimari.md) (Turkish).
+Tests run in headless Brave/Chromium over CDP (Node's built-in `WebSocket`) with mocked `fetch` and Supabase.
 
-## Lisans
+## License
 
 [PolyForm Noncommercial License 1.0.0](LICENSE) · © 2026 Doğukan Parlak ([dogukanparlak.com](https://dogukanparlak.com)).
 
-- **Serbest:** kişisel kullanım, öğrenme, araştırma, değiştirme ve ticari olmayan paylaşım (lisans metni ve
-  `Required Notice` satırı korunarak).
-- **Yasak:** ticari kullanım (satış, ücretli hizmet, reklam geliri amaçlı yayın vb.). Ticari kullanım için izin iste.
+- **Allowed:** personal use, learning, research, modification and non-commercial sharing (keep the license text and the `Required Notice` line).
+- **Not allowed:** commercial use (selling, paid services, ad-funded hosting, etc.). Ask for permission.
 
-## Atıflar
+## Credits
 
-- Film ve dizi verileri, afişler: [TMDB](https://www.themoviedb.org). *This product uses the TMDB API but is not
-  endorsed or certified by TMDB.*
-- Platform bilgisi: [JustWatch](https://www.justwatch.com) (TMDB üzerinden).
-- IMDb / Rotten Tomatoes / Metacritic puanları: [OMDb API](https://www.omdbapi.com). Adlar ve logolar sahiplerine aittir.
-- Fragmanlar: YouTube. Kaydır bu hizmetlerle ya da Letterboxd ile bağlantılı değildir.
+- Movie and TV data and posters: [TMDB](https://www.themoviedb.org). *This product uses the TMDB API but is not endorsed or certified by TMDB.*
+- Streaming availability: [JustWatch](https://www.justwatch.com) (via TMDB).
+- IMDb / Rotten Tomatoes / Metacritic scores: [OMDb API](https://www.omdbapi.com). Names and logos belong to their owners.
+- Trailers: YouTube. Kaydır is not affiliated with these services or with Letterboxd.
 
-## İletişim
+## Contact
 
-Hata, öneri ya da hesap silme isteği: [dogukanparlak.com](https://dogukanparlak.com) üzerinden ya da GitHub'da issue aç.
-
+Bugs, ideas or account deletion: via [dogukanparlak.com](https://dogukanparlak.com) or open a GitHub issue.

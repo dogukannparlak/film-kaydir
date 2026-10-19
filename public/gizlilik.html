@@ -16,22 +16,24 @@
 </head>
 <body>
 <main>
+  <p class="muted" style="text-align:right;margin:0"><a href="privacy.html" hreflang="en">English</a></p>
   <h1>Gizlilik</h1>
-  <p class="muted">Kaydır · son güncelleme 17 Ekim 2026</p>
+  <p class="muted">Kaydır · son güncelleme 19 Ekim 2026</p>
 
   <h2>Ne topluyoruz</h2>
   <ul>
     <li><b>Hesap:</b> giriş yaparsan e-posta adresin.</li>
     <li><b>Listelerin:</b> İstek, İzledim, Geç listelerine eklediğin film/diziler, işaretlerin, filtrelerin ve görülen yapımlar.</li>
-    <li><b>API anahtarların:</b> TMDB ve OMDb anahtarlarını girersen, cihazların arasında eşitlemek için hesabında saklanır.</li>
+    <li><b>API anahtarların:</b> TMDB ve OMDb anahtarların varsayılan olarak yalnız tarayıcında durur. Ayarlar'da "API anahtarlarını hesabımda sakla"yı açarsan hesabında <b>şifreli</b> saklanır: şifreleme anahtarı hesap şifrenden tarayıcında türetilir (PBKDF2 + AES-GCM), anahtarların açık hâli ve bu şifreleme anahtarı sunucuya gitmez. Şifreni sıfırlarsan eski kopya açılamaz, anahtarları yeniden girersin.</li>
+    <li><b>Anonim ziyaret istatistiği:</b> kaç kişinin geldiği ve ne kadar kaldığı; sayfa yolu, geldiğin sitenin adı, cihaz türü (telefon/bilgisayar), tarayıcı dili ve giriş yapıp yapmadığın. Çerez kullanılmaz, IP adresi istatistiğe yazılmaz. Rıza verirsen (açılıştaki bant ya da Ayarlar › Tekrar gelişimi say) cihazına rastgele bir kimlik yazılır, böylece tekrar gelişin sayılır; vermezsen kimlik yalnız o sekme açıkken yaşar. Ayrıca çerezsiz <a href="https://umami.is/privacy">Umami</a> ve <a href="https://www.cloudflare.com/web-analytics/">Cloudflare Web Analytics</a> toplu ziyaret sayıları tutar.</li>
   </ul>
-  <p>Hesap açmazsan hiçbir şey sunucuya gitmez; veriler yalnız tarayıcında (localStorage) durur.</p>
+  <p>Hesap açmazsan listelerin sunucuya gitmez; veriler yalnız tarayıcında (localStorage) durur. Sunucuya giden tek şey yukarıdaki anonim istatistiktir.</p>
 
   <h2>Nerede saklanıyor</h2>
-  <p>Hesap verileri Supabase'de (AB, Frankfurt) saklanır. Her satıra yalnız sahibi erişebilir; başka kullanıcılar senin verini göremez.</p>
+  <p>Hesap verileri Supabase'de (AB, Frankfurt) saklanır. Her satıra yalnız sahibi erişebilir; başka kullanıcılar senin verini göremez. Site sahibi yönetim panelinde yalnız toplu sayıları görür (ziyaret, hesap ve öğe sayısı); listelerini görmez.</p>
 
   <h2>Kimlerle paylaşılıyor</h2>
-  <p>Hiç kimseyle satılmaz ya da paylaşılmaz. Film bilgileri ve afişler için tarayıcın doğrudan TMDB'ye, puanlar için OMDb'ye, fragmanlar için YouTube'a istek atar; bu istekler senin anahtarınla yapılır.</p>
+  <p>Hiç kimseyle satılmaz ya da paylaşılmaz. Film bilgileri ve afişler için tarayıcın doğrudan TMDB'ye, puanlar için OMDb'ye, fragmanlar için YouTube'a istek atar; bu istekler senin anahtarınla (ya da sitenin ortak TMDB bağlantısıyla) yapılır.</p>
 
   <h2>Silme</h2>
   <p>Hesabını ve bütün verilerini silmek için <a href="mailto:dogukannparlak@gmail.com">dogukannparlak@gmail.com</a> adresine yaz. Tarayıcıdaki veriyi Ayarlar'dan ya da tarayıcı verilerini temizleyerek silebilirsin.</p>
