@@ -210,8 +210,10 @@ async function onSignedIn(user) {
   // Kod ekranındayken bağlantıyla onaylandı (başka sekmede de olabilir): bellekteki şifre kasa için kullanılır
   if (acc.mode === 'code') {
     clearInterval(resendTimer);
-    if (acc.pass && !pendingPass) pendingPass = acc.pass;
-    acc.done = user.email === acc.email; acc.mode = 'in'; acc.pass = '';
+    // Yalnız kod beklenen hesapsa: başka sekmede başka hesaba girildiyse şifre o hesabın kasasına verilmez
+    const same = (user.email || '').toLowerCase() === acc.email.toLowerCase();
+    if (same && acc.pass && !pendingPass) pendingPass = acc.pass;
+    acc.done = same; acc.mode = 'in'; acc.pass = '';
   }
   // Misafir verisi (sekmelik) artık kalıcı depoya: ilk girişte hesaba da birleştirilir
   if (!accountMode) setAccountMode(true, Object.fromEntries([[K.items, S.items], [K.seen, [...S.seen]], [K.filters, S.filters], [K.listF, S.listF],
