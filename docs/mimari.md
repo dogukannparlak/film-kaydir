@@ -64,13 +64,20 @@ Klasik betiklerde üst düzey `const`/`let`/`function` adları bütün dosyalard
 | `js/bolumler.js` | İzliyorum: kaldığın sezon/bölüm (`at`), yayınlanmış bölüm sayıları (`eps`, 12 saat), seçici ve +1 | `openEpisodes`, `setAt`, `nextEpisode`, `nextEp`, `watchingRow` |
 | `js/letterboxd.js` | Letterboxd zip/CSV okuma (tarayıcıda `DecompressionStream` ile açar), TMDB eşleştirme, listelere yazma | `importLetterboxd`, `unzipFiles`, `parseCSV`, `matchTMDB` |
 | `js/kasa.js` | API anahtarlarını hesapta şifreli saklama: hesap şifresinden PBKDF2-SHA256 (310 000 tur) ile AES-GCM anahtarı türetme, şifreleme/çözme; türetilen anahtar cihazda `kd_vault` | `deriveVault`, `setVault`, `vaultFor`, `sealKeys`, `openKeys` |
-| `js/hesap.js` | Supabase hesap + eşitleme: giriş (şifre, sıfırlama; Google `GOOGLE_AUTH` ile kapalı), değişen öğeleri gönderme, `updated_at > since` ile çekme, ilk girişte birleştirme; API anahtarı düğmesi (`keys_enc`, kilitli cihazda şifre sorma, eski düz metin anahtarları taşıma) | `syncSoon`, `pushChanges`, `pullChanges`, `syncNow`, `initAccount`, `applyCloudKeys`, `renderKeySync` |
+| `js/hesap.js` | Supabase hesap + eşitleme: giriş/kayıt sekmeleri (şifre kuralları ≥8 + a–z harf + rakam, ≤72 bayt; kayıtta tekrar; alan altı hatalar `error.code`'dan; kayıttan sonra 6 haneli kod `verifyOtp`, 60 sn'lik tekrar gönder), sıfırlama; Google `GOOGLE_AUTH` ile kapalı, değişen öğeleri gönderme, `updated_at > since` ile çekme, ilk girişte birleştirme; API anahtarı düğmesi (`keys_enc`, kilitli cihazda şifre sorma, eski düz metin anahtarları taşıma) | `syncSoon`, `pushChanges`, `pullChanges`, `syncNow`, `initAccount`, `applyCloudKeys`, `renderKeySync` |
 | `js/riza.js` | KVKK/GDPR rızası: `stats` (sayaç + Umami) ve `activity` (etkinlik kaydı) seçim yapılana kadar kapalı; açılış bandı (Kabul / Reddet / Seç), Ayarlar › Gizlilik ve verilerin (düğmeler, verilerimi indir, bu cihazın kayıtlarını sil, hesabımı sil) | `allowed`, `setConsent`, `showConsentBar`, `renderPrivacy`, `initPrivacy` |
 | `js/istatistik.js` | Ziyaret sayacı (`visit_start` + 30 sn'de `visit_ping`), kalıcı anonim kimlik (`kd_visitor`), Umami (`UMAMI_ID` doluysa) | `initStats`, `setConsent`, `startVisit` |
 | `js/admin.js` | Ayarlar › Yönetim düğmesi: `is_admin()` ise görünür, `admin.html`'i açar | `checkAdmin`, `initAdmin` |
 | `js/kayit.js` | Etkinlik günlüğü: işlevleri sarar (`act`, `undo`, `runSearch`, `applyFilters`, `setView`, …) + bütün tıklamalar + tarayıcı hataları; 5 sn'de bir `log_events`'e toplu gider. Şifre/e-posta/anahtar içeriği gitmez. `baslat.js`'ten hemen önce yüklenir | `logEv`, `flushLog`, `wrapLog` |
 | `js/rehber.js` | İlk açılış rehberi: adımlar, sonda hesap seçimi (giriş / kayıt / hesapsız), bir kez gösterme (`kd_guide`), Ayarlar › Kısayollar'dan yeniden açma | `openGuide`, `closeGuide`, `initGuide` |
 | `js/baslat.js` | Olay bağlama ve `init()` çağrısı; en sonda yüklenir | `init` |
+
+## Supabase Auth panel ayarları (repoda yok)
+
+Kod bunlara dayanır; panelde elle tutulur:
+- **SMTP:** Resend (`smtp.resend.com:465`, kullanıcı `resend`, gönderen `kaydir@dogukanparlak.com`). Varsayılan Supabase göndericisi saatte birkaç mail atar.
+- **Confirm signup şablonu:** `{{ .Token }}` içermeli; yoksa kod ekranına kod gitmez, yalnız bağlantı çalışır.
+- **Şifre:** en az 8, "Letters and digits" (istemcideki kuralla aynı; sunucu harfi a–z sayar).
 
 ## Veri akışı
 

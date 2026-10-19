@@ -33,13 +33,10 @@ function openSettings() {
   renderPrivacy();
   openSheet('#sheetSettings');
 }
-// Ayarları aç ve Hesap bölümüne odaklan (rehber ve anahtar kutusundan); mode 'up' kayıt düğmesini öne çıkarır
+// Ayarları aç ve Hesap bölümüne odaklan (rehber ve anahtar kutusundan); mode 'up' Kayıt ol sekmesini açar
 function openAccount(mode = 'in') {
   openSettings();
-  const up = mode === 'up';
-  $('#accIn')?.classList.toggle('btn-primary', !up);
-  $('#accUp')?.classList.toggle('btn-primary', up);
-  $('#accPass')?.setAttribute('autocomplete', up ? 'new-password' : 'current-password');
+  if (!S.user && acc.mode !== 'code') setAccMode(mode, false);
   $('#accBox').scrollIntoView({ block:'nearest' });
   setTimeout(() => $('#accEmail')?.focus(), 300);
 }

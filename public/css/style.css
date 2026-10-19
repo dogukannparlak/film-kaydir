@@ -284,6 +284,27 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .acc-or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;margin:12px 0}
 .acc-or::before,.acc-or::after{content:"";flex:1;height:1px;background:var(--line)}
 .linkish{background:none;border:0;padding:8px 0 0;color:var(--accent);font-size:13px;font-weight:650}
+/* Giriş / kayıt formu */
+.acc-seg{margin:0 0 12px}
+.acc-f{margin-top:8px}
+.field.bad{border-color:var(--pass)}
+.f-err{display:block;color:var(--pass);font-size:12.5px;margin:5px 2px 0}
+.f-err:empty{display:none}
+.pw-wrap{position:relative}
+.pw-wrap .field{padding-right:48px}
+.pw-eye{position:absolute;right:4px;top:50%;transform:translateY(-50%);width:40px;height:40px;display:grid;place-items:center;background:none;border:0;border-radius:10px;color:var(--muted)}
+.pw-eye[aria-pressed="true"]{color:var(--text)}
+.pw-rules{list-style:none;margin:8px 2px 0;padding:0;display:flex;flex-wrap:wrap;gap:4px 14px;font-size:12.5px;color:var(--muted)}
+.pw-rules li{display:flex;align-items:center;gap:4px;transition:color .2s var(--ease)}
+.pw-rules li.ok{color:var(--want)}
+.err.ok{color:var(--muted)}
+.btn.loading{opacity:.7;cursor:progress}
+.acc-title{display:block;font-size:16px;margin-bottom:4px}
+.acc-code-in{font-size:22px;letter-spacing:.4em;text-align:center;font-variant-numeric:tabular-nums}
+.acc-done{text-align:center;padding:6px 0}
+.acc-done-ico{width:48px;height:48px;border-radius:50%;display:grid;place-items:center;margin:0 auto 10px;background:color-mix(in srgb,var(--want) 18%,transparent);color:var(--want)}
+.acc-done-ico svg.i{width:26px;height:26px}
+.acc-done .row-btns{justify-content:center}
 .acc-who{margin:0;font-size:15px}
 .guide{position:fixed;inset:0;z-index:80;background:rgba(0,0,0,.72);display:flex;align-items:center;justify-content:center;padding:16px}
 .guide-card{position:relative;width:100%;max-width:420px;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:24px 22px 20px}

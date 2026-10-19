@@ -207,6 +207,12 @@ function setSyncStatus(msg) {
 async function onSignedIn(user) {
   const fresh = !S.user || S.user.id !== user.id;
   S.user = user;
+  // Kod ekranındayken bağlantıyla onaylandı (başka sekmede de olabilir): bellekteki şifre kasa için kullanılır
+  if (acc.mode === 'code') {
+    clearInterval(resendTimer);
+    if (acc.pass && !pendingPass) pendingPass = acc.pass;
+    acc.done = user.email === acc.email; acc.mode = 'in'; acc.pass = '';
+  }
   // Misafir verisi (sekmelik) artık kalıcı depoya: ilk girişte hesaba da birleştirilir
   if (!accountMode) setAccountMode(true, Object.fromEntries([[K.items, S.items], [K.seen, [...S.seen]], [K.filters, S.filters], [K.listF, S.listF],
     [K.key, S.apiKey], [K.omdb, S.omdbKey], [K.omdbCache, S.omdbCache], [K.dirty, { state:S.stateDirty, seen:S.seenDirty }]].filter(([, v]) => v !== '' && v != null)));
@@ -251,14 +257,43 @@ function wipeLocalAccountData() {
 }
 function onSignedOut() {
   if (accountMode) setAccountMode(false);
-  S.user = null; clearInterval(pullTimer); renderAccount(); renderKeySync(); renderPrivacy(); checkAdmin();
+  S.user = null; clearInterval(pullTimer); clearInterval(resendTimer);
+  Object.assign(acc, { mode:'in', pass:'', done:false }); renderAccount(); renderKeySync(); renderPrivacy(); checkAdmin();
 }
 
 /* ---- Giriş arayüzü (Ayarlar › Hesap) ---- */
+// Misafir formu üç hâlde: 'in' giriş, 'up' kayıt (şifre kuralları + tekrar), 'code' e-posta kodu (kayıttan sonra ya da
+// onaylanmamış hesapla girişte). Kayıt bitince oturumlu görünümde "Hesabın hazır" kartı (acc.done) çıkar.
+// 'reset': şifre sıfırlama bağlantısıyla gelen oturumda yeni şifre formu (oturumlu görünüm yerine).
+// acc.pass: kod ekranındayken kasa anahtarı için şifre yalnız bellekte durur (kod doğrulanınca pendingPass olur).
+const acc = { mode:'in', email:'', pass:'', busy:false, resendAt:0, done:false };
+let resendTimer = null;
+const EMAIL_RE = /^\S+@\S+\.\S+$/;
+// Şifre kuralları: Supabase Auth'ta da aynısı açık olmalı (en az 8, "Letters and digits"); sunucu harfi a–z sayar.
+// 72: bcrypt sınırı, bayt cinsinden (Türkçe harf 2 bayt).
+const PASS_RULES = [
+  ['En az 8 karakter', p => p.length >= 8],
+  ['Bir harf (a–z)', p => /[A-Za-z]/.test(p)],
+  ['Bir rakam', p => /\d/.test(p)],
+];
+function passProblem(p) {
+  if (new TextEncoder().encode(p).length > 72) return t('Şifre çok uzun (en çok 72 bayt).');
+  return PASS_RULES.every(([, ok]) => ok(p)) ? '' : t('Şifre kuralları karşılanmadı: en az 8 karakter, bir harf (a–z) ve bir rakam.');
+}
+const rulesHtml = p => PASS_RULES.map(([s, ok]) => `<li class="${ok(p) ? 'ok' : ''}">${ico(ok(p) ? 'check' : 'close')}${t(s)}</li>`).join('');
+const passField = (id, ph, ac) => `<div class="acc-f"><div class="pw-wrap"><input class="field" id="${id}" type="password" placeholder="${ph}" autocomplete="${ac}"><button type="button" class="pw-eye" data-eye="${id}" aria-label="${t('Şifreyi göster')}" aria-pressed="false">${ico('eye')}</button></div><span class="f-err" id="${id}Err"></span></div>`;
+
 function renderAccount() {
   const box = $('#accBox');
   if (!box) return;
   if (!sb) { box.innerHTML = `<p class="note" style="margin:0">${t('Hesap servisine ulaşılamadı (çevrimdışı olabilirsin). Site yerelde çalışmaya devam ediyor.')}</p>`; return; }
+  if (S.user && acc.mode === 'reset') return renderNewPass();
+  if (S.user && acc.done) {
+    box.innerHTML = `<div class="acc-done"><span class="acc-done-ico">${ico('check')}</span><b class="acc-title">${t('Hesabın hazır')}</b>
+      <p class="note">${t('E-postan onaylandı. Listelerin bu hesaba yedeklenir; giriş yaptığın her cihazda aynı listeyi görürsün.')}</p>
+      <div class="row-btns"><button class="btn btn-primary" id="accDoneOk">${t('Tamam')}</button></div></div>`;
+    return;
+  }
   if (S.user) {
     box.innerHTML = `
       <p class="acc-who">${ico('cloud')} <b>${esc(S.user.email || t('Hesap'))}</b></p>
@@ -267,61 +302,219 @@ function renderAccount() {
       <p class="note">${t('Listelerin, görülenler ve filtreler bu hesapta saklanır; telefon ve bilgisayar aynı listeyi görür. API anahtarları yalnız aşağıdaki düğme açıksa, şifreli saklanır. Çıkış yapınca bu cihazdaki listelerin ve anahtarların silinir, giriş yapınca geri gelir.')} <a href="${LANG === 'en' ? 'privacy.html' : 'gizlilik.html'}" target="_blank">${t('Gizlilik')}</a></p>`;
     return;
   }
-  const local = location.protocol === 'file:';
+  if (acc.mode === 'code') {
+    box.innerHTML = `<div class="acc-code">
+      <b class="acc-title">${t('E-postana kod gönderdik')}</b>
+      <p class="note">${t('{email} adresine gelen 6 haneli kodu yaz. E-postadaki bağlantıya tıklaman da yeter. Gelmediyse istenmeyen klasörüne bak.', { email:`<b>${esc(acc.email)}</b>` })}</p>
+      <div class="acc-f"><input class="field acc-code-in" id="accCode" inputmode="numeric" autocomplete="one-time-code" maxlength="10" placeholder="••••••" aria-label="${t('Doğrulama kodu')}"><span class="f-err" id="accCodeErr"></span></div>
+      <div class="row-btns"><button class="btn btn-primary" id="accVerify">${t('Doğrula')}</button><button class="btn" id="accResend">${t('Tekrar gönder')}</button></div>
+      <button class="linkish" id="accBack">${t('E-postayı değiştir')}</button>
+      <div class="err" id="accErr" role="alert" aria-live="polite"></div></div>`;
+    resendTick();
+    return;
+  }
+  const up = acc.mode === 'up', local = location.protocol === 'file:';
   box.innerHTML = `
     <p class="note" style="margin:0 0 10px">${t('Hesapsız kullanıyorsun: listelerin yalnız bu sekmede durur, sekmeyi kapatınca silinir. Kayıt olursan kalıcı olur ve cihazlar arasında eşitlenir.')}</p>
     ${local ? `<p class="note" style="margin:0 0 10px">${GOOGLE_AUTH ? t('⚠️ Site dosyadan açık: Google ile giriş ve e-posta bağlantıları yalnız yayındaki adreste çalışır.') : t('⚠️ Site dosyadan açık: e-posta bağlantıları yalnız yayındaki adreste çalışır.')}</p>` : ''}
     ${GOOGLE_AUTH ? `<button class="btn btn-google" id="accGoogle" ${local ? 'disabled' : ''}><span>G</span> ${t('Google ile devam et')}</button>
     <div class="acc-or">${t('ya da e-posta')}</div>` : ''}
-    <input class="field" id="accEmail" type="email" placeholder="${t('E-posta')}" autocomplete="email">
-    <input class="field" id="accPass" type="password" placeholder="${t('Şifre (en az 8 karakter)')}" autocomplete="current-password" style="margin-top:8px">
-    <div class="row-btns"><button class="btn btn-primary" id="accIn">${t('Giriş yap')}</button><button class="btn" id="accUp">${t('Kayıt ol')}</button></div>
-    <button class="linkish" id="accForgot">${t('Şifremi unuttum')}</button>
+    <div class="seg acc-seg" role="tablist"><button role="tab" data-accmode="in" aria-selected="${!up}">${t('Giriş yap')}</button><button role="tab" data-accmode="up" aria-selected="${up}">${t('Kayıt ol')}</button></div>
+    <div class="acc-f"><input class="field" id="accEmail" type="email" placeholder="${t('E-posta')}" autocomplete="email" value="${esc(acc.email)}"><span class="f-err" id="accEmailErr"></span></div>
+    ${passField('accPass', t('Şifre'), up ? 'new-password' : 'current-password')}
+    ${up ? `<ul class="pw-rules" id="accRules" aria-live="polite">${rulesHtml('')}</ul>${passField('accPass2', t('Şifre (tekrar)'), 'new-password')}` : ''}
+    <div class="row-btns"><button class="btn btn-primary" id="accGo">${up ? t('Kayıt ol') : t('Giriş yap')}</button></div>
+    ${up ? '' : `<button class="linkish" id="accForgot">${t('Şifremi unuttum')}</button>`}
     <p class="note">${t('Hesap verilerinin nasıl işlendiği {link} yazıyor.', { link: `<a href="${LANG === 'en' ? 'privacy.html' : 'gizlilik.html'}" target="_blank">${t('aydınlatma metninde')}</a>` })}</p>
-    <div class="err" id="accErr"></div>`;
+    <div class="err" id="accErr" role="alert" aria-live="polite"></div>`;
 }
-const accErr = m => { const e = $('#accErr'); if (e) e.textContent = m; };
-const authMsg = e => ({
-  'Invalid login credentials': t('E-posta ya da şifre yanlış.'),
-  'Email not confirmed': t('E-postanı onaylamadın: gelen kutundaki bağlantıya tıkla.'),
-  'User already registered': t('Bu e-postayla hesap var; giriş yap.'),
-}[e?.message] || e?.message || t('Bir şeyler ters gitti.'));
+// Şifre sıfırlama bağlantısıyla gelince: yeni şifre + tekrar, aynı kurallar
+function renderNewPass() {
+  $('#accBox').innerHTML = `<p class="note" style="margin:0 0 8px">${t('Yeni şifreni yaz:')}</p>
+    ${passField('accNew', t('Yeni şifre'), 'new-password')}<ul class="pw-rules" id="accRules" aria-live="polite">${rulesHtml('')}</ul>
+    ${passField('accNew2', t('Yeni şifre (tekrar)'), 'new-password')}
+    <div class="row-btns"><button class="btn btn-primary" id="accNewPass">${t('Şifreyi kaydet')}</button></div><div class="err" id="accErr" role="alert" aria-live="polite"></div>`;
+}
+// Genel kutu (hata kırmızı, bilgi gri) ve alan altı hata
+const accErr = (m, info = false) => { const e = $('#accErr'); if (e) { e.textContent = m; e.classList.toggle('ok', info); } };
+function fieldErr(id, msg) {
+  const f = $('#' + id); if (!f) return;
+  f.classList.toggle('bad', !!msg); f.setAttribute('aria-invalid', String(!!msg));
+  const e = $('#' + id + 'Err'); if (e) e.textContent = msg || '';
+}
+function clearErrs() { $$('#accBox .field.bad').forEach(f => fieldErr(f.id, '')); accErr(''); }
+// Supabase hatası → [alan, mesaj] (alan null: genel kutu). Eşleştirme koda göre; kodsuz eski yanıtlar mesajdan.
+const authCode = e => e?.code || { 'Invalid login credentials':'invalid_credentials', 'Email not confirmed':'email_not_confirmed', 'User already registered':'user_already_exists' }[e?.message];
+function authErr(e) {
+  if (e?.name === 'AuthRetryableFetchError' || /failed to fetch|network/i.test(e?.message || '')) return [null, t('Sunucuya ulaşılamadı: bağlantını kontrol edip tekrar dene.')];
+  switch (authCode(e)) {
+    case 'invalid_credentials': return ['accPass', t('E-posta ya da şifre yanlış.')];
+    case 'email_not_confirmed': return [null, t('E-postan henüz onaylanmadı.')];
+    case 'user_already_exists': case 'email_exists': return ['accEmail', t('Bu e-postayla hesap var; giriş yap.')];
+    case 'email_address_invalid': return ['accEmail', t('Bu e-posta adresi kabul edilmedi.')];
+    case 'weak_password': return ['accPass', t('Şifre yeterince güçlü değil: en az 8 karakter, bir harf (a–z) ve bir rakam kullan.')];
+    case 'same_password': return ['accNew', t('Yeni şifre eskisiyle aynı olamaz.')];
+    case 'otp_expired': return ['accCode', t('Kod yanlış ya da süresi dolmuş; yeni kod iste.')];
+    case 'over_email_send_rate_limit': return [null, t('Kısa sürede çok fazla e-posta istendi; birkaç dakika sonra tekrar dene.')];
+    case 'over_request_rate_limit': return [null, t('Çok fazla deneme yapıldı; birkaç dakika bekleyip tekrar dene.')];
+    case 'signup_disabled': case 'email_provider_disabled': return [null, t('Şu an yeni kayıt alınmıyor.')];
+  }
+  return [null, e?.message || t('Bir şeyler ters gitti.')];
+}
+const authMsg = e => authErr(e)[1];
+function showErr(e, field) {
+  const [f, m] = authErr(e), id = field && f ? field : f;
+  if (id && $('#' + id)) { fieldErr(id, m); $('#' + id).focus(); } else accErr(m);
+}
+// İstek sürerken düğme kilitli ve "…" yazar; çift tıklama ikinci isteği göndermez
+async function busy(btn, label, fn) {
+  if (acc.busy) return;
+  acc.busy = true;
+  const old = btn?.innerHTML;
+  if (btn) { btn.disabled = true; btn.classList.add('loading'); btn.textContent = label; }
+  try { return await fn(); }
+  finally { acc.busy = false; if (btn?.isConnected) { btn.disabled = false; btn.classList.remove('loading'); btn.innerHTML = old; } }
+}
+function showCode(msg, sent) {
+  acc.mode = 'code';
+  if (sent) acc.resendAt = Date.now() + 60000;
+  renderAccount();
+  if (msg) accErr(msg, true);
+  setTimeout(() => $('#accCode')?.focus(), 50);
+}
+// "Tekrar gönder" 60 sn kilitli, geri sayım düğmede
+function resendTick() {
+  clearInterval(resendTimer);
+  const upd = () => {
+    const b = $('#accResend');
+    if (!b) return clearInterval(resendTimer);
+    const s = Math.ceil((acc.resendAt - Date.now()) / 1000);
+    if (!b.classList.contains('loading')) { b.disabled = s > 0; b.textContent = s > 0 ? t('Tekrar gönder ({s} sn)', { s }) : t('Tekrar gönder'); }
+    if (s <= 0) clearInterval(resendTimer);
+  };
+  upd(); resendTimer = setInterval(upd, 1000);
+}
 const redirectTo = () => location.origin + location.pathname;
+async function accSubmit(btn) {
+  clearErrs();
+  const up = acc.mode === 'up', email = $('#accEmail').value.trim(), pass = $('#accPass').value;
+  acc.email = email;
+  if (!EMAIL_RE.test(email)) fieldErr('accEmail', t('Geçerli bir e-posta yaz.'));
+  if (!pass) fieldErr('accPass', t('Şifreni yaz.'));
+  else if (up && passProblem(pass)) fieldErr('accPass', passProblem(pass));
+  else if (up && $('#accPass2').value !== pass) fieldErr('accPass2', t('Şifreler aynı değil.'));
+  const bad = $('#accBox .field.bad');
+  if (bad) return bad.focus();
+  await busy(btn, up ? t('Kayıt olunuyor…') : t('Giriş yapılıyor…'), async () => {
+    pendingPass = pass; // kasa anahtarı ilk eşitlemede türetilir (js/kasa.js)
+    const { data, error } = up
+      ? await sb.auth.signUp({ email, password:pass, options:{ emailRedirectTo:redirectTo() } })
+      : await sb.auth.signInWithPassword({ email, password:pass });
+    if (error) {
+      pendingPass = null;
+      if (authCode(error) === 'email_not_confirmed') { acc.pass = pass; return showCode(t('E-postan henüz onaylanmadı: gelen kutundaki kodu yaz ya da yeni kod iste.'), false); }
+      return showErr(error);
+    }
+    if (up) {
+      // Onaylı bir hesabın e-postasıyla kayıtta Supabase hata vermez, kimliksiz kullanıcı döner
+      if (data.user && !data.user.identities?.length) { pendingPass = null; return fieldErr('accEmail', t('Bu e-postayla hesap var; giriş yap.')); }
+      if (data.session) { acc.done = true; if (S.user) renderAccount(); return; } // e-posta onayı kapalıysa doğrudan oturum
+      pendingPass = null; acc.pass = pass;
+      return showCode(null, true);
+    }
+    acc.pass = '';
+    toast(t('Hoş geldin! Listelerin eşitleniyor'));
+    closeSheet();
+  });
+}
 async function onAccountClick(e) {
-  const id = e.target.closest('button')?.id;
+  const eye = e.target.closest('[data-eye]');
+  if (eye) {
+    const f = $('#' + eye.dataset.eye), show = f.type === 'password';
+    f.type = show ? 'text' : 'password';
+    eye.setAttribute('aria-pressed', String(show));
+    eye.setAttribute('aria-label', show ? t('Şifreyi gizle') : t('Şifreyi göster'));
+    eye.innerHTML = ico(show ? 'eye-off' : 'eye');
+    return;
+  }
+  const tab = e.target.closest('[data-accmode]');
+  if (tab) return setAccMode(tab.dataset.accmode, true);
+  const btn = e.target.closest('button'), id = btn?.id;
   if (!id) return;
-  const email = $('#accEmail')?.value.trim(), pass = $('#accPass')?.value || '';
   if (id === 'accGoogle' && GOOGLE_AUTH) {
     const { error } = await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo:redirectTo() } });
     if (error) accErr(authMsg(error));
-  } else if (id === 'accIn' || id === 'accUp') {
-    if (!/^\S+@\S+\.\S+$/.test(email || '')) return accErr(t('Geçerli bir e-posta yaz.'));
-    if (pass.length < 8) return accErr(t('Şifre en az 8 karakter olmalı.'));
-    accErr(id === 'accIn' ? t('Giriş yapılıyor…') : t('Kayıt olunuyor…'));
-    pendingPass = pass; // kasa anahtarı ilk eşitlemede türetilir (js/kasa.js)
-    const { data, error } = id === 'accIn'
-      ? await sb.auth.signInWithPassword({ email, password:pass })
-      : await sb.auth.signUp({ email, password:pass, options:{ emailRedirectTo:redirectTo() } });
-    if (error) { pendingPass = null; return accErr(authMsg(error)); }
-    if (id === 'accUp' && !data.session) pendingPass = null, accErr(t('Onay e-postası gönderildi: bağlantıya tıklayınca giriş yapılır, listelerin hesabına yedeklenir.'));
-  } else if (id === 'accForgot') {
-    if (!/^\S+@\S+\.\S+$/.test(email || '')) return accErr(t('Önce e-postanı yaz.'));
-    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo:redirectTo() });
-    accErr(error ? authMsg(error) : t('Şifre sıfırlama bağlantısı gönderildi.'));
-  } else if (id === 'accSyncNow') syncNow();
+  } else if (id === 'accGo') accSubmit(btn);
+  else if (id === 'accForgot') {
+    clearErrs();
+    const email = $('#accEmail').value.trim();
+    acc.email = email;
+    if (!EMAIL_RE.test(email)) { fieldErr('accEmail', t('Önce e-postanı yaz.')); return $('#accEmail').focus(); }
+    await busy(btn, t('Gönderiliyor…'), async () => {
+      const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo:redirectTo() });
+      if (error) showErr(error, 'accEmail'); else accErr(t('Şifre sıfırlama bağlantısı gönderildi: e-postana bak.'), true);
+    });
+  } else if (id === 'accVerify') {
+    clearErrs();
+    const code = $('#accCode').value.replace(/\s/g, '');
+    if (!/^\d{6,10}$/.test(code)) { fieldErr('accCode', t('E-postadaki 6 haneli kodu yaz.')); return $('#accCode').focus(); }
+    await busy(btn, t('Doğrulanıyor…'), async () => {
+      pendingPass = acc.pass || null;
+      const { error } = await sb.auth.verifyOtp({ email:acc.email, token:code, type:'email' });
+      if (error) { pendingPass = null; return showErr(error, 'accCode'); }
+      clearInterval(resendTimer);
+      acc.pass = ''; acc.mode = 'in'; acc.done = true;
+      if (S.user) renderAccount();
+    });
+  } else if (id === 'accResend') {
+    clearErrs();
+    await busy(btn, t('Gönderiliyor…'), async () => {
+      const { error } = await sb.auth.resend({ type:'signup', email:acc.email, options:{ emailRedirectTo:redirectTo() } });
+      if (error) return showErr(error);
+      acc.resendAt = Date.now() + 60000;
+      accErr(t('Yeni kod gönderildi.'), true);
+    });
+    resendTick();
+  } else if (id === 'accBack') { clearInterval(resendTimer); acc.pass = ''; setAccMode('up', false); }
+  else if (id === 'accDoneOk') { acc.done = false; renderAccount(); }
+  else if (id === 'accSyncNow') syncNow();
   else if (id === 'accOut') signOut();
   else if (id === 'accNewPass') {
-    const np = $('#accNew').value;
-    if (np.length < 8) return accErr(t('Şifre en az 8 karakter olmalı.'));
-    const { error } = await sb.auth.updateUser({ password:np });
-    if (error) return accErr(authMsg(error));
-    // Kasa yeni şifreyle yeniden kurulur; bu cihazdaki anahtarlar yeniden şifrelenip gönderilir
-    // (eski kopya eski şifreyle şifreli: yeni şifreyle zaten açılmaz; bu cihazdakilerle yeniden yazılır, öbür cihazlar
-    // Ayarlar'da yeni şifreyi bir kez girince kendi anahtarlarını da ekler)
-    setVault(await deriveVault(S.user.id, np)); S.keysLocked = false;
-    if (S.keySync) { sync.keysSig = ''; S.stateDirty = true; saveDirty(); syncSoon(); }
-    toast(t('Şifren değiştirildi')); renderAccount(); renderKeySync(); renderPrivacy();
+    clearErrs();
+    const np = $('#accNew').value, p = passProblem(np);
+    if (p) { fieldErr('accNew', p); return $('#accNew').focus(); }
+    if ($('#accNew2').value !== np) { fieldErr('accNew2', t('Şifreler aynı değil.')); return $('#accNew2').focus(); }
+    await busy(btn, t('Kaydediliyor…'), async () => {
+      const { error } = await sb.auth.updateUser({ password:np });
+      if (error) return showErr(error, 'accNew');
+      // Kasa yeni şifreyle yeniden kurulur; bu cihazdaki anahtarlar yeniden şifrelenip gönderilir
+      // (eski kopya eski şifreyle şifreli: yeni şifreyle zaten açılmaz; bu cihazdakilerle yeniden yazılır, öbür cihazlar
+      // Ayarlar'da yeni şifreyi bir kez girince kendi anahtarlarını da ekler)
+      setVault(await deriveVault(S.user.id, np)); S.keysLocked = false;
+      if (S.keySync) { sync.keysSig = ''; S.stateDirty = true; saveDirty(); syncSoon(); }
+      acc.mode = 'in';
+      toast(t('Şifren değiştirildi')); renderAccount(); renderKeySync(); renderPrivacy();
+    });
   }
+}
+// Giriş/kayıt sekmesi (yazılan e-posta korunur)
+function setAccMode(mode, focus) {
+  const em = $('#accEmail');
+  if (em) acc.email = em.value.trim();
+  acc.mode = mode === 'up' ? 'up' : 'in';
+  renderAccount();
+  if (focus) setTimeout(() => $(acc.email ? '#accPass' : '#accEmail')?.focus(), 50);
+}
+// Yazarken: kural listesi canlı, düzeltilen alanın hatası kalkar; Enter formu gönderir
+function onAccountInput(e) {
+  const id = e.target.id;
+  if (id === 'accPass' || id === 'accNew') { const r = $('#accRules'); if (r) r.innerHTML = rulesHtml(e.target.value); }
+  if (e.target.classList.contains('bad')) fieldErr(id, '');
+}
+function onAccountKey(e) {
+  if (e.key !== 'Enter' || e.target.tagName !== 'INPUT') return;
+  e.preventDefault();
+  $('#accGo, #accVerify, #accNewPass')?.click();
 }
 // Misafire hatırlatma: oturumda ilk kaydırmada bir kez (ve eski sürümden taşınan veri varsa açılışta)
 function guestNudge() {
@@ -336,6 +529,8 @@ function initAccount() {
   renderAccount();
   if (!sb) return;
   $('#accBox').addEventListener('click', onAccountClick);
+  $('#accBox').addEventListener('input', onAccountInput);
+  $('#accBox').addEventListener('keydown', onAccountKey);
   $('#keySyncSec').addEventListener('click', onKeySyncClick);
   $('#keySyncSec').addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.id === 'kvPass') $('#kvUnlock').click(); });
   sb.auth.onAuthStateChange((event, session) => {
@@ -343,7 +538,7 @@ function initAccount() {
     setTimeout(() => {
       if (event === 'PASSWORD_RECOVERY') {
         openSettings();
-        $('#accBox').innerHTML = `<p class="note" style="margin:0 0 8px">${t('Yeni şifreni yaz:')}</p><input class="field" id="accNew" type="password" autocomplete="new-password" placeholder="${t('Yeni şifre (en az 8 karakter)')}"><div class="row-btns"><button class="btn btn-primary" id="accNewPass">${t('Şifreyi kaydet')}</button></div><div class="err" id="accErr"></div>`;
+        acc.mode = 'reset'; renderAccount();
       }
       if (session?.user) onSignedIn(session.user);
       else if (event === 'SIGNED_OUT') onSignedOut();
