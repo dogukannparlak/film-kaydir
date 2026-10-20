@@ -132,4 +132,4 @@ Tests run in headless Brave/Chromium over CDP (Node's built-in `WebSocket`) with
 
 ## Contact
 
-Bugs, ideas or account deletion: via [dogukanparlak.com](https://dogukanparlak.com) or open a GitHub issue.
+Bugs, ideas or account deletion: [dogukannparlak@gmail.com](mailto:dogukannparlak@gmail.com) · Instagram [@dogukanparlak_](https://instagram.com/dogukanparlak_) · X [@dogukannparlak](https://x.com/dogukannparlak) · [dogukanparlak.com](https://dogukanparlak.com), or open a GitHub issue.

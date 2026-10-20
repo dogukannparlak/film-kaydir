@@ -85,6 +85,12 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
         <a class="btn btn-ico" href="https://dogukanparlak.com" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-globe"/></svg> Web sitesi</a>
         <a class="btn btn-ico" href="gizlilik.html" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-shield"/></svg> Gizlilik</a>
       </div>
+      <p class="note" style="margin-bottom:6px">Bana ulaş: hata, öneri ya da hesap silme isteği</p>
+      <div class="about-links">
+        <a class="btn btn-ico" href="mailto:dogukannparlak@gmail.com"><svg class="i" aria-hidden="true"><use href="#i-mail"/></svg> E-posta</a>
+        <a class="btn btn-ico" href="https://instagram.com/dogukanparlak_" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-instagram"/></svg> Instagram</a>
+        <a class="btn btn-ico" href="https://x.com/dogukannparlak" target="_blank" rel="noopener"><svg class="i" aria-hidden="true"><use href="#i-x"/></svg> X</a>
+      </div>
       <p class="note"><b>Lisans:</b> <a href="https://polyformproject.org/licenses/noncommercial/1.0.0" target="_blank" rel="noopener">PolyForm Noncommercial 1.0.0</a>. Kişisel, eğitim ve ticari olmayan kullanım serbest; <b>ticari kullanım yasaktır</b>. © 2026 Doğukan Parlak.</p>
       <p class="note about-credits">Film ve dizi verileri ile afişler <a href="https://www.themoviedb.org" target="_blank" rel="noopener">TMDB</a>'den, platform bilgisi <a href="https://www.justwatch.com" target="_blank" rel="noopener">JustWatch</a>'tan (TMDB üzerinden), IMDb / Rotten Tomatoes / Metacritic puanları <a href="https://www.omdbapi.com" target="_blank" rel="noopener">OMDb</a>'den, fragmanlar YouTube'dan gelir. Bu adlar ve logolar sahiplerine aittir; Kaydır bu hizmetlerle ya da Letterboxd ile bağlantılı değildir.<br>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
     </section>

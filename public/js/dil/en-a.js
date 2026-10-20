@@ -260,4 +260,5 @@ Object.assign(EN, {
   'E-postadaki doğrulama kodunu yaz.': 'Enter the verification code from the email.',
   'Yeni kod gönderildi.': 'New code sent.',
   'Hoş geldin! Listelerin eşitleniyor': 'Welcome! Syncing your lists',
+  'Bana ulaş: hata, öneri ya da hesap silme isteği': 'Contact me: bugs, ideas or account deletion requests',
 });

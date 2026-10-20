@@ -179,5 +179,5 @@ Tarayıcı testi: headless Chromium/Brave + CDP (Node'un yerleşik `WebSocket`'i
 
 ## İletişim
 
-Hata, öneri ya da hesap silme isteği: [dogukanparlak.com](https://dogukanparlak.com) üzerinden ya da GitHub'da issue aç.
+Hata, öneri ya da hesap silme isteği: [dogukannparlak@gmail.com](mailto:dogukannparlak@gmail.com) · Instagram [@dogukanparlak_](https://instagram.com/dogukanparlak_) · X [@dogukannparlak](https://x.com/dogukannparlak) · [dogukanparlak.com](https://dogukanparlak.com) ya da GitHub'da issue aç.
 
