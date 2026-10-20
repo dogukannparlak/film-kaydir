@@ -11,8 +11,13 @@ const consentGet = () => { const c = store.get(CONSENT_KEY, null); return c && c
 const allowed = cat => !!consentGet()?.[cat];
 const privacyHref = () => LANG === 'en' ? 'privacy.html' : 'gizlilik.html';
 
+// Rızasız bile sayılabilen tek şey: kimliksiz toplamlar (tek satırlık anonim sayaç, istatistik.js'ten de çağrılır).
+// Kişisel veri içermediği için rıza gerektirmez; ayrıntı: supabase/migrations/20261020_kaydir_rizasiz_anonim.sql
+const anonBump = kind => { if (location.protocol.startsWith('http') && sb) sb.rpc('anon_bump', { p_kind:kind }).then(() => {}, () => {}); };
+
 function setConsent(stats, activity) {
   const before = consentGet();
+  if (!before) anonBump(!stats && !activity ? 'reject' : stats && activity ? 'accept' : 'pick'); // yalnız ilk seçim sayılır; sonraki aç/kapat toplamı bozmasın
   store.set(CONSENT_KEY, { v:1, stats:!!stats, activity:!!activity, at:new Date().toISOString() });
   if (!stats && !activity) store.del(VISITOR_KEY); // kalıcı kimlik yalnız rızayla durur
   if (stats && !before?.stats) { startVisit(); loadUmami(); }
@@ -40,6 +45,7 @@ function showConsentBar() {
         <button class="btn" data-consent="pick" id="consentPickBtn">${t('Seç')}</button>
       </div>
     </div>`);
+  anonBump('shown'); // bant gerçekten görüldü (rehber açıkken beklemeye alındıysa sayılmaz)
   $('#consentBar').addEventListener('click', e => {
     const b = e.target.closest('[data-consent]');
     if (!b) return;

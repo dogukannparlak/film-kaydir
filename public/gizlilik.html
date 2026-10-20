@@ -18,7 +18,7 @@
 <main>
   <p class="muted" style="text-align:right;margin:0"><a href="privacy.html" hreflang="en">English</a></p>
   <h1>Gizlilik ve aydınlatma metni</h1>
-  <p class="muted">Kaydır · KVKK (6698 sayılı Kanun) md. 10 ve GDPR md. 13 kapsamında · son güncelleme 19 Ekim 2026</p>
+  <p class="muted">Kaydır · KVKK (6698 sayılı Kanun) md. 10 ve GDPR md. 13 kapsamında · son güncelleme 20 Ekim 2026</p>
 
   <h2>Veri sorumlusu</h2>
   <p>Doğukan Parlak (gerçek kişi) · <a href="https://dogukanparlak.com">dogukanparlak.com</a> · e-posta: <a href="mailto:dogukannparlak@gmail.com">dogukannparlak@gmail.com</a>. Kaydır ticari olmayan kişisel bir projedir.</p>
@@ -29,6 +29,7 @@
     <li><b>Hesap (isteğe bağlı):</b> e-posta adresin, şifrenin özeti (Supabase Auth), listelerin, görülenler ve filtreler; cihazlar arasında eşitleme için. Hukuki sebep: hizmetin sunulması / sözleşmenin ifası (KVKK md. 5/2-c, GDPR md. 6/1-b).</li>
     <li><b>API anahtarların:</b> varsayılan olarak yalnız tarayıcında durur. Ayarlar'da açarsan hesabında <b>şifreli</b> saklanır (anahtar hesap şifrenden tarayıcında türetilir, açık hâli sunucuya gitmez).</li>
     <li><b>İstatistik (yalnız rızanla):</b> ziyaret sayısı, kalma süresi, sayfa yolu, geldiğin sitenin adı, cihaz türü, tarayıcı dili; tekrar gelişini saymak için tarayıcına rastgele bir kimlik yazılır. Umami (çerezsiz analitik) de yalnız bu rızayla yüklenir. Hukuki sebep: açık rıza (KVKK md. 5/1, GDPR md. 6/1-a).</li>
+    <li><b>Anonim toplamlar (rıza olmasa bile):</b> rıza bandının kaç kez görüldüğü ve ilk seçimlerin (kabul / kısmi / reddet) kaç kez verildiği ile rızasız sayfa yüklemelerinin sayısı; kimlik, IP, sayfa adı ya da zamana bağlanabilir bir kayıt içermez, yalnız tek satırlık toplam sayılarda birikir. Kişisel veri içermediği için KVKK/GDPR kapsamına girmez ve kişisel veri gerektiren silme/taşınma haklarıyla ilgili değildir.</li>
     <li><b>Etkinlik kaydı (yalnız rızanla):</b> sitede yaptıkların: kaydırdığın yapımlar, aramalar, filtreler, açtığın bölümler, tıkladığın düğmeler. Siteyi iyileştirmek ve hataları ayıklamak için. Girişsizsen yalnız rastgele kimlikle, girişliysen hesabınla eşleşir. Şifre, e-posta kutusu ve API anahtarı içerikleri hiç kaydedilmez. Hukuki sebep: açık rıza.</li>
     <li><b>Hata raporları:</b> sitede bir hata olursa hata mesajı ve yeri, cihazına yazılmayan geçici bir kimlikle gönderilir (girişliysen hesabınla). Sitenin çalışır kalması için. Hukuki sebep: meşru menfaat (KVKK md. 5/2-f, GDPR md. 6/1-f).</li>
     <li><b>Sunucu ve güvenlik kayıtları:</b> barındırma (Cloudflare) ve veritabanı (Supabase) sağlayıcıları IP adresini ve istek bilgisini kötüye kullanımı önlemek (hız sınırı) ve güvenlik için kısa süre tutar. Hukuki sebep: meşru menfaat.</li>
@@ -49,6 +50,7 @@
     <li>Hesap verileri: hesabını silene kadar.</li>
     <li>Etkinlik kaydı ve hata raporları: 90 gün.</li>
     <li>Ziyaret istatistiği: 13 ay.</li>
+    <li>Anonim toplam sayaçlar (rıza bandı görülme/seçim, rızasız yükleme): kişisel veri içermediğinden süresiz.</li>
     <li>Hesapsız veriler: sekmeyi kapatana kadar. Girişliyken cihazdaki kopya: çıkış yapana kadar.</li>
   </ul>
 
@@ -62,7 +64,7 @@
   <p>Diğer istekler için <a href="mailto:dogukannparlak@gmail.com">dogukannparlak@gmail.com</a> adresine yaz; en geç 30 gün içinde yanıtlanır. Yanıttan memnun kalmazsan Kişisel Verileri Koruma Kurulu'na (kvkk.gov.tr) ya da AB'de yaşıyorsan bulunduğun ülkenin veri koruma otoritesine şikâyette bulunabilirsin.</p>
 
   <h2>Site sahibinin gördükleri</h2>
-  <p>Site sahibi yönetim sayfasında toplu ziyaret sayılarını, hesapların e-posta adresini, kayıt ve son giriş tarihini, listelerini (İstek, İzledim, Geçtim; destek ve hata ayıklama için) ve rıza verdiysen etkinlik kaydını görür. API anahtarlarını ve şifreni göremez.</p>
+  <p>Site sahibi yönetim sayfasında toplu ziyaret sayılarını, hesapların e-posta adresini, kayıt ve son giriş tarihini, listelerini (İstek, İzledim, Geçtim; destek ve hata ayıklama için) ve rıza verdiysen etkinlik kaydını görür. Rıza vermeyen ziyaretçiler yalnız kimliksiz toplamda (bant görülme ve seçim sayısı, rızasız yükleme) sayılır; kimleri ya da hangi sayfaları gezenler bile tutulmaz. API anahtarlarını ve şifreni göremez.</p>
 
   <h2>Lisans</h2>
   <p>Kaydır, <a href="https://polyformproject.org/licenses/noncommercial/1.0.0">PolyForm Noncommercial 1.0.0</a> lisansıyla yayımlanır: kişisel ve ticari olmayan kullanım serbest, ticari kullanım yasaktır. © 2026 Doğukan Parlak · <a href="https://dogukanparlak.com">dogukanparlak.com</a></p>

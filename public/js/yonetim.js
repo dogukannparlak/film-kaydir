@@ -3,7 +3,8 @@
 // Siteden bağımsız tek dosya. Oturum sitenin Supabase oturumudur (aynı alan adı, aynı localStorage).
 // Veri kaynakları:
 // - Supabase RPC (yalnız admin): admin_stats (kendi sayaç), admin_users, admin_delete_user, admin_set_role, admin_db,
-//   admin_visitors, admin_events, admin_event_kinds, admin_errors (etkinlik günlüğü: js/kayit.js)
+//   admin_visitors, admin_events, admin_event_kinds, admin_errors (etkinlik günlüğü: js/kayit.js),
+//   admin_anon_stats (rıza bandı görüldü/seçim + rızasız yükleme toplamları; kimliksiz, js/riza.js)
 // - Worker /api/admin/cloudflare ve /api/admin/umami (src/admin.js; gizli anahtarlar orada)
 const SB_URL = 'https://zungbtgtlrltowkvjqso.supabase.co';
 const SB_KEY = 'sb_publishable_Bgg9ZLBOaQe4nn904kRYTQ_mcy-SMYS';
@@ -71,11 +72,12 @@ const api = path => fetch(`/api/admin/${path}?days=${st.days}`, { headers:{ auth
   .then(async r => { const d = await r.json().catch(() => ({})); if (!r.ok) throw new Error(d.message || d.error || ('HTTP ' + r.status)); return d; });
 async function load() {
   $('#refresh').textContent = 'Yükleniyor…';
-  const [own, users, db, cf, um] = await Promise.allSettled([
+  const [own, users, db, cf, um, anon] = await Promise.allSettled([
     rpc('admin_stats', { p_days:st.days }), rpc('admin_users'), rpc('admin_db'), api('cloudflare'), api('umami'),
+    rpc('admin_anon_stats'),
   ]);
   const v = r => r.status === 'fulfilled' ? r.value : null;
-  const D = { own:v(own), users:v(users), db:v(db), cf:v(cf), um:v(um) };
+  const D = { own:v(own), users:v(users), db:v(db), cf:v(cf), um:v(um), anon:v(anon) };
   renderSources(own, cf, um);
   st.users = D.users || []; st.usersErr = users;
   if (UMAMI_SHARE && !$('#umamiFrame').src) { $('#umamiFrame').src = UMAMI_SHARE; $('#umamiCard').classList.remove('hidden'); }
@@ -99,7 +101,7 @@ function renderSources(own, cf, um) {
 }
 
 /* ---- Özet kutuları ---- */
-function renderKpis({ own, users, cf, um }) {
+function renderKpis({ own, users, cf, um, anon }) {
   const k = (label, value, sub = '', color = '') => `<div class="kpi"><small>${color ? `<i style="background:${color}"></i>` : ''}${label}</small><b>${value}</b>${sub ? `<span class="sub">${sub}</span>` : ''}</div>`;
   const sum = (a, f) => (a || []).reduce((s, x) => s + (x[f] || 0), 0);
   const out = [];
@@ -108,6 +110,9 @@ function renderKpis({ own, users, cf, um }) {
     k('Ziyaretçi', fmt(own.visitors), `${fmt(own.returning)} geri dönen`, COLORS.own),
     k('Ziyaret', fmt(own.visits), `girişli %${fmt(own.logged_in_share)}`, COLORS.own),
     k('Ort. kalma', secs(own.avg_secs), 'ortanca ' + secs(own.median_secs), COLORS.own));
+  if (anon) out.push(
+    k('Rıza bandı görüldü', fmt(anon.shown), `kabul ${fmt(anon.accept)} · kısmi ${fmt(anon.pick)} · red ${fmt(anon.reject)} · ilk seçim`, COLORS.own),
+    k('Rızasız yükleme', fmt(anon.visit), 'kimliksiz toplam · sayı dışında hiçbir kayıt yok', COLORS.own));
   if (um?.connected) out.push(
     k('Umami ziyaretçi', fmt(um.stats.visitors), `şu an ${fmt(um.active)}`, COLORS.umami),
     k('Umami sayfa görüntüleme', fmt(um.stats.pageviews), `${fmt(um.stats.visits)} ziyaret`, COLORS.umami),

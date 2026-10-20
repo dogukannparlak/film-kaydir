@@ -6,7 +6,9 @@
 //    Ziyaretçi kimliği rastgele; rıza (istatistik ya da etkinlik) varsa cihazda kalıcı (kd_visitor → geri dönen ziyaretçi),
 //    yoksa yalnız bu sayfa açıkken bellekte (yalnız kimliksiz hata raporunda kullanılır).
 // 2) Umami Cloud: rızayla ve UMAMI_ID doluysa yüklenir (Umami çerezsizdir).
-// Dosyadan açıkken (file://) ikisi de çalışmaz.
+// 3) Rızasız sayfa yüklemeleri: yalnız kimliksiz tek satırlık toplam sayaça bir kez artar (riza.js › anonBump);
+//    başka hiçbir veri gönderilmez, cihaza hiçbir şey yazılmaz (kişisel veri yok → rıza gerektirmez).
+// Dosyadan açıkken (file://) hiçbiri çalışmaz.
 const UMAMI_ID = '08f74919-6681-4aa7-a12c-4a37ecfa130c'; // cloud.umami.is › Websites › Kaydır → "Website ID" (gizli değil)
 const VISITOR_KEY = 'kd_visitor';
 const PING_EVERY = 30000;
@@ -50,6 +52,8 @@ function loadUmami() {
 }
 
 function initStats() {
+  // Rızasızsa yalnız kimliksiz toplam sayca artar (başka hiçbir veri gitmez); rızalı ziyaret startVisit'te sayılır
+  if (!allowed('stats') && !allowed('activity')) anonBump('visit');
   // Hesap oturumu açılışta birkaç yüz ms içinde gelir; logged_in doğru gitsin diye kısa bekle
   setTimeout(startVisit, 1500);
   loadUmami();

@@ -18,7 +18,7 @@
 <main>
   <p class="muted" style="text-align:right;margin:0"><a href="gizlilik.html" hreflang="tr">Türkçe</a></p>
   <h1>Privacy notice</h1>
-  <p class="muted">Kaydır · under GDPR Art. 13 and Turkey's KVKK (Law No. 6698) Art. 10 · last updated 19 October 2026</p>
+  <p class="muted">Kaydır · under GDPR Art. 13 and Turkey's KVKK (Law No. 6698) Art. 10 · last updated 20 October 2026</p>
 
   <h2>Controller</h2>
   <p>Doğukan Parlak (individual) · <a href="https://dogukanparlak.com">dogukanparlak.com</a> · e-mail: <a href="mailto:dogukannparlak@gmail.com">dogukannparlak@gmail.com</a>. Kaydır is a non-commercial personal project.</p>
@@ -29,6 +29,7 @@
     <li><b>Account (optional):</b> your e-mail address, a hash of your password (Supabase Auth), your lists, seen titles and filters, to sync across devices. Legal basis: performance of the service / contract (GDPR Art. 6(1)(b), KVKK Art. 5/2-c).</li>
     <li><b>Your API keys:</b> by default only in your browser. If you turn it on in Settings they are stored <b>encrypted</b> in your account (the key is derived from your password in your browser; the plain keys never reach the server).</li>
     <li><b>Statistics (only with your consent):</b> visit count, time on site, page path, referring site name, device type, browser language; a random ID is stored in your browser to count return visits. Umami (cookie-free analytics) is loaded only with this consent too. Legal basis: consent (GDPR Art. 6(1)(a), KVKK Art. 5/1).</li>
+    <li><b>Anonymous totals (even without consent):</b> how many times the consent bar was shown and which first choices were made (accept / partial / reject), plus how many pages were loaded without consent; no identity, IP, page name or time-linked record is kept — only single-row aggregate counters. As this contains no personal data, it falls outside GDPR/KVKK scope and is unrelated to the erasure/portability rights that personal data triggers.</li>
     <li><b>Activity log (only with your consent):</b> what you do on the site: titles you swipe, searches, filters, views you open, buttons you click. To improve the site and debug errors. Without an account it is linked only to the random ID; when signed in, to your account. Passwords, e-mail fields and API key contents are never recorded. Legal basis: consent.</li>
     <li><b>Error reports:</b> if something breaks, the error message and location are sent with a temporary ID that is not stored on your device (with your account if signed in), to keep the site working. Legal basis: legitimate interest (GDPR Art. 6(1)(f), KVKK Art. 5/2-f).</li>
     <li><b>Server and security logs:</b> the hosting (Cloudflare) and database (Supabase) providers briefly keep IP addresses and request data to prevent abuse (rate limiting) and for security. Legal basis: legitimate interest.</li>
@@ -49,6 +50,7 @@
     <li>Account data: until you delete your account.</li>
     <li>Activity log and error reports: 90 days.</li>
     <li>Visit statistics: 13 months.</li>
+    <li>Anonymous aggregate counters (consent bar shown/choices, non-consented loads): indefinite; they contain no personal data.</li>
     <li>Data without an account: until you close the tab. Device copy while signed in: until you sign out.</li>
   </ul>
 
@@ -62,7 +64,7 @@
   <p>For anything else write to <a href="mailto:dogukannparlak@gmail.com">dogukannparlak@gmail.com</a>; you'll get an answer within 30 days. You can also lodge a complaint with your local data protection authority (in Turkey: the KVKK Board, kvkk.gov.tr).</p>
 
   <h2>What the site owner sees</h2>
-  <p>On the admin page the site owner sees aggregate visit counts, each account's e-mail address, sign-up and last sign-in dates, the account's lists (Want, Watched, Passed; for support and debugging) and, if you consented, your activity log. The owner cannot see your API keys or password.</p>
+  <p>On the admin page the site owner sees aggregate visit counts, each account's e-mail address, sign-up and last sign-in dates, the account's lists (Want, Watched, Passed; for support and debugging) and, if you consented, your activity log. Visitors who decline consent are counted only in anonymous totals (bar shown and choice counts, non-consented loads); who they are, or even which pages they visited, is not recorded. The owner cannot see your API keys or password.</p>
 
   <h2>License</h2>
   <p>Kaydır is released under the <a href="https://polyformproject.org/licenses/noncommercial/1.0.0">PolyForm Noncommercial 1.0.0</a> license: personal and non-commercial use is allowed, commercial use is not. © 2026 Doğukan Parlak · <a href="https://dogukanparlak.com">dogukanparlak.com</a></p>
