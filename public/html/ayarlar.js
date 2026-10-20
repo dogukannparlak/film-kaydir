@@ -40,7 +40,7 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
     <section id="passSec">
       <h3>Geçtiklerim <small id="passCount"></small></h3>
       <p class="note" style="margin:0">Sola kaydırdıkların bir daha çıkmaz. Sıfırlarsan Geçtiklerim'den çıkar, destede yeniden karşına gelebilir.</p>
-      <p class="pass-h">Otomatik sıfırla <small>bu cihazda</small></p>
+      <p class="pass-h">Otomatik sıfırla <small id="passWhere">bu cihazda</small></p>
       <div class="chips" id="passAutoChips"></div>
       <div class="pass-custom hidden" id="passCustom">
         <input class="field" id="passCustomN" type="number" min="1" max="999" inputmode="numeric" placeholder="Süre" aria-label="Süre">

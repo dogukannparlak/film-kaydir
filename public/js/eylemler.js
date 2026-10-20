@@ -51,7 +51,8 @@ function undo() {
 
 /* ---- Geçtiklerimi sıfırlama ---- */
 // Sola kaydırılanlar (passed) listeden ve görülenlerden çıkar, destede yeniden çıkabilir. Elle (son 24 saat, son 7 gün,
-// 1 aydan eski, tümü) ya da otomatik: bu cihazda seçilen süreden eski olanlar (kd_passreset = gün, 0 = hiç).
+// 1 aydan eski, tümü) ya da otomatik: seçilen süreden eski olanlar (kd_passreset = gün, 0 = hiç). Süre hesapta saklanır
+// (user_state.pass_reset, js/hesap.js); misafirde bu tarayıcıda.
 // Hesapta silme satırı data:{reset:true} ile gider; öbür cihazlar onu görünce anahtarı görülenlerden de çıkarır (sıradan
 // liste silme görülen sayılmaya devam eder). Hesaba gidene kadar anahtarlar kd_resetp'de bekler ve buluttaki görülenler
 // birleştirilirken atlanır; yoksa henüz gönderilmemiş sıfırlama ilk çekmede geri gelirdi.
@@ -94,6 +95,7 @@ function renderPassReset() {
   const box = $('#passAutoChips');
   if (!box) return;
   const d = passAuto(), preset = PASS_AUTO.some(([v]) => v === d);
+  $('#passWhere').textContent = S.user ? t('hesabında') : t('bu cihazda');
   box.innerHTML = PASS_AUTO.map(([v, l]) => `<button class="chip" data-pauto="${v}" aria-pressed="${v === d}">${t(l)}</button>`).join('')
     + `<button class="chip" data-pauto="custom" aria-pressed="${!preset}">${preset ? t('Özel') : t('Özel: {n} gün', { n:d })}</button>`;
   $('#passCount').textContent = t('{n} içerik', { n:passedKeys(() => true).length.toLocaleString(LOCALE) });
@@ -104,6 +106,7 @@ function renderPassReset() {
 }
 function setPassAuto(d) {
   store.set(K.passReset, d);
+  if (S.user) stateChanged(); // hesaba gider (pushState)
   $('#passCustom').classList.add('hidden');
   renderPassReset();
   toast(d ? t('Geçtiklerin {n} gün sonra kendiliğinden sıfırlanır', { n:d }) : t('Geçtiklerin kendiliğinden sıfırlanmaz'));

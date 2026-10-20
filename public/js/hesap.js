@@ -53,9 +53,12 @@ async function pushState() {
     if (!S.keySync) row.keys_enc = null;
     else if (!S.keysLocked && vaultFor(S.user.id)) row.keys_enc = await sealKeys(vault, { tmdb:S.apiKey || '', omdb:S.omdbKey || '' });
   }
+  // Geçtiklerim süresi yalnız bu cihazda değiştiyse gider (sync.passSig = son eşitlenen); başka cihazın seçimini ezmesin
+  if (passAuto() !== sync.passSig) row.pass_reset = passAuto();
   const { error } = await sb.from('user_state').upsert(row, { onConflict:'user_id' });
   if (error) throw error;
   if ('keys_enc' in row) { sync.keysSig = want; saveSync(); }
+  if ('pass_reset' in row) { sync.passSig = row.pass_reset; saveSync(); }
   S.seenDirty = S.stateDirty = false; saveDirty();
 }
 // Buluttaki değişiklikleri çek ve uygula
@@ -87,6 +90,12 @@ async function pullChanges(first = false) {
     (st.seen || []).forEach(k => resetPending.has(k) || S.seen.add(k));
     if (S.seen.size !== before) { store.set(K.seen, [...S.seen]); S.queue = S.queue.filter(it => !S.seen.has(it.key)); }
     if (S.seen.size > (st.seen || []).length) S.seenDirty = true;
+    // Geçtiklerim süresi: bekleyen yerel değişiklik yoksa buluttaki geçerli; hesapta hiç yoksa bu cihazdaki gönderilir
+    const pr = st.pass_reset;
+    if (pr != null && (sync.passSig === undefined || sync.passSig === passAuto())) {
+      if (pr !== passAuto()) { store.set(K.passReset, pr); renderPassReset(); }
+      sync.passSig = pr;
+    } else if (pr == null && passAuto() !== sync.passSig) S.stateDirty = true;
     const keys = await applyCloudKeys(st);
     if (first) {
       if (st.filters) { S.filters = { ...DEFAULT_FILTERS, ...migrateFilters(st.filters) }; store.set(K.filters, S.filters); updateSummary(); }
@@ -256,7 +265,7 @@ async function signOut() {
 }
 function wipeLocalAccountData() {
   setVault(null); setKeySync(false, false); S.keysLocked = false;
-  sync = null; store.del(SYNC_KEY); resetPending.clear(); store.del(K.resetPending);
+  sync = null; store.del(SYNC_KEY); resetPending.clear(); store.del(K.resetPending); store.del(K.passReset);
   S.items = {}; S.seen = new Set(); S.filters = { ...DEFAULT_FILTERS }; S.listF = { type:'all', genre:'', period:'all', q:'', sort:'added', progress:'all' };
   S.apiKey = ''; S.omdbKey = ''; S.omdbCache = {}; S.proxyDown = false; S.stateDirty = S.seenDirty = false; S.undo = [];
   [K.items, K.seen, K.filters, K.listF, K.dirty, K.key, K.omdb, K.omdbCache].forEach(k => store.del(k));

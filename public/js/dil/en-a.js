@@ -287,4 +287,5 @@ Object.assign(EN, {
   'Geçtiklerin {n} gün sonra kendiliğinden sıfırlanır': 'Passed titles reset automatically after {n} day|Passed titles reset automatically after {n} days',
   'Geçtiklerin kendiliğinden sıfırlanmaz': 'Passed titles won\'t reset automatically',
   '1 gün ile 10 yıl arasında bir süre yaz': 'Enter a duration between 1 day and 10 years',
+  'hesabında': 'in your account',
 });
