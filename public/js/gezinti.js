@@ -27,6 +27,7 @@ function openSettings() {
   $('#omdbErr').textContent = '';
   $('#setKeyErr').textContent = '';
   $('#seenCount').textContent = t('{n} içerik', { n:S.seen.size.toLocaleString(LOCALE) });
+  renderPassReset();
   resetSeenArmed = false;
   $('#btnResetSeen').textContent = t('Görülenleri sıfırla');
   $('#appVersion').textContent = t('Film ve dizi keşfi · sürüm {v}', { v:APP_VERSION + ' ' + APP_STAGE });

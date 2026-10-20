@@ -283,6 +283,12 @@ input[type=range]{width:100%;accent-color:var(--accent)}
 .btn-google:disabled{opacity:.45}
 .acc-or{display:flex;align-items:center;gap:10px;color:var(--muted);font-size:12px;margin:12px 0}
 .acc-or::before,.acc-or::after{content:"";flex:1;height:1px;background:var(--line)}
+.pass-h{margin:14px 0 8px;font-size:13px;font-weight:700;color:var(--text)}
+.pass-h small{font-weight:500;color:var(--muted);margin-left:4px}
+.pass-custom{display:flex;gap:8px;margin-top:10px}
+.pass-custom .field{flex:1;min-width:0}
+.chip:disabled{opacity:.45}
+.chip small{font-size:12px;opacity:.7}
 .linkish{background:none;border:0;padding:8px 0 0;color:var(--accent);font-size:13px;font-weight:650}
 /* Giriş / kayıt formu */
 .acc-seg{margin:0 0 12px}

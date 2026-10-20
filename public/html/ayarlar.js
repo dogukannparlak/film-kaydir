@@ -37,6 +37,19 @@ document.currentScript.insertAdjacentHTML('beforebegin', `
       <p class="note" style="margin:0 0 10px">Kaydırdığın içerik bir daha çıkmaz. Listeden sildiklerin de görüldü sayılır. Sıfırlarsan listelerde olmayanlar yeniden çıkabilir.</p>
       <button class="btn btn-danger" id="btnResetSeen">Görülenleri sıfırla</button>
     </section>
+    <section id="passSec">
+      <h3>Geçtiklerim <small id="passCount"></small></h3>
+      <p class="note" style="margin:0">Sola kaydırdıkların bir daha çıkmaz. Sıfırlarsan Geçtiklerim'den çıkar, destede yeniden karşına gelebilir.</p>
+      <p class="pass-h">Otomatik sıfırla <small>bu cihazda</small></p>
+      <div class="chips" id="passAutoChips"></div>
+      <div class="pass-custom hidden" id="passCustom">
+        <input class="field" id="passCustomN" type="number" min="1" max="999" inputmode="numeric" placeholder="Süre" aria-label="Süre">
+        <select class="field" id="passCustomU" aria-label="Birim"><option value="1">gün</option><option value="7">hafta</option><option value="30">ay</option></select>
+        <button class="btn btn-primary" id="passCustomSave">Kaydet</button>
+      </div>
+      <p class="pass-h">Şimdi sıfırla</p>
+      <div class="chips" id="passNowChips"></div>
+    </section>
     <section class="acc-only">
       <h3>Yedek <small>listeler + görülenler · JSON</small></h3>
       <div class="row-btns"><button class="btn btn-ico" id="btnExport"><svg class="i" aria-hidden="true"><use href="#i-export"/></svg> Dışa aktar</button><button class="btn btn-ico" id="btnImport"><svg class="i" aria-hidden="true"><use href="#i-import"/></svg> İçe aktar</button></div>

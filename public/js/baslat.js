@@ -99,6 +99,7 @@ function init() {
   renderDeck();
   if (tmdbReady()) loadProviders();
   initAccount();
+  initPassReset();
   initPrivacy();
   initStats();
   initAdmin();

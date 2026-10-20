@@ -29,9 +29,9 @@ async function pushChanges() {
   if (!S.user || syncing) { if (S.user) syncSoon(); return; }
   syncing = true;
   try {
-    const h = sync.hashes, rows = [];
+    const h = sync.hashes, rows = [], sent = [...resetPending]; // itme sürerken gelen sıfırlamalar bir sonrakine kalır
     for (const [k, v] of Object.entries(S.items)) if (h[k] !== sig(v)) rows.push({ key:k, data:v, deleted:false });
-    for (const k of Object.keys(h)) if (!S.items[k] && h[k] !== '') rows.push({ key:k, data:{}, deleted:true });
+    for (const k of Object.keys(h)) if (!S.items[k] && h[k] !== '') rows.push({ key:k, data:resetPending.has(k) ? { reset:true } : {}, deleted:true });
     for (let i = 0; i < rows.length; i += 500) {
       const part = rows.slice(i, i + 500);
       const { error } = await sb.from('items').upsert(part.map(r => ({ ...r, user_id:S.user.id })), { onConflict:'user_id,key' });
@@ -39,6 +39,7 @@ async function pushChanges() {
       part.forEach(r => { h[r.key] = r.deleted ? '' : sig(r.data); });
     }
     if (S.seenDirty || S.stateDirty) await pushState();
+    if (sent.length) { sent.forEach(k => resetPending.delete(k)); store.set(K.resetPending, [...resetPending]); } // sıfırlamalar hesapta
     saveSync(); setSyncStatus();
   } catch (e) { setSyncStatus(t('Eşitlenemedi: {m}', { m: e.message || e })); }
   finally { syncing = false; }
@@ -61,6 +62,7 @@ async function pushState() {
 async function pullChanges(first = false) {
   if (!S.user) return;
   let changed = 0, since = first ? null : sync.since;
+  const resets = []; // başka cihazda sıfırlanan geçtiklerim: görülenlerden de çıkar
   for (;;) {
     let q = sb.from('items').select('key,data,deleted,updated_at').order('updated_at', { ascending:true }).limit(1000);
     if (since) q = q.gt('updated_at', since);
@@ -70,6 +72,7 @@ async function pullChanges(first = false) {
       const local = S.items[r.key], pending = local && sync.hashes[r.key] !== sig(local);
       if (first && local && !r.deleted && (local.addedAt || 0) > (r.data.addedAt || 0)) continue; // ilk birleştirme: yereldeki daha yeni → gönderilecek
       if (!first && pending) continue; // gönderilmemiş yerel değişiklik kazanır
+      if (r.deleted && r.data?.reset) resets.push(r.key);
       if (r.deleted) { if (local && !first) { delete S.items[r.key]; changed++; } sync.hashes[r.key] = ''; }
       else { S.items[r.key] = r.data; sync.hashes[r.key] = sig(r.data); changed++; S.seen.add(r.key); }
     }
@@ -81,7 +84,7 @@ async function pullChanges(first = false) {
   const { data: st } = await sb.from('user_state').select('*').maybeSingle();
   if (st) {
     const before = S.seen.size;
-    (st.seen || []).forEach(k => S.seen.add(k));
+    (st.seen || []).forEach(k => resetPending.has(k) || S.seen.add(k));
     if (S.seen.size !== before) { store.set(K.seen, [...S.seen]); S.queue = S.queue.filter(it => !S.seen.has(it.key)); }
     if (S.seen.size > (st.seen || []).length) S.seenDirty = true;
     const keys = await applyCloudKeys(st);
@@ -90,6 +93,8 @@ async function pullChanges(first = false) {
       if (st.filters || keys) { resetEngine(); loadProviders(); }
     }
   } else { S.stateDirty = true; if (pendingPass) await applyCloudKeys({}); }
+  const gone = resets.filter(k => !S.items[k] && S.seen.delete(k));
+  if (gone.length) { store.set(K.seen, [...S.seen]); S.seenDirty = true; saveDirty(); changed++; }
   if (changed || first) {
     store.set(K.items, S.items);
     updateCounts(); if (S.view === 'lists') renderList();
@@ -198,6 +203,7 @@ async function syncNow(first = false) {
     const n = await pullChanges(first);
     await pushChanges();
     if (first && n) toast(t('Hesaptan {n} öğe geldi', { n }));
+    if (first) applyPassAuto(); // açılışta bir kez (hesaptan gelen eski geçtiklerim de); her 30 sn'de deste sıfırlanmasın
   } catch (e) { setSyncStatus(t('Eşitlenemedi: {m}', { m: e.message || e })); }
 }
 function setSyncStatus(msg) {
@@ -250,7 +256,7 @@ async function signOut() {
 }
 function wipeLocalAccountData() {
   setVault(null); setKeySync(false, false); S.keysLocked = false;
-  sync = null; store.del(SYNC_KEY);
+  sync = null; store.del(SYNC_KEY); resetPending.clear(); store.del(K.resetPending);
   S.items = {}; S.seen = new Set(); S.filters = { ...DEFAULT_FILTERS }; S.listF = { type:'all', genre:'', period:'all', q:'', sort:'added', progress:'all' };
   S.apiKey = ''; S.omdbKey = ''; S.omdbCache = {}; S.proxyDown = false; S.stateDirty = S.seenDirty = false; S.undo = [];
   [K.items, K.seen, K.filters, K.listF, K.dirty, K.key, K.omdb, K.omdbCache].forEach(k => store.del(k));
